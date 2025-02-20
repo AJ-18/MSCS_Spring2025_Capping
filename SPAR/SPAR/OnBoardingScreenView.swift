@@ -45,5 +45,5 @@ struct OnBoardingScreenView: View {
 }
 
 #Preview {
-    OnBoardingScreenView(imageName: "", title: "Monitor Your System Health Anytime!", description: "Keep an eye on your system’s performance with real-time metrics at your fingertips")
+    OnBoardingScreenView(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription)
 }
