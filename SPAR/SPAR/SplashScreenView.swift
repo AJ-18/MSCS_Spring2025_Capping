@@ -13,6 +13,7 @@ struct SplashScreenView: View {
     var body: some View {
         if isActive {
             OnboardingView()
+            
         } else {
             VStack {
                 Image(ImageConstant.logo)
@@ -21,6 +22,8 @@ struct SplashScreenView: View {
                     .frame(height: 500)
             }
             .onAppear {
+                self.logPageVisit()
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     withAnimation {
                         isActive = true

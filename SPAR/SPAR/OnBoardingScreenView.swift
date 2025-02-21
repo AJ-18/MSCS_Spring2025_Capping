@@ -6,10 +6,13 @@
 //
 
 import SwiftUI
+import OSLog
 
 struct OnBoardingScreenView: View {
     let onboarding: Onboarding
     var showButton: Bool = false
+    let logger = Logger.fileLocation
+
     
     var body: some View {
         VStack(spacing: 20) {
@@ -36,10 +39,16 @@ struct OnBoardingScreenView: View {
                         .background(Color.blue)
                         .cornerRadius(10)
                         .padding(.horizontal, 40)
-                }
+                }.simultaneousGesture(TapGesture().onEnded {
+                    logger.info("\(LoggerConstant.getStartedTapped)")
+                })
             }
         }
+        .onAppear{
+            self.logPageVisit()
+        }
     }
+    
 }
 
 #Preview {
