@@ -10,9 +10,13 @@ import SwiftUI
 // Dummy Home screen
 struct HomeView: View {
     var body: some View {
-        Text("Welecome to Home Screen")
-            .font(.title)
-            .fontWeight(.heavy)
+        VStack{
+            Text("Welecome to Home Screen")
+                .font(.title)
+                .fontWeight(.heavy)
+        }.onAppear{
+            self.logPageVisit()
+        }
     }
 }
 

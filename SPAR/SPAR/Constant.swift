@@ -28,3 +28,7 @@ enum ImageConstant {
     static let mobileNotificationImage = "mobileNotification"
     
 }
+
+enum LoggerConstant {
+    static let pageName = "❕Page visited: %@"
+    static let getStartedTapped = "❕Get Started button was tapped"}

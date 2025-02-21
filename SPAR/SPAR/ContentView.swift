@@ -6,11 +6,15 @@
 //
 
 import SwiftUI
+import OSLog
 
 struct ContentView: View {
     var body: some View {
         NavigationStack {
             SplashScreenView()
+                .onAppear {
+                    self.logPageVisit()
+                }
         }
        
     }

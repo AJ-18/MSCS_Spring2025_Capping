@@ -23,6 +23,9 @@ struct OnboardingView: View {
         }
         .tabViewStyle(.page(indexDisplayMode: .always))
         .indexViewStyle(.page(backgroundDisplayMode: .always))
+        .onAppear{
+            self.logPageVisit()
+        }
     }
 }
 
