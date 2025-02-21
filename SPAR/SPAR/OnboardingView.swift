@@ -12,13 +12,13 @@ struct OnboardingView: View {
     
     var body: some View {
         TabView(selection: $currentPage){
-            OnBoardingScreenView(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription)
+            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription))
                 .tag(0)
-            OnBoardingScreenView(imageName: ImageConstant.stopwatchImage, title: StringConstant.cpuTrackingTitle, description: StringConstant.cpuTrackingDescription)
+            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.stopwatchImage, title: StringConstant.cpuTrackingTitle, description: StringConstant.cpuTrackingDescription))
                 .tag(1)
-            OnBoardingScreenView(imageName: ImageConstant.mobileNotificationImage, title: StringConstant.alertsTitle, description: StringConstant.alertsDescription)
+            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.mobileNotificationImage, title: StringConstant.alertsTitle, description: StringConstant.alertsDescription))
                 .tag(2)
-            OnBoardingScreenView(imageName: ImageConstant.laptopGraphImage, title: StringConstant.desktopRequirementTitle, description: StringConstant.desktopRequirementDescription,showButton: true)
+            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.laptopGraphImage, title: StringConstant.desktopRequirementTitle, description: StringConstant.desktopRequirementDescription),showButton: true)
                 .tag(3)
         }
         .tabViewStyle(.page(indexDisplayMode: .always))
