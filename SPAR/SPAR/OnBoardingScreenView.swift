@@ -8,22 +8,20 @@
 import SwiftUI
 
 struct OnBoardingScreenView: View {
-    let imageName: String
-    let title: String
-    let description: String
+    let onboarding: Onboarding
     var showButton: Bool = false
     
     var body: some View {
         VStack(spacing: 20) {
-            Image(imageName)
+            Image(onboarding.imageName)
                 .resizable()
                 .scaledToFit()
                 .frame(height: 300)
-            Text(title)
+            Text(onboarding.title)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
-            Text(description)
+            Text(onboarding.description)
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
@@ -45,5 +43,11 @@ struct OnBoardingScreenView: View {
 }
 
 #Preview {
-    OnBoardingScreenView(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription)
+    OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription))
+}
+
+struct Onboarding: Hashable {
+    let imageName: String
+    let title: String
+    let description: String
 }
