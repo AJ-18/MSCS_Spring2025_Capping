@@ -24,7 +24,7 @@ enum ImageConstant {
     static let logo = "logo"
     static let welcomeImage = "welcome"
     static let stopwatchImage = "stopwatch"
-    static let laptopGraphImage = "laptopGraph"
+    static let laptopGraphImage = "laptopgraph"
     static let mobileNotificationImage = "mobileNotification"
     
 }
