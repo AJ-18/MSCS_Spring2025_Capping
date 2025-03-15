@@ -47,6 +47,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3D07B5312D851C1D0085B32C /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				3DCE45902D68C7E700FACBB8 /* View+Extension.swift */,
+				3DCE458C2D68C1A900FACBB8 /* Logger+Extension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		3D07B5322D851C490085B32C /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				3DCE458E2D68C1B200FACBB8 /* OnboardingView.swift */,
+				3DF9BA522D67767D00D0CC62 /* OnBoardingScreenView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		3D07B5332D851C640085B32C /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				3DCE45882D68C19200FACBB8 /* Constant.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		3D98C7E52D4FE04500462EF4 = {
 			isa = PBXGroup;
 			children = (
@@ -66,15 +92,13 @@
 		3D98C7F02D4FE04500462EF4 /* SPAR */ = {
 			isa = PBXGroup;
 			children = (
+				3D07B5332D851C640085B32C /* Utilities */,
+				3D07B5322D851C490085B32C /* Onboarding */,
+				3D07B5312D851C1D0085B32C /* Extensions */,
 				3D98C7F12D4FE04500462EF4 /* SPARApp.swift */,
 				3D98C7F32D4FE04500462EF4 /* ContentView.swift */,
-				3DCE458E2D68C1B200FACBB8 /* OnboardingView.swift */,
-				3DCE458C2D68C1A900FACBB8 /* Logger+Extension.swift */,
 				3DCE458A2D68C19F00FACBB8 /* SplashScreenView.swift */,
-				3DCE45882D68C19200FACBB8 /* Constant.swift */,
 				3DF9BA502D67762C00D0CC62 /* HomeView.swift */,
-				3DF9BA522D67767D00D0CC62 /* OnBoardingScreenView.swift */,
-				3DCE45902D68C7E700FACBB8 /* View+Extension.swift */,
 				3D98C7F52D4FE04700462EF4 /* Assets.xcassets */,
 				3D98C7F72D4FE04700462EF4 /* Preview Content */,
 			);
@@ -310,6 +334,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -339,6 +364,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
