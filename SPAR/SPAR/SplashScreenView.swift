@@ -15,6 +15,7 @@ struct SplashScreenView: View {
             OnboardingView()
             
         } else {
+        
             VStack {
                 Image(ImageConstant.logo)
                     .resizable()
