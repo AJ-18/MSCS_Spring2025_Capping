@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D07B5382D85C3BB0085B32C /* ChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B5372D85C3BB0085B32C /* ChartData.swift */; };
+		3D07B53A2D85C3EC0085B32C /* ChartDataContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B5392D85C3EC0085B32C /* ChartDataContainer.swift */; };
+		3D07B53C2D85C4350085B32C /* HalfDonutChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53B2D85C4350085B32C /* HalfDonutChart.swift */; };
 		3D98C7F22D4FE04500462EF4 /* SPARApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D98C7F12D4FE04500462EF4 /* SPARApp.swift */; };
 		3D98C7F42D4FE04500462EF4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D98C7F32D4FE04500462EF4 /* ContentView.swift */; };
 		3D98C7F62D4FE04700462EF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3D98C7F52D4FE04700462EF4 /* Assets.xcassets */; };
@@ -22,6 +25,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3D07B5372D85C3BB0085B32C /* ChartData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartData.swift; sourceTree = "<group>"; };
+		3D07B5392D85C3EC0085B32C /* ChartDataContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartDataContainer.swift; sourceTree = "<group>"; };
+		3D07B53B2D85C4350085B32C /* HalfDonutChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HalfDonutChart.swift; sourceTree = "<group>"; };
 		3D98C7EE2D4FE04500462EF4 /* SPAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SPAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D98C7F12D4FE04500462EF4 /* SPARApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SPARApp.swift; sourceTree = "<group>"; };
 		3D98C7F32D4FE04500462EF4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -73,6 +79,30 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		3D07B5342D85C3740085B32C /* ChartUI */ = {
+			isa = PBXGroup;
+			children = (
+				3D07B53B2D85C4350085B32C /* HalfDonutChart.swift */,
+			);
+			path = ChartUI;
+			sourceTree = "<group>";
+		};
+		3D07B5352D85C3860085B32C /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				3D07B5392D85C3EC0085B32C /* ChartDataContainer.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		3D07B5362D85C3910085B32C /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				3D07B5372D85C3BB0085B32C /* ChartData.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 		3D98C7E52D4FE04500462EF4 = {
 			isa = PBXGroup;
 			children = (
@@ -92,6 +122,9 @@
 		3D98C7F02D4FE04500462EF4 /* SPAR */ = {
 			isa = PBXGroup;
 			children = (
+				3D07B5362D85C3910085B32C /* Data */,
+				3D07B5352D85C3860085B32C /* ViewModel */,
+				3D07B5342D85C3740085B32C /* ChartUI */,
 				3D07B5332D851C640085B32C /* Utilities */,
 				3D07B5322D851C490085B32C /* Onboarding */,
 				3D07B5312D851C1D0085B32C /* Extensions */,
@@ -192,7 +225,10 @@
 				3D98C7F42D4FE04500462EF4 /* ContentView.swift in Sources */,
 				3D98C7F22D4FE04500462EF4 /* SPARApp.swift in Sources */,
 				3DF9BA532D67767D00D0CC62 /* OnBoardingScreenView.swift in Sources */,
+				3D07B5382D85C3BB0085B32C /* ChartData.swift in Sources */,
+				3D07B53A2D85C3EC0085B32C /* ChartDataContainer.swift in Sources */,
 				3DCE45892D68C19200FACBB8 /* Constant.swift in Sources */,
+				3D07B53C2D85C4350085B32C /* HalfDonutChart.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

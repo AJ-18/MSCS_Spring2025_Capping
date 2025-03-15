@@ -10,20 +10,43 @@ import Charts
 
 // Dummy Home screen
 struct HomeView: View {
+    @ObservedObject var chartDataObj = ChartDataContainer()
     var body: some View {
-        VStack{
-            Chart {
-                BarMark(x: .value("item", "item"), y: .value("count", 5), width: 40)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 20) { // Adds spacing between elements
+                HStack {
+                    Text("S.P.A.R")
+                        .fontWeight(.heavy)
+                        .font(Font.system(size: 48))
+                        .padding(.horizontal,5)
+                       
+                    
+                    Spacer()
+                }
+                HStack {
+                    Text("Dashboard")
+                        .fontWeight(.heavy)
+                        .font(Font.system(size: 28))
+                        .padding(.horizontal,10)
+                    
+                    Spacer()
+                }
+                
+                HalfDonutChart(chartDataObj: $chartDataObj.cpuData)
+                HalfDonutChart(chartDataObj: $chartDataObj.MemooryData)
+                HalfDonutChart(chartDataObj: $chartDataObj.diskData)
+              
+
+                Spacer() // Adds spacing at the bottom
             }
-           
-            Text("Welecome to Home Screen")
-                .font(.title)
-                .fontWeight(.heavy)
-        }.onAppear{
+            .padding() // Adds padding to the VStack
+        }
+        .onAppear {
             self.logPageVisit()
         }
     }
 }
+
 
 #Preview {
     HomeView()
