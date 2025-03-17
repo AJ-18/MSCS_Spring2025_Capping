@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HalfDonutChart: View {
     @Binding var chartDataObj: ChartData
+    @Environment(\.sizeCategory) var sizeCategory
     
     var body: some View {
         VStack {
@@ -16,6 +17,7 @@ struct HalfDonutChart: View {
                 Text(chartDataObj.type)
                     .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
                     .bold()
+                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                 Spacer()
             }
             ZStack {
@@ -33,6 +35,7 @@ struct HalfDonutChart: View {
                     .font(.title)
                     .bold()
                     .foregroundColor(.black)
+                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                     .offset(y: 250 / 3) // Move text inside the arc
             }
             Spacer()
@@ -50,6 +53,7 @@ struct HalfDonutChart: View {
         .frame(width: 300, height: 250)
         .padding()
         .background(Color(red: 1, green: 0.961, blue: 0.882))
+       
         
         // Function to manually update the data
         /* private func updateData() {

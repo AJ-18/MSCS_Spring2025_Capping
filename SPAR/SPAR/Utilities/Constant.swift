@@ -18,14 +18,16 @@ enum StringConstant {
     static let alertsDescription = "Get instant alerts when system performance is at risk."
     static let desktopRequirementTitle = "Connect with Our Desktop App!"
     static let desktopRequirementDescription = "To use this mobile app, you need to install our desktop companion app."
+    static let onboardingImages = "Onbording image of %@"
+    static let getstarted = "Get Started"
 }
 
 enum ImageConstant {
     static let logo = "logo"
-    static let welcomeImage = "welcome"
-    static let stopwatchImage = "stopwatch"
-    static let laptopGraphImage = "laptopgraph"
-    static let mobileNotificationImage = "mobileNotification"
+    static let welcomeImage = "3D Modern analytics webpage mockup"
+    static let stopwatchImage = "3D colorful performance gauge"
+    static let laptopGraphImage = "3D business analytics laptop"
+    static let mobileNotificationImage = "3D mobile showing notification"
     
 }
 

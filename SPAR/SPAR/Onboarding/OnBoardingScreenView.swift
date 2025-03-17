@@ -12,6 +12,7 @@ struct OnBoardingScreenView: View {
     let onboarding: Onboarding
     var showButton: Bool = false
     let logger = Logger.fileLocation
+    @Environment(\.sizeCategory) var sizeCategory
 
     
     var body: some View {
@@ -20,18 +21,22 @@ struct OnBoardingScreenView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(height: 300)
+                .accessibilityLabel(String(format: StringConstant.onboardingImages, arguments: [onboarding.imageName]))
             Text(onboarding.title)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
+                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+               
             Text(onboarding.description)
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
+                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
             
             if showButton {
                 NavigationLink(destination: HomeView()) {
-                    Text("Get Started")
+                    Text(StringConstant.getstarted)
                         .font(.headline)
                         .foregroundColor(.white)
                         .padding()
@@ -39,6 +44,7 @@ struct OnBoardingScreenView: View {
                         .background(Color.blue)
                         .cornerRadius(10)
                         .padding(.horizontal, 40)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                 }.simultaneousGesture(TapGesture().onEnded {
                     logger.info("\(LoggerConstant.getStartedTapped)")
                 })
@@ -55,8 +61,3 @@ struct OnBoardingScreenView: View {
     OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription))
 }
 
-struct Onboarding: Hashable {
-    let imageName: String
-    let title: String
-    let description: String
-}
