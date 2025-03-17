@@ -8,9 +8,11 @@
 import SwiftUI
 import Charts
 
-// Dummy Home screen
+
 struct HomeView: View {
+    @Binding var currentView: AppView
     @ObservedObject var chartDataObj = ChartDataContainer()
+  
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) { // Adds spacing between elements
@@ -43,11 +45,12 @@ struct HomeView: View {
         }
         .onAppear {
             self.logPageVisit()
+      
         }
     }
 }
 
 
 #Preview {
-    HomeView()
+    HomeView(currentView: .constant(.home))
 }

@@ -8,32 +8,25 @@
 import SwiftUI
 
 struct SplashScreenView: View {
-    @State private var isActive = false
-    
+    @Binding var currentView: AppView
+
     var body: some View {
-        if isActive {
-            OnboardingView()
-            
-        } else {
-        
-            VStack {
-                Image(ImageConstant.logo)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 500)
-            }
-            .onAppear {
-                self.logPageVisit()
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    withAnimation {
-                        isActive = true
-                    }
+        VStack {
+            Image(ImageConstant.logo)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 500)
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation {
+                    currentView = .onboarding
                 }
             }
         }
     }
 }
+
 #Preview {
-    SplashScreenView()
+    SplashScreenView(currentView: .constant(.splash))
 }

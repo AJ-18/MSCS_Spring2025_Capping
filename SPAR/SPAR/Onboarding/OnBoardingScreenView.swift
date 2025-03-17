@@ -12,9 +12,8 @@ struct OnBoardingScreenView: View {
     let onboarding: Onboarding
     var showButton: Bool = false
     let logger = Logger.fileLocation
-    @Environment(\.sizeCategory) var sizeCategory
+    @Binding var currentView: AppView
 
-    
     var body: some View {
         VStack(spacing: 20) {
             Image(onboarding.imageName)
@@ -26,16 +25,17 @@ struct OnBoardingScreenView: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
-                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-               
             Text(onboarding.description)
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
-                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-            
+
             if showButton {
-                NavigationLink(destination: HomeView()) {
+                Button(action: {
+                    // Change to home view when button is tapped
+                    currentView = .home
+                    logger.info("\(LoggerConstant.getStartedTapped)")
+                }) {
                     Text(StringConstant.getstarted)
                         .font(.headline)
                         .foregroundColor(.white)
@@ -44,20 +44,13 @@ struct OnBoardingScreenView: View {
                         .background(Color.blue)
                         .cornerRadius(10)
                         .padding(.horizontal, 40)
-                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-                }.simultaneousGesture(TapGesture().onEnded {
-                    logger.info("\(LoggerConstant.getStartedTapped)")
-                })
+                }
             }
         }
-        .onAppear{
-            self.logPageVisit()
-        }
     }
-    
 }
 
 #Preview {
-    OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription))
+    OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription), currentView: .constant(.onboarding))
 }
 

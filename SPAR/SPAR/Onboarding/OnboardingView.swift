@@ -6,20 +6,15 @@
 //
 
 import SwiftUI
-
 struct OnboardingView: View {
-    @State private var currentPage = 0
-    
+    @Binding var currentView: AppView
+
     var body: some View {
-        TabView(selection: $currentPage){
-            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription))
-                .tag(0)
-            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.stopwatchImage, title: StringConstant.cpuTrackingTitle, description: StringConstant.cpuTrackingDescription))
-                .tag(1)
-            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.mobileNotificationImage, title: StringConstant.alertsTitle, description: StringConstant.alertsDescription))
-                .tag(2)
-            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.laptopGraphImage, title: StringConstant.desktopRequirementTitle, description: StringConstant.desktopRequirementDescription),showButton: true)
-                .tag(3)
+        TabView {
+            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.welcomeImage, title: StringConstant.welcomeTitle, description: StringConstant.welcomeDescription), currentView: $currentView)
+            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.stopwatchImage, title: StringConstant.cpuTrackingTitle, description: StringConstant.cpuTrackingDescription), currentView: $currentView)
+            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.mobileNotificationImage, title: StringConstant.alertsTitle, description: StringConstant.alertsDescription), currentView: $currentView)
+            OnBoardingScreenView(onboarding: Onboarding(imageName: ImageConstant.laptopGraphImage, title: StringConstant.desktopRequirementTitle, description: StringConstant.desktopRequirementDescription), showButton: true, currentView: $currentView)
         }
         .tabViewStyle(.page(indexDisplayMode: .always))
         .indexViewStyle(.page(backgroundDisplayMode: .always))
@@ -29,6 +24,7 @@ struct OnboardingView: View {
     }
 }
 
+
 #Preview {
-    OnboardingView()
+    OnboardingView(currentView: .constant(.onboarding))
 }
