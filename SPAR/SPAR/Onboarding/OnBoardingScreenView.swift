@@ -13,6 +13,8 @@ struct OnBoardingScreenView: View {
     var showButton: Bool = false
     let logger = Logger.fileLocation
     @Binding var currentView: AppView
+    @Environment(\.sizeCategory) var sizeCategory
+
 
     var body: some View {
         VStack(spacing: 20) {
@@ -25,10 +27,13 @@ struct OnBoardingScreenView: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
+                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                
             Text(onboarding.description)
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
+                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
             if showButton {
                 Button(action: {
@@ -44,6 +49,7 @@ struct OnBoardingScreenView: View {
                         .background(Color.blue)
                         .cornerRadius(10)
                         .padding(.horizontal, 40)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                 }
             }
         }

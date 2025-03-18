@@ -12,7 +12,8 @@ import Charts
 struct HomeView: View {
     @Binding var currentView: AppView
     @ObservedObject var chartDataObj = ChartDataContainer()
-  
+    @Environment(\.sizeCategory) var sizeCategory
+
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) { // Adds spacing between elements
@@ -21,6 +22,7 @@ struct HomeView: View {
                         .fontWeight(.heavy)
                         .font(Font.system(size: 48))
                         .padding(.horizontal,5)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                        
                     
                     Spacer()
@@ -30,6 +32,7 @@ struct HomeView: View {
                         .fontWeight(.heavy)
                         .font(Font.system(size: 28))
                         .padding(.horizontal,10)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                     
                     Spacer()
                 }
