@@ -36,7 +36,7 @@ struct HalfDonutChart: View {
                     .bold()
                     .foregroundColor(.black)
                     .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-                    .offset(y: 250 / 3) // Move text inside the arc
+                    .offset(y: Double((250 / 3) * sizeCategory.customMinScaleFactor)) // Move text inside the arc
             }
             Spacer()
             
