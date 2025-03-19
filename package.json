@@ -1,0 +1,17 @@
+{
+  "name": "task-manager-desktop",
+  "version": "1.0.0",
+  "description": "Task Manager Desktop Application",
+  "main": "main.js",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^35.0.2",
+    "wait-on": "^8.0.3"
+  },
+  "scripts": {
+    "start": "concurrently \"npm run start-react\" \"npm run start-electron\"",
+    "start-react": "npm --prefix renderer start",
+    "start-electron": "wait-on http://localhost:3000 && electron .",
+    "build": "npm --prefix renderer run build"
+  }
+}
