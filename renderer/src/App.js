@@ -1,12 +1,9 @@
 import React from 'react';
-import ProcessList from './components/ProcessList';
-import './App.css';
+import Dashboard from './components/Dashboard';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <ProcessList />
-    </div>
+    <Dashboard />
   );
 }
 
