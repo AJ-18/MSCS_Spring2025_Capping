@@ -6,12 +6,34 @@
   "devDependencies": {
     "concurrently": "^9.1.2",
     "electron": "^35.0.2",
+    "electron-builder": "^26.0.12",
     "wait-on": "^8.0.3"
   },
   "scripts": {
     "start": "concurrently \"npm run start-react\" \"npm run start-electron\"",
     "start-react": "npm --prefix renderer start",
     "start-electron": "wait-on http://localhost:3000 && electron .",
-    "build": "npm --prefix renderer run build"
+    "build": "npm --prefix renderer run build",
+    "build-react": "npm --prefix renderer run build",
+    "package": "npm run build-react && electron-builder build --win"
+  },
+  "build": {
+    "appId": "com.yourdomain.taskmanager",
+    "productName": "Task Manager",
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/build/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
+  "dependencies": {
+    "package": "^1.0.1"
   }
 }
