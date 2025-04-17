@@ -8,15 +8,26 @@
 import SwiftUI
 import OSLog
 
+enum AppView: Hashable {
+    case splash
+    case onboarding
+    case home
+}
+
 struct ContentView: View {
+    @State private var currentView: AppView = .splash
+
     var body: some View {
         NavigationStack {
-            SplashScreenView()
-                .onAppear {
-                    self.logPageVisit()
-                }
+            switch currentView {
+            case .splash:
+                SplashScreenView(currentView: $currentView)
+            case .onboarding:
+                OnboardingView(currentView: $currentView)
+            case .home:
+                HomeView(currentView: $currentView)
+            }
         }
-       
     }
 }
 
