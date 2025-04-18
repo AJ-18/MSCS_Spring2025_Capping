@@ -20,6 +20,7 @@ enum StringConstant {
     static let desktopRequirementDescription = "To use this mobile app, you need to install our desktop companion app."
     static let onboardingImages = "Onbording image of %@"
     static let getstarted = "Get Started"
+    static let Dashboard = "Dashboard"
 }
 
 enum ImageConstant {
@@ -34,3 +35,13 @@ enum ImageConstant {
 enum LoggerConstant {
     static let pageName = "❕Page visited: %@"
     static let getStartedTapped = "❕Get Started button was tapped"}
+
+enum AccessibilityIdentifier: String {
+    case dashboardTitle
+    case onboardingWelcome
+    case onboardingCPU
+    case onboardingAlerts
+    case getStartedButton
+    case cpuUsageLabel
+    // Add more as needed
+}
