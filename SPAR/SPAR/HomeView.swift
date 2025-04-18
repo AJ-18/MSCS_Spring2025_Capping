@@ -28,11 +28,13 @@ struct HomeView: View {
                     Spacer()
                 }
                 HStack {
-                    Text("Dashboard")
+                    Text(StringConstant.Dashboard)
                         .fontWeight(.heavy)
                         .font(Font.system(size: 28))
                         .padding(.horizontal,10)
+                    
                         .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                        .accessibility(.dashboardTitle)
                     
                     Spacer()
                 }
