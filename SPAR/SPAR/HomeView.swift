@@ -9,53 +9,109 @@ import SwiftUI
 import Charts
 
 
+import SwiftUI
+import Charts
+
 struct HomeView: View {
     @Binding var currentView: AppView
-    @ObservedObject var chartDataObj = ChartDataContainer()
+    @StateObject private var viewModel = HomeViewModel()
     @Environment(\.sizeCategory) var sizeCategory
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 20) { // Adds spacing between elements
-                HStack {
-                    Text("S.P.A.R")
-                        .fontWeight(.heavy)
-                        .font(Font.system(size: 48))
-                        .padding(.horizontal,5)
-                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-                       
-                    
-                    Spacer()
-                }
-                HStack {
-                    Text(StringConstant.Dashboard)
-                        .fontWeight(.heavy)
-                        .font(Font.system(size: 28))
-                        .padding(.horizontal,10)
-                    
-                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-                        .accessibility(.dashboardTitle)
-                    
-                    Spacer()
-                }
+        NavigationStack {
+            VStack(spacing: 20) {
                 
-                HalfDonutChart(chartDataObj: $chartDataObj.cpuData)
-                HalfDonutChart(chartDataObj: $chartDataObj.MemooryData)
-                HalfDonutChart(chartDataObj: $chartDataObj.diskData)
-              
+                // SPAR title
+                HStack {
+                    Text(StringConstant.appName)
+                        .fontWeight(.heavy)
+                        .font(.system(size: 48))
+                        .padding(.horizontal, 15)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                    Spacer()
+                }
 
-                Spacer() // Adds spacing at the bottom
+                // Custom Navigation Bar
+                HStack {
+                    if viewModel.isSearching {
+                        HStack {
+                            Image(systemName: ImageConstant.magnifyingGlass) .accessibilityLabel(StringConstant.searchIcon)
+                            TextField(StringConstant.searchText, text: $viewModel.searchText)
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .autocorrectionDisabled(true)
+                                .submitLabel(.search)
+                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+
+                            Button(action: {
+                                viewModel.cancelSearching()
+                            }) {
+                                Image(systemName: ImageConstant.xmarkCircleFill)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .padding(8)
+                        .background(Color(.systemGray5))
+                        .cornerRadius(10)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                    } else {
+                        Text(StringConstant.Dashboard)
+                            .fontWeight(.heavy)
+                            .font(.system(size: 28))
+                            .padding(.horizontal, 5)
+                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+
+                        Spacer()
+
+                        Button(action: {
+                            viewModel.startSearching()
+                        }) {
+                            Image(systemName: ImageConstant.magnifyingGlass)
+                                .font(.title2)
+                                .padding(.trailing, 10)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+
+                // Devices List
+                ScrollView {
+                    LazyVStack(spacing: 15) {
+                        ForEach(viewModel.filteredDevices, id: \.self) { device in
+                            NavigationLink {
+                                DeviceDetail(currentView: $currentView)
+                            } label: {
+                                HStack {
+                                    Text(device)
+                                        .font(.title3)
+                                        .padding()
+                                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                                    Spacer()
+                                    Image(systemName: ImageConstant.chevronRight)
+                                        .padding()
+                                }
+                                .frame(maxWidth: .infinity)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(10)
+                                .padding(.horizontal)
+                            }
+                        }
+                    }
+                    .padding(.top, 10)
+                }
+
+                Spacer()
             }
-            .padding() // Adds padding to the VStack
-        }
-        .onAppear {
-            self.logPageVisit()
-      
+            .padding(.top)
+            .navigationBarHidden(true)
+            .onAppear {
+                self.logPageVisit()
+            }
         }
     }
 }
 
-
 #Preview {
     HomeView(currentView: .constant(.home))
 }
+
+
