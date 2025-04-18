@@ -21,6 +21,15 @@ enum StringConstant {
     static let onboardingImages = "Onbording image of %@"
     static let getstarted = "Get Started"
     static let Dashboard = "Dashboard"
+    static let incorrectCredentials = "Incorrect username or password."
+    static let welcomeBack = "Welcome Back"
+    static let login = "LOGIN"
+    static let Username = "Username"
+    static let Password = "Password"
+    static let submit = "Submit"
+    static let searchIcon  = "It's icon for searching device."
+    static let searchText = "Search devices..."
+    
 }
 
 enum ImageConstant {
@@ -29,12 +38,19 @@ enum ImageConstant {
     static let stopwatchImage = "3D colorful performance gauge"
     static let laptopGraphImage = "3D business analytics laptop"
     static let mobileNotificationImage = "3D mobile showing notification"
+    static let magnifyingGlass =  "magnifyingglass"
+    static let xmarkCircleFill =  "xmark.circle.fill"
+    static let chevronRight =  "chevron.right"
+      static let eye = "eye"
+      static let eyeSlash =  "eye.slash"
     
 }
 
 enum LoggerConstant {
     static let pageName = "❕Page visited: %@"
-    static let getStartedTapped = "❕Get Started button was tapped"}
+    static let getStartedTapped = "❕Get Started button was tapped"
+    static let LoginSubmitTapped = "❕Submit button was tapped"
+}
 
 enum AccessibilityIdentifier: String {
     case dashboardTitle
