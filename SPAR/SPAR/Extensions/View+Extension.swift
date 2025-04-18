@@ -14,4 +14,7 @@ extension View {
         let structureName = String(describing: type(of: self)) // Get the structure name dynamically
         logger.info("\(String(format: LoggerConstant.pageName, arguments: [structureName]))")
     }
+    func accessibility(_ id: AccessibilityIdentifier) -> some View {
+           self.accessibilityIdentifier(id.rawValue)
+       }
 }
