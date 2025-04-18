@@ -12,6 +12,11 @@
 		3D07B53C2D85C4350085B32C /* HalfDonutChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53B2D85C4350085B32C /* HalfDonutChart.swift */; };
 		3D07B53E2D8887F30085B32C /* ContentSizeCategory+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53D2D8887F30085B32C /* ContentSizeCategory+Extension.swift */; };
 		3D07B5402D88881D0085B32C /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53F2D88881D0085B32C /* Onboarding.swift */; };
+		3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F22DB2B79400E9215B /* LoginView.swift */; };
+		3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */; };
+		3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F72DB2C08500E9215B /* DeviceDetail.swift */; };
+		3D5994FA2DB307B400E9215B /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F92DB307B400E9215B /* HomeViewModel.swift */; };
+		3D5994FC2DB30B0100E9215B /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994FB2DB30B0100E9215B /* LoginViewModel.swift */; };
 		3D8423A72DB14F86009CF847 /* SPARTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423A62DB14F86009CF847 /* SPARTests.swift */; };
 		3D8423A92DB14F86009CF847 /* SPARTestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423A82DB14F86009CF847 /* SPARTestsLaunchTests.swift */; };
 		3D8423B02DB15044009CF847 /* LaunchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423AF2DB15044009CF847 /* LaunchTest.swift */; };
@@ -47,6 +52,11 @@
 		3D07B53B2D85C4350085B32C /* HalfDonutChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HalfDonutChart.swift; sourceTree = "<group>"; };
 		3D07B53D2D8887F30085B32C /* ContentSizeCategory+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentSizeCategory+Extension.swift"; sourceTree = "<group>"; };
 		3D07B53F2D88881D0085B32C /* Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding.swift; sourceTree = "<group>"; };
+		3D5994F22DB2B79400E9215B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAnimationView.swift; sourceTree = "<group>"; };
+		3D5994F72DB2C08500E9215B /* DeviceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetail.swift; sourceTree = "<group>"; };
+		3D5994F92DB307B400E9215B /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		3D5994FB2DB30B0100E9215B /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		3D8423A42DB14F86009CF847 /* SPARTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SPARTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8423A62DB14F86009CF847 /* SPARTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SPARTests.swift; sourceTree = "<group>"; };
 		3D8423A82DB14F86009CF847 /* SPARTestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SPARTestsLaunchTests.swift; sourceTree = "<group>"; };
@@ -123,6 +133,8 @@
 			isa = PBXGroup;
 			children = (
 				3D07B5392D85C3EC0085B32C /* ChartDataContainer.swift */,
+				3D5994F92DB307B400E9215B /* HomeViewModel.swift */,
+				3D5994FB2DB30B0100E9215B /* LoginViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -134,6 +146,23 @@
 				3D07B53F2D88881D0085B32C /* Onboarding.swift */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		3D5994F12DB2ACB300E9215B /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				3D5994F22DB2B79400E9215B /* LoginView.swift */,
+				3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		3D5994F62DB2C05E00E9215B /* Device detail Page */ = {
+			isa = PBXGroup;
+			children = (
+				3D5994F72DB2C08500E9215B /* DeviceDetail.swift */,
+			);
+			path = "Device detail Page";
 			sourceTree = "<group>";
 		};
 		3D8423A52DB14F86009CF847 /* SPARTests */ = {
@@ -168,6 +197,8 @@
 		3D98C7F02D4FE04500462EF4 /* SPAR */ = {
 			isa = PBXGroup;
 			children = (
+				3D5994F62DB2C05E00E9215B /* Device detail Page */,
+				3D5994F12DB2ACB300E9215B /* Login */,
 				3D07B5362D85C3910085B32C /* Data */,
 				3D07B5352D85C3860085B32C /* ViewModel */,
 				3D07B5342D85C3740085B32C /* ChartUI */,
@@ -304,12 +335,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D5994FA2DB307B400E9215B /* HomeViewModel.swift in Sources */,
 				3DCE458B2D68C19F00FACBB8 /* SplashScreenView.swift in Sources */,
 				3DCE458D2D68C1A900FACBB8 /* Logger+Extension.swift in Sources */,
+				3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */,
 				3DCE45912D68C7E700FACBB8 /* View+Extension.swift in Sources */,
 				3DF9BA592D678A9300D0CC62 /* (null) in Sources */,
 				3DCE458F2D68C1B200FACBB8 /* OnboardingView.swift in Sources */,
 				3DF9BA512D67762C00D0CC62 /* HomeView.swift in Sources */,
+				3D5994FC2DB30B0100E9215B /* LoginViewModel.swift in Sources */,
 				3D98C7F42D4FE04500462EF4 /* ContentView.swift in Sources */,
 				3D98C7F22D4FE04500462EF4 /* SPARApp.swift in Sources */,
 				3DF9BA532D67767D00D0CC62 /* OnBoardingScreenView.swift in Sources */,
@@ -317,7 +351,9 @@
 				3D07B53E2D8887F30085B32C /* ContentSizeCategory+Extension.swift in Sources */,
 				3D07B53A2D85C3EC0085B32C /* ChartDataContainer.swift in Sources */,
 				3D07B5402D88881D0085B32C /* Onboarding.swift in Sources */,
+				3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */,
 				3DCE45892D68C19200FACBB8 /* Constant.swift in Sources */,
+				3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */,
 				3D07B53C2D85C4350085B32C /* HalfDonutChart.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

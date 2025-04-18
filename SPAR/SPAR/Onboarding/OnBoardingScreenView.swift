@@ -38,7 +38,7 @@ struct OnBoardingScreenView: View {
             if showButton {
                 Button(action: {
                     // Change to home view when button is tapped
-                    currentView = .home
+                    currentView = .login
                     logger.info("\(LoggerConstant.getStartedTapped)")
                 }) {
                     Text(StringConstant.getstarted)
