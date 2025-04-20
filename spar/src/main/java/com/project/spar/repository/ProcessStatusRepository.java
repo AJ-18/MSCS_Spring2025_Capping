@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ProcessStatusRepository extends JpaRepository<ProcessStatus, Long> {
-    List<ProcessStatus> findByUserId(String userId);
+    List<ProcessStatus> findByUserIdAndDevice_DeviceId(Long userId, String deviceId);
+
 }

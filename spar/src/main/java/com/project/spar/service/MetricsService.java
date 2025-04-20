@@ -1,10 +1,10 @@
 package com.project.spar.service;
 
-
 import com.project.spar.model.*;
 import com.project.spar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MetricsService {
@@ -33,34 +33,42 @@ public class MetricsService {
     @Autowired
     private BatteryInfoRepository batteryInfoRepository;
 
+    @Transactional
     public DeviceSpecification saveDeviceSpecification(DeviceSpecification deviceSpec) {
         return deviceSpecificationRepository.save(deviceSpec);
     }
 
+    @Transactional
     public CpuUsage saveCpuUsage(CpuUsage cpuUsage) {
         return cpuUsageRepository.save(cpuUsage);
     }
 
-    public RamUsage saveMemoryUsage(RamUsage ramUsage) {
+    @Transactional
+    public RamUsage saveRamUsage(RamUsage ramUsage) {
         return ramUsageRepository.save(ramUsage);
     }
 
+    @Transactional
     public DiskUsage saveDiskUsage(DiskUsage diskUsage) {
         return diskUsageRepository.save(diskUsage);
     }
 
+    @Transactional
     public DiskIO saveDiskIO(DiskIO diskIO) {
         return diskIORepository.save(diskIO);
     }
 
+    @Transactional
     public ProcessStatus saveProcessStatus(ProcessStatus processStatus) {
         return processStatusRepository.save(processStatus);
     }
 
-    public NetworkInterface saveNetworkInterface(NetworkInterface networkInterface) {
-        return networkInterfaceRepository.save(networkInterface);
+    @Transactional
+    public NetworkInterface saveNetworkInterface(NetworkInterface netIf) {
+        return networkInterfaceRepository.save(netIf);
     }
 
+    @Transactional
     public BatteryInfo saveBatteryInfo(BatteryInfo batteryInfo) {
         return batteryInfoRepository.save(batteryInfo);
     }

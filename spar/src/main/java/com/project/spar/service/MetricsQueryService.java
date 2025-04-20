@@ -21,16 +21,16 @@ public class MetricsQueryService {
     @Autowired private BatteryInfoRepository batteryRepo;
     @Autowired private RamUsageRepository memoryRepo;
 
-    public List<DeviceSpecification> getDeviceSpecs(String userId) {
+    /*public List<DeviceSpecification> getDeviceSpecs(String userId) {
         return deviceSpecRepo.findByUserId(userId);
+    }*/
+    public List<ProcessStatus> getProcessStatus(Long userId, String deviceId) {
+        return processRepo.findByUserIdAndDevice_DeviceId(userId,deviceId);
     }
-    public List<ProcessStatus> getProcessStatus(String userId) {
-        return processRepo.findByUserId(userId);
+    public List<BatteryInfo> getBatteryInfo(Long userId, String deviceId) {
+        return batteryRepo.findByUserIdAndDevice_DeviceId(userId,deviceId);
     }
-    public List<BatteryInfo> getBatteryInfo(String userId) {
-        return batteryRepo.findByUserId(userId);
-    }
-    public List<RamUsage> getRamUsage(String userId) {
-        return memoryRepo.findByUserId(userId);
+    public List<RamUsage> getRamUsage(Long userId, String deviceId) {
+        return memoryRepo.findByUserIdAndDevice_DeviceId(userId,deviceId);
     }
 }
