@@ -1,27 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MetricGauge from './MetricGauge';
 import ProcessTable from './ProcessTable';
+import { mockSystemMetrics } from '../mocks/systemMetrics.mock';
+import { fetchSystemMetrics } from '../services/systemMetrics';
 
-// Sample system metrics data
+// Sample metrics data structure for CPU, Memory, and Disk
 const systemMetrics = {
   cpu: {
-    usage: 67,
-    color: '#36B5C5'  // Light blue color
+    usage: 67,        // CPU usage percentage
+    color: '#36B5C5'  // Color for CPU gauge
   },
   memory: {
-    used: 1.65,
-    total: 1.75,
-    color: '#2A9D8F'  // Teal color
+    used: 1.65,       // GB of RAM used
+    total: 1.75,      // Total GB of RAM
+    color: '#2A9D8F'  // Color for memory gauge
   },
   disk: {
-    used: 9.67,
-    total: 20,
-    color: '#E63946'  // Red color
+    used: 9.67,       // GB of disk used
+    total: 20,        // Total GB of disk space
+    color: '#E63946'  // Color for disk gauge
   }
 };
 
-// Sample process data
+// Sample process data for the process table
 const processData = [
+  // Each process has PID, name, CPU usage, memory usage, and runtime
   { pid: 1, name: 'ROOT', cpu: 14, memory: 0.25, time: '0:13:34' },
   { pid: 2, name: 'CHROME', cpu: 34, memory: 0.50, time: '0:19:15' },
   { pid: 3, name: 'XLR', cpu: 2, memory: 0.20, time: '0:03:29' },
@@ -29,6 +32,51 @@ const processData = [
 ];
 
 const Dashboard = () => {
+  const [metrics, setMetrics] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Define gauge colors
+  const gaugeColors = {
+    cpu: '#FF6B6B',     // Red
+    memory: '#4ECDC4',  // Teal
+    disk: '#45B7D1'     // Blue
+  };
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadMetrics = async () => {
+      try {
+        const data = await fetchSystemMetrics();
+        if (mounted) {
+          setMetrics(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (mounted) {
+          console.error('Error fetching metrics:', err);
+          setError('Error loading system metrics');
+          setMetrics(null);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadMetrics();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!metrics) return null;
+
   return (
     <div className="min-h-screen bg-[#F5F2F0] p-6">
       <div className="max-w-6xl mx-auto">
@@ -40,21 +88,21 @@ const Dashboard = () => {
         <div className="grid grid-cols-3 gap-6 mb-8">
           <MetricGauge 
             title="CPU" 
-            value={systemMetrics.cpu.usage} 
-            color={systemMetrics.cpu.color}
+            value={metrics.cpu.usage} 
+            color={gaugeColors.cpu}
             suffix="%" 
           />
           <MetricGauge 
             title="Memory" 
-            value={(systemMetrics.memory.used / systemMetrics.memory.total) * 100} 
-            color={systemMetrics.memory.color}
-            subtitle={`${systemMetrics.memory.used}/${systemMetrics.memory.total} GB`} 
+            value={(metrics.memory.used / metrics.memory.total) * 100} 
+            color={gaugeColors.memory}
+            subtitle={`${Math.round(metrics.memory.used/1024)}/${Math.round(metrics.memory.total/1024)} GB`} 
           />
           <MetricGauge 
             title="Disk" 
-            value={(systemMetrics.disk.used / systemMetrics.disk.total) * 100} 
-            color={systemMetrics.disk.color}
-            subtitle={`${systemMetrics.disk.used}/${systemMetrics.disk.total} GB`} 
+            value={(metrics.disk.used / metrics.disk.total) * 100} 
+            color={gaugeColors.disk}
+            subtitle={`${Math.round(metrics.disk.used/1024)}/${Math.round(metrics.disk.total/1024)} GB`} 
           />
         </div>
 

@@ -34,6 +34,12 @@
     }
   },
   "dependencies": {
-    "package": "^1.0.1"
+    "package": "^1.0.1",
+    "systeminformation": "^5.25.11"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.js"
+    ]
   }
 }
