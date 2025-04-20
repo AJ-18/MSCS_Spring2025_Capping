@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface RamUsageRepository extends JpaRepository<RamUsage, Long> {
-    List<RamUsage> findByUserId(String userId);
+    List<RamUsage> findByUserIdAndDevice_DeviceId(Long userId, String deviceId);
+
 }

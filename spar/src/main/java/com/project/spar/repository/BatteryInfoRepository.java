@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface BatteryInfoRepository extends JpaRepository<BatteryInfo, Long> {
-    List<BatteryInfo> findByUserId(String userId);
+    List<BatteryInfo> findByUserIdAndDevice_DeviceId(Long userId, String deviceId);
+
 }

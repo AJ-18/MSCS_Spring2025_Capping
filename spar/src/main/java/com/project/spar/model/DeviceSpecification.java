@@ -1,27 +1,15 @@
 package com.project.spar.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
-@Data
-@NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-@AllArgsConstructor
-@Entity
-@Table(name = "device_specifications")
+
+@Data @NoArgsConstructor
+@Entity @Table(name="device_specifications")
 public class DeviceSpecification {
-    private String userId;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long deviceId;
-
-
+    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
+    @Column(nullable=false, unique=true) private String deviceId;
     private String deviceName;
     private String manufacturer;
     private String model;
@@ -32,5 +20,9 @@ public class DeviceSpecification {
     private String graphics;
     private String operatingSystem;
     private String systemType;
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private LocalDateTime registeredAt = LocalDateTime.now();
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="user_id", nullable=false)
+    private User user;
 }
