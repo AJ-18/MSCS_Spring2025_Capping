@@ -1,21 +1,23 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const isDev = process.env.NODE_ENV !== 'production';
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
     }
   });
 
-  // Load the built React app
-  win.loadFile(path.join(__dirname, 'renderer/build/index.html'));
-  
-  // Open DevTools for debugging
-  win.webContents.openDevTools();
+  if (isDev) {
+    win.loadURL('http://localhost:3000');
+    win.webContents.openDevTools();
+  } else {
+    win.loadFile(path.join(__dirname, 'renderer/build/index.html'));
+  }
 }
 
 app.whenReady().then(createWindow);
