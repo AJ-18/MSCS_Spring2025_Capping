@@ -1,19 +1,17 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import App from './App';
 
-// Mock the systemMetrics service
-const mockGetSystemMetrics = jest.fn();
-jest.mock('./services/systemMetrics', () => ({
-  getSystemMetrics: () => mockGetSystemMetrics()
-}));
+describe('App Component', () => {
+  test('renders dashboard', async () => {
+    window.electronAPI.getSystemMetrics.mockImplementation(
+      () => new Promise(() => {})
+    );
 
-// Test 1: Verifies initial loading state
-test('renders dashboard', () => {
-  // Setup mock to return a pending promise
-  mockGetSystemMetrics.mockImplementation(() => new Promise(() => {}));
-  
-  render(<App />);
-  // Check for loading state initially
-  expect(screen.getByText('Loading...')).toBeInTheDocument();
+    await act(async () => {
+      render(<App />);
+    });
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+  });
 });

@@ -1,5 +1,12 @@
 export const fetchSystemMetrics = async () => {
-    // In real implementation, this would call the backend API
-    const response = await fetch('/api/system-metrics');
-    return response.json();
-  };
+  try {
+    if (!window.electronAPI) {
+      throw new Error('Electron API not available');
+    }
+    const data = await window.electronAPI.getSystemMetrics();
+    return data;
+  } catch (error) {
+    console.error('Error fetching system metrics:', error);
+    throw error;
+  }
+};

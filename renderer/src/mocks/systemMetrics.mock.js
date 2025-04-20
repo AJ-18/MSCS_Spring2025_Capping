@@ -2,32 +2,18 @@
 export const mockSystemMetrics = {
   cpu: {
     usage: 67,
-    color: '#36B5C5'
+    temperature: 72
   },
   memory: {
-    used: 1.65,
-    total: 1.75,
-    color: '#2A9D8F'
+    total: 16384,  // in MB
+    used: 8192     // in MB
   },
   disk: {
-    used: 9.67,
-    total: 20,
-    color: '#E63946'
+    total: 512000, // in MB
+    used: 128000   // in MB
   },
   processes: [
-    {
-      pid: 1234,
-      name: "chrome.exe",
-      cpu: 14,
-      memory: 0.25,
-      time: "0:13:34"
-    },
-    {
-      pid: 5678,
-      name: "discord.exe",
-      cpu: 4.2,
-      memory: 0.45,
-      time: "0:19:15"
-    }
+    { pid: 1, name: 'System', cpu: 0.5, memory: 1024, time: '0:13:34' },
+    { pid: 2, name: 'Chrome', cpu: 2.5, memory: 2048, time: '0:19:15' }
   ]
 };
