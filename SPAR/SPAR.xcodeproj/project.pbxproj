@@ -36,7 +36,6 @@
 		3D5995172DB41E1500E9215B /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D59950D2DB413C100E9215B /* MockData.swift */; };
 		3D78BB2A2DB550E5000E5C2F /* LoginViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D78BB292DB550E5000E5C2F /* LoginViewUITests.swift */; };
 		3D8423A72DB14F86009CF847 /* SPARTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423A62DB14F86009CF847 /* SPARTests.swift */; };
-		3D8423A92DB14F86009CF847 /* SPARTestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423A82DB14F86009CF847 /* SPARTestsLaunchTests.swift */; };
 		3D8423B02DB15044009CF847 /* LaunchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423AF2DB15044009CF847 /* LaunchTest.swift */; };
 		3D8423B12DB15061009CF847 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCE45882D68C19200FACBB8 /* Constant.swift */; };
 		3D8423B32DB15082009CF847 /* OnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423B22DB15082009CF847 /* OnboardingTests.swift */; };
@@ -87,7 +86,6 @@
 		3D78BB292DB550E5000E5C2F /* LoginViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewUITests.swift; sourceTree = "<group>"; };
 		3D8423A42DB14F86009CF847 /* SPARTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SPARTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8423A62DB14F86009CF847 /* SPARTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SPARTests.swift; sourceTree = "<group>"; };
-		3D8423A82DB14F86009CF847 /* SPARTestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SPARTestsLaunchTests.swift; sourceTree = "<group>"; };
 		3D8423AF2DB15044009CF847 /* LaunchTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchTest.swift; sourceTree = "<group>"; };
 		3D8423B22DB15082009CF847 /* OnboardingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTests.swift; sourceTree = "<group>"; };
 		3D98C7EE2D4FE04500462EF4 /* SPAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SPAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -212,7 +210,6 @@
 			isa = PBXGroup;
 			children = (
 				3D8423A62DB14F86009CF847 /* SPARTests.swift */,
-				3D8423A82DB14F86009CF847 /* SPARTestsLaunchTests.swift */,
 				3D8423AF2DB15044009CF847 /* LaunchTest.swift */,
 				3D8423B22DB15082009CF847 /* OnboardingTests.swift */,
 				3D59950F2DB413E300E9215B /* NetworkManagerTests.swift */,
@@ -374,7 +371,6 @@
 				3D59950B2DB4137E00E9215B /* MockNetworkService.swift in Sources */,
 				3D5995112DB4162400E9215B /* NetworkManager.swift in Sources */,
 				3D5995152DB4167A00E9215B /* MemoryUsage.swift in Sources */,
-				3D8423A92DB14F86009CF847 /* SPARTestsLaunchTests.swift in Sources */,
 				3D5995132DB4167400E9215B /* ProcessStatus.swift in Sources */,
 				3D8423A72DB14F86009CF847 /* SPARTests.swift in Sources */,
 				3D8423B32DB15082009CF847 /* OnboardingTests.swift in Sources */,
