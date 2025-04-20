@@ -3,7 +3,7 @@ name: iOS UI Tests
 on:
   push:
     branches:
-      - main
+      -  SPAR_iOS_App
   pull_request:
 
 jobs:
