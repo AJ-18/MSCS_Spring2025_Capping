@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MetricGauge from './MetricGauge';
 import ProcessTable from './ProcessTable';
 import { mockSystemMetrics } from '../mocks/systemMetrics.mock';
-import { getSystemMetrics } from '../services/systemMetrics';
+import { fetchSystemMetrics } from '../services/systemMetrics';
 
 // Sample metrics data structure for CPU, Memory, and Disk
 const systemMetrics = {
@@ -32,69 +32,80 @@ const processData = [
 ];
 
 const Dashboard = () => {
-  // State management for metrics data and loading states
   const [metrics, setMetrics] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Define gauge colors
+  const gaugeColors = {
+    cpu: '#FF6B6B',     // Red
+    memory: '#4ECDC4',  // Teal
+    disk: '#45B7D1'     // Blue
+  };
+
   useEffect(() => {
+    let mounted = true;
+
     const loadMetrics = async () => {
       try {
-        const data = await getSystemMetrics();
-        setMetrics(data);
-        setError(null);
+        const data = await fetchSystemMetrics();
+        if (mounted) {
+          setMetrics(data);
+          setError(null);
+        }
       } catch (err) {
-        setError('Error loading system metrics');
-        setMetrics(null);
+        if (mounted) {
+          console.error('Error fetching metrics:', err);
+          setError('Error loading system metrics');
+          setMetrics(null);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadMetrics();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  // Conditional rendering based on state
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!metrics) return null;
 
   return (
-    // Main dashboard layout
     <div className="min-h-screen bg-[#F5F2F0] p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header section with title and logo */}
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-serif">S.P.A.R</h1>
           <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
         </header>
 
-        {/* Metrics gauges section */}
         <div className="grid grid-cols-3 gap-6 mb-8">
-          {/* CPU Gauge */}
           <MetricGauge 
             title="CPU" 
             value={metrics.cpu.usage} 
-            color={metrics.cpu.color}
+            color={gaugeColors.cpu}
             suffix="%" 
           />
-          {/* Memory Gauge with usage calculation */}
           <MetricGauge 
             title="Memory" 
             value={(metrics.memory.used / metrics.memory.total) * 100} 
-            color={metrics.memory.color}
-            subtitle={`${metrics.memory.used}/${metrics.memory.total} GB`} 
+            color={gaugeColors.memory}
+            subtitle={`${Math.round(metrics.memory.used/1024)}/${Math.round(metrics.memory.total/1024)} GB`} 
           />
-          {/* Disk Usage Gauge */}
           <MetricGauge 
             title="Disk" 
             value={(metrics.disk.used / metrics.disk.total) * 100} 
-            color={metrics.disk.color}
-            subtitle={`${metrics.disk.used}/${metrics.disk.total} GB`} 
+            color={gaugeColors.disk}
+            subtitle={`${Math.round(metrics.disk.used/1024)}/${Math.round(metrics.disk.total/1024)} GB`} 
           />
         </div>
 
-        {/* Process table section */}
         <div className="bg-white rounded-lg p-6">
           <h2 className="text-xl font-medium mb-4">System Info</h2>
           <ProcessTable processes={processData} />
