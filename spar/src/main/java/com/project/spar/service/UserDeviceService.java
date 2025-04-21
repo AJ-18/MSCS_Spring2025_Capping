@@ -60,7 +60,6 @@ public class UserDeviceService {
             ds.setGraphics(payload.getGraphics());
             ds.setOperatingSystem(payload.getOperatingSystem());
             ds.setSystemType(payload.getSystemType());
-            user.getDevices().add(ds);
             metricsService.saveDeviceSpecification(ds);
         }
 
