@@ -17,13 +17,15 @@ final class OnboardingTests: XCTestCase {
 
 
     func testGetStartedNavigatesToHome() {
-        app.swipeLeft()
-        app.swipeLeft()
-        app.swipeLeft()
+        while !app.buttons[StringConstant.getstarted].exists {
+            app.swipeLeft()
+        }
+        
+        
         
         let getStartedButton = app.buttons[StringConstant.getstarted]
         getStartedButton.tap()
         
-        XCTAssertTrue(app.staticTexts["Dashboard"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts[StringConstant.welcomeBack].waitForExistence(timeout: 5))
     }
 }

@@ -1,0 +1,50 @@
+//
+//  NetworkManager.swift
+//  SPAR
+//
+//  Created by Abhijeet Cherungottil on 4/19/25.
+//
+
+import Foundation
+
+class NetworkManager {
+    private let networkService: NetworkServicing
+    private let baseURL = "http://localhost:8080/api/metrics"
+    
+    init(networkService: NetworkServicing = NetworkService()) {
+        self.networkService = networkService
+    }
+    
+    private func makeURL(endpoint: String, userId: String) -> URL? {
+        URL(string: "\(baseURL)/\(endpoint)/\(userId)")
+    }
+    
+    func fetchDeviceSpecifications(for userId: String) async throws -> [DeviceSpecification] {
+        guard let url = makeURL(endpoint: "device-specifications", userId: userId) else {
+            throw URLError(.badURL)
+        }
+        return try await networkService.get(from: url,token: nil)
+    }
+    
+    func fetchProcessStatus(for userId: String) async throws -> [ProcessStatus] {
+        guard let url = makeURL(endpoint: "process-status", userId: userId) else {
+            throw URLError(.badURL)
+        }
+        return try await networkService.get(from: url, token: nil)
+    }
+    
+    func fetchBatteryInfo(for userId: String) async throws -> [BatteryInfo] {
+        guard let url = makeURL(endpoint: "battery-info", userId: userId) else {
+            throw URLError(.badURL)
+        }
+        return try await networkService.get(from: url, token: nil)
+    }
+    
+    func fetchMemoryUsage(for userId: String) async throws -> [MemoryUsage] {
+        guard let url = makeURL(endpoint: "memory-usage", userId: userId) else {
+            throw URLError(.badURL)
+        }
+        return try await networkService.get(from: url, token: nil)
+    }
+}
+
