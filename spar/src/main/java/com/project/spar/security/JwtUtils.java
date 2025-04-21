@@ -8,7 +8,7 @@ import java.util.Date;
 @Component
 public class JwtUtils {
     @Value("${jwt.secret}") private String jwtSecret;
-    @Value("${jwt.expirationMs}") private int jwtExpirationMs;
+    @Value("${jwt.expirationMs}") private Long jwtExpirationMs;
 
     public String generateToken(String username) {
         Date now = new Date(), exp = new Date(now.getTime() + jwtExpirationMs);

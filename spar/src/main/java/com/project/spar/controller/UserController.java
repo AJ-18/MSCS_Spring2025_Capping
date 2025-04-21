@@ -25,4 +25,15 @@ public class UserController {
                 userDeviceService.addOrGetDevices(userId, payload);
         return ResponseEntity.ok(dtos);
     }
+
+    @GetMapping("/{userId}/getdevices")
+    public ResponseEntity<List<DeviceSpecificationDTO>> getDevices(
+            @PathVariable Long userId
+    ) {
+        List<DeviceSpecificationDTO> dtos =
+                userDeviceService.getDevices(userId);
+        return ResponseEntity.ok(dtos);
+    }
+
+
 }

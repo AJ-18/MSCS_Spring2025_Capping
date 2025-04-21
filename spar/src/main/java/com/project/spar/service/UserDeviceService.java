@@ -83,4 +83,27 @@ public class UserDeviceService {
                 ))
                 .collect(Collectors.toList());
     }
+    @Transactional
+    public List<DeviceSpecificationDTO> getDevices(Long userId){
+
+        List<DeviceSpecification> devices = deviceRepo.findAllByUserId(userId);
+        return devices.stream()
+                .map(ds -> new DeviceSpecificationDTO(
+                        ds.getId(),
+                        ds.getDeviceId(),
+                        ds.getDeviceName(),
+                        ds.getManufacturer(),
+                        ds.getModel(),
+                        ds.getProcessor(),
+                        ds.getCpuPhysicalCores(),
+                        ds.getCpuLogicalCores(),
+                        ds.getInstalledRam(),
+                        ds.getGraphics(),
+                        ds.getOperatingSystem(),
+                        ds.getSystemType(),
+                        ds.getRegisteredAt()
+                ))
+                .collect(Collectors.toList());
+
+    }
 }

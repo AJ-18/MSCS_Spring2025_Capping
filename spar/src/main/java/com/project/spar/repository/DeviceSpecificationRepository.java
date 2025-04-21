@@ -10,4 +10,6 @@ public interface DeviceSpecificationRepository extends JpaRepository<DeviceSpeci
     Optional<DeviceSpecification> findByUserAndDeviceId(User user, String deviceId);
     Optional<DeviceSpecification> findByUserAndDeviceName(User user, String deviceName);
     List<DeviceSpecification> findAllByUser(User user);
+
+    List<DeviceSpecification> findAllByUserId(Long userId);
 }
