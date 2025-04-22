@@ -12,8 +12,13 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities(){ return null; }
     public String getPassword(){ return user.getPassword(); }
     public String getUsername(){ return user.getUsername(); }
+
+    public Long getId() {
+        return user.getId();
+    }
     public boolean isAccountNonExpired(){ return true; }
     public boolean isAccountNonLocked(){ return true; }
     public boolean isCredentialsNonExpired(){ return true; }
     public boolean isEnabled(){ return true; }
+
 }

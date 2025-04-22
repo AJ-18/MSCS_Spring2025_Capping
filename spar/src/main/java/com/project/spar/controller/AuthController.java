@@ -4,6 +4,7 @@ package com.project.spar.controller;
 import com.project.spar.model.User;
 import com.project.spar.repository.UserRepository;
 import com.project.spar.security.JwtUtils;
+import com.project.spar.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -52,8 +53,12 @@ public class AuthController {
                         req.getPassword()
                 )
         );
+        // Our UserDetailsImpl has the user’s ID
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+        Long userId = userDetails.getId();
+
         String token = jwtUtils.generateToken(req.getUsername());
-        return ResponseEntity.ok(new JwtResponse(token));
+        return ResponseEntity.ok(new JwtResponse(token, userId));
     }
 
     @Data
@@ -73,6 +78,14 @@ public class AuthController {
 
     @Data
     static class JwtResponse {
-        private final String token;
+        private String token;
+        private Long userId;
+
+        public JwtResponse(String token, Long userId) {
+            this.token = token;
+            this.userId = userId;
+        }
+        // getters & setters...
     }
+
 }

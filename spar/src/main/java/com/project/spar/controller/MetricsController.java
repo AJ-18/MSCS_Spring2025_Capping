@@ -179,4 +179,124 @@ public class MetricsController {
         );
         return ResponseEntity.ok(dto);
     }
+
+    // ───── GET ENDPOINTS ──────────────────────────────────────────────────────────
+
+    @GetMapping("/battery-info/{userId}/{deviceId}")
+    public ResponseEntity<BatteryInfoDTO> getLatestBatteryInfo(
+            @PathVariable Long userId,
+            @PathVariable String deviceId) {
+        var user = userRepo.getReferenceById(userId);
+        var device = lookupDevice(userId, deviceId);
+        var bi = metricsService.getLatestBatteryInfo(user, device)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(new BatteryInfoDTO(
+                bi.getId(),
+                bi.isHasBattery(),
+                bi.getBatteryPercentage(),
+                bi.isCharging(),
+                bi.getPowerConsumption(),
+                userId,
+                deviceId,
+                bi.getTimestamp()
+        ));
+    }
+
+    @GetMapping("/cpu-usage/{userId}/{deviceId}")
+    public ResponseEntity<CpuUsageDTO> getLatestCpuUsage(
+            @PathVariable Long userId,
+            @PathVariable String deviceId) {
+        var user = userRepo.getReferenceById(userId);
+        var device = lookupDevice(userId, deviceId);
+        var cu = metricsService.getLatestCpuUsage(user, device)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(new CpuUsageDTO(
+                cu.getId(),
+                cu.getTotalCpuLoad(),
+                cu.getPerCoreUsageJson(),
+                userId,
+                deviceId,
+                cu.getTimestamp()
+        ));
+    }
+
+    @GetMapping("/ram-usage/{userId}/{deviceId}")
+    public ResponseEntity<RamUsageDTO> getLatestRamUsage(
+            @PathVariable Long userId,
+            @PathVariable String deviceId) {
+        var user = userRepo.getReferenceById(userId);
+        var device = lookupDevice(userId, deviceId);
+        var ru = metricsService.getLatestRamUsage(user, device)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(new RamUsageDTO(
+                ru.getId(),
+                ru.getTotalMemory(),
+                ru.getUsedMemory(),
+                ru.getAvailableMemory(),
+                userId,
+                deviceId,
+                ru.getTimestamp()
+        ));
+    }
+
+    @GetMapping("/disk-io/{userId}/{deviceId}")
+    public ResponseEntity<DiskIODTO> getLatestDiskIO(
+            @PathVariable Long userId,
+            @PathVariable String deviceId) {
+        var user = userRepo.getReferenceById(userId);
+        var device = lookupDevice(userId, deviceId);
+        var dio = metricsService.getLatestDiskIO(user, device)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(new DiskIODTO(
+                dio.getId(),
+                dio.getReadSpeedMBps(),
+                dio.getWriteSpeedMBps(),
+                userId,
+                deviceId,
+                dio.getTimestamp()
+        ));
+    }
+
+    @GetMapping("/disk-usage/{userId}/{deviceId}")
+    public ResponseEntity<DiskUsageDTO> getLatestDiskUsage(
+            @PathVariable Long userId,
+            @PathVariable String deviceId) {
+        var user = userRepo.getReferenceById(userId);
+        var device = lookupDevice(userId, deviceId);
+        var du = metricsService.getLatestDiskUsage(user, device)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(new DiskUsageDTO(
+                du.getId(),
+                du.getFilesystem(),
+                du.getSizeGB(),
+                du.getUsedGB(),
+                du.getAvailableGB(),
+                userId,
+                deviceId,
+                du.getTimestamp()
+        ));
+    }
+
+    @GetMapping("/process-status/{userId}/{deviceId}")
+    public ResponseEntity<List<ProcessStatusDTO>> getProcessStatuses(
+            @PathVariable Long userId,
+            @PathVariable String deviceId) {
+        var user = userRepo.getReferenceById(userId);
+        var device = lookupDevice(userId, deviceId);
+        var list = metricsService.getProcessStatuses(user, device);
+        var dtos = list.stream()
+                .map(ps -> new ProcessStatusDTO(
+                        ps.getId(),
+                        ps.getPid(),
+                        ps.getName(),
+                        ps.getCpuUsage(),
+                        ps.getMemoryMB(),
+                        userId,
+                        deviceId,
+                        ps.getTimestamp()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+
+    }
+
 }
