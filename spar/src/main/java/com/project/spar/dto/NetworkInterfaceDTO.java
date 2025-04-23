@@ -1,14 +1,21 @@
 package com.project.spar.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
-public record NetworkInterfaceDTO(
-        Long id,
-        String iface,
-        String ipAddress,
-        String macAddress,
-        double speedMbps,
-        Long userId,
-        String deviceId,
-        LocalDateTime timestamp
-) {}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class NetworkInterfaceDTO {
+    private Long   id;
+    private String iface;
+    private String ipAddress;
+    private String macAddress;
+    private double speedMbps;
+    private Long   userId;
+    private String deviceId;
+    private LocalDateTime timestamp;
+}

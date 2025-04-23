@@ -1,12 +1,19 @@
 package com.project.spar.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
-public record DiskIODTO(
-        Long id,
-        double readSpeedMBps,
-        double writeSpeedMBps,
-        Long userId,
-        String deviceId,
-        LocalDateTime timestamp
-) {}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class DiskIODTO {
+    private Long   id;
+    private double readSpeedMBps;
+    private double writeSpeedMBps;
+    private Long   userId;
+    private String deviceId;
+    private LocalDateTime timestamp;
+}

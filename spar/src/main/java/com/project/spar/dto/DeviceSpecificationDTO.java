@@ -1,19 +1,26 @@
 package com.project.spar.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
-public record DeviceSpecificationDTO(
-        Long id,
-        String deviceId,
-        String deviceName,
-        String manufacturer,
-        String model,
-        String processor,
-        int cpuPhysicalCores,
-        int cpuLogicalCores,
-        double installedRam,
-        String graphics,
-        String operatingSystem,
-        String systemType,
-        LocalDateTime registeredAt
-) {}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class DeviceSpecificationDTO {
+    private Long   id;
+    private String deviceId;
+    private String deviceName;
+    private String manufacturer;
+    private String model;
+    private String processor;
+    private int    cpuPhysicalCores;
+    private int    cpuLogicalCores;
+    private double installedRam;
+    private String graphics;
+    private String operatingSystem;
+    private String systemType;
+    private LocalDateTime registeredAt;
+}
