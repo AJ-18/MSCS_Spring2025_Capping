@@ -2,9 +2,9 @@ name: iOS CI for SPAR
 
 on:
   push:
-    branches: [ /SPAR_iOS_App ]
+    branches: [ SPAR_iOS_App ]
   pull_request:
-    branches: [ /SPAR_iOS_App ]
+    branches: [ SPAR_iOS_App ]
 
 jobs:
   build-and-test:
