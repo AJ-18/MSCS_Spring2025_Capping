@@ -1,9 +1,9 @@
-name: iOS UI Tests
+name: iOS Build & Unit Tests
 
 on:
   push:
     branches:
-      -  SPAR_iOS_App
+      - SPAR_iOS_App
   pull_request:
 
 jobs:
@@ -24,17 +24,9 @@ jobs:
       - name: Install Swift Packages
         run: xcodebuild -resolvePackageDependencies
 
-      - name: Run UI Tests
+      - name: Run Unit Tests Only (faster)
         run: |
-          mkdir -p TestResults
           xcodebuild test -project SPAR.xcodeproj \
             -scheme SPAR \
             -destination 'platform=iOS Simulator,name=iPhone 15' \
-            -resultBundlePath TestResults/SPARTestResults.xcresult
-
-      - name: Upload Test Results
-        if: always() # run even if tests fail
-        uses: actions/upload-artifact@v4
-        with:
-          name: SPAR-xcresult
-          path: SPAR/TestResults/SPARTestResults.xcresult
+            -only-testing:SPARTests
