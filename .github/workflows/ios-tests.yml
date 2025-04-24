@@ -1,40 +1,46 @@
-name: iOS UI Tests
+name: iOS CI for SPAR
 
 on:
   push:
-    branches:
-      -  SPAR_iOS_App
+    branches: [ /SPAR_iOS_App ]
   pull_request:
+    branches: [ /SPAR_iOS_App ]
 
 jobs:
-  ios-tests:
+  build-and-test:
     runs-on: macos-14
 
-    defaults:
-      run:
-        working-directory: SPAR
-
     steps:
-      - name: Checkout project
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Xcode
-        run: sudo xcode-select -s /Applications/Xcode_15.0.app
+        run: sudo xcode-select -s /Applications/Xcode_15.3.app
 
-      - name: Install Swift Packages
-        run: xcodebuild -resolvePackageDependencies
-
-      - name: Run UI Tests
+      - name: Clean Derived Data & Simulators
         run: |
-          mkdir -p TestResults
-          xcodebuild test -project SPAR.xcodeproj \
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+          xcrun simctl shutdown all || true
+          xcrun simctl erase all || true
+
+      - name: Run Tests with xcodebuild
+        env:
+          NSUnbufferedIO: YES
+        run: |
+          xcodebuild \
+            -project SPAR/SPAR.xcodeproj \
             -scheme SPAR \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
-            -resultBundlePath TestResults/SPARTestResults.xcresult
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0' \
+            -derivedDataPath DerivedData \
+            -enableCodeCoverage YES \
+            clean test \
+            | xcpretty --report html --report junit
 
       - name: Upload Test Results
-        if: always() # run even if tests fail
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: SPAR-xcresult
-          path: SPAR/TestResults/SPARTestResults.xcresult
+          name: SPARTestResults
+          path: |
+            DerivedData/Logs/Test/*.xcresult
+            test_output/
