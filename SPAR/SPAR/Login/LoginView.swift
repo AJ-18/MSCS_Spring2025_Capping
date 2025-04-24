@@ -11,8 +11,14 @@ import SwiftUI
 struct LoginView: View {
     @Binding var currentView: AppView
     @Environment(\.sizeCategory) var sizeCategory
-    
+
     @StateObject private var viewModel = LoginViewModel()
+    private var coordinator: LoginCoordinator
+
+    init(currentView: Binding<AppView>) {
+        self._currentView = currentView
+        self.coordinator = LoginCoordinator(currentView: currentView)
+    }
 
     var body: some View {
         ZStack {
@@ -22,6 +28,7 @@ struct LoginView: View {
             BackgroundAnimationView(animate: $viewModel.animate)
 
             VStack(spacing: 30) {
+                // Login Header
                 VStack(spacing: 5) {
                     Text(StringConstant.welcomeBack)
                         .font(.title3)
@@ -38,6 +45,7 @@ struct LoginView: View {
                 }
                 .padding(.bottom, 20)
 
+                // Username Field
                 TextField(StringConstant.Username, text: $viewModel.username)
                     .padding()
                     .background(Color.gray.opacity(0.1))
@@ -48,14 +56,13 @@ struct LoginView: View {
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
 
+                // Password Field
                 ZStack(alignment: .trailing) {
                     Group {
                         if viewModel.showPassword {
                             TextField(StringConstant.Password, text: $viewModel.password)
-                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                         } else {
                             SecureField(StringConstant.Password, text: $viewModel.password)
-                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                         }
                     }
                     .padding()
@@ -74,6 +81,7 @@ struct LoginView: View {
                     }
                 }
 
+                // Error Message
                 if !viewModel.errorMessage.isEmpty {
                     Text(viewModel.errorMessage)
                         .foregroundColor(.red)
@@ -82,30 +90,43 @@ struct LoginView: View {
                         .padding(.top, -20)
                 }
 
+                // Submit Button
                 Button(action: {
-                                   viewModel.submit(currentView: $currentView)
-                               }) {
-                                   Text(StringConstant.submit)
-                                       .frame(maxWidth: .infinity)
-                                       .padding()
-                                       .background(Color.blue)
-                                       .foregroundColor(.white)
-                                       .font(.title2.bold())
-                                       .cornerRadius(15)
-                                       .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-                                       .shadow(radius: 10)
-                               }
-                           }
+                    viewModel.submit()
+                }) {
+                    Text(StringConstant.submit)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .font(.title2.bold())
+                        .cornerRadius(15)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                        .shadow(radius: 10)
+                }
+            }
             .padding(40)
         }
         .onAppear {
+            viewModel.delegate = coordinator
             viewModel.animate = true
             self.logPageVisit()
-                
         }
     }
 
+    private class LoginCoordinator: LoginViewModelDelegate {
+        @Binding var currentView: AppView
+
+        init(currentView: Binding<AppView>) {
+            self._currentView = currentView
+        }
+
+        func didLoginSuccessfully() {
+            currentView = .home
+        }
+    }
 }
+
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
