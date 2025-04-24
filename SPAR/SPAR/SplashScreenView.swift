@@ -20,7 +20,11 @@ struct SplashScreenView: View {
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation {
-                    currentView = .onboarding
+                    if AppSettings.shared.hasCompletedOnboarding {
+                        currentView = .login
+                    } else {
+                        currentView = .onboarding
+                    }
                 }
             }
         }

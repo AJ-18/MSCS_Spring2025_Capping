@@ -46,5 +46,14 @@ class NetworkManager {
         }
         return try await networkService.get(from: url, token: nil)
     }
+    
+    func login(username: String, password: String) async throws -> LoginResponse {
+        guard let url = URL(string: "http://localhost:8080/api/auth/signin") else {
+            throw URLError(.badURL)
+        }
+        let loginRequest = LoginRequest(username: username, password: password)
+        return try await networkService.post(to: url, body: loginRequest)
+    }
+
 }
 

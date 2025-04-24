@@ -20,6 +20,10 @@
 		3D505B572DB9DF3F00510486 /* BatteryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */; };
 		3D505B592DB9E14700510486 /* MemoryUsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */; };
 		3D505B5B2DB9E3F700510486 /* ProcessViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */; };
+		3D505B5D2DBA657B00510486 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5C2DBA657B00510486 /* AppSettings.swift */; };
+		3D505B5F2DBA94B200510486 /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5E2DBA94B200510486 /* LoginModel.swift */; };
+		3D505B602DBA9EE900510486 /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5E2DBA94B200510486 /* LoginModel.swift */; };
+		3D505B612DBA9EF200510486 /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53F2D88881D0085B32C /* Onboarding.swift */; };
 		3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F22DB2B79400E9215B /* LoginView.swift */; };
 		3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */; };
 		3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F72DB2C08500E9215B /* DeviceDetail.swift */; };
@@ -85,6 +89,8 @@
 		3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryViewModel.swift; sourceTree = "<group>"; };
 		3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryUsageViewModel.swift; sourceTree = "<group>"; };
 		3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessViewModel.swift; sourceTree = "<group>"; };
+		3D505B5C2DBA657B00510486 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		3D505B5E2DBA94B200510486 /* LoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModel.swift; sourceTree = "<group>"; };
 		3D5994F22DB2B79400E9215B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAnimationView.swift; sourceTree = "<group>"; };
 		3D5994F72DB2C08500E9215B /* DeviceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetail.swift; sourceTree = "<group>"; };
@@ -160,6 +166,7 @@
 			children = (
 				3DCE45882D68C19200FACBB8 /* Constant.swift */,
 				3D505B4E2DB9C6AD00510486 /* NavigationButton.swift */,
+				3D505B5C2DBA657B00510486 /* AppSettings.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -195,6 +202,7 @@
 				3D5995022DB410DB00E9215B /* ProcessStatus.swift */,
 				3D5995042DB4110700E9215B /* BatteryInfo.swift */,
 				3D5995062DB4112100E9215B /* MemoryUsage.swift */,
+				3D505B5E2DBA94B200510486 /* LoginModel.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -408,9 +416,11 @@
 				3D8423B32DB15082009CF847 /* OnboardingTests.swift in Sources */,
 				3D8423B02DB15044009CF847 /* LaunchTest.swift in Sources */,
 				3D59950E2DB413C100E9215B /* MockData.swift in Sources */,
+				3D505B602DBA9EE900510486 /* LoginModel.swift in Sources */,
 				3D78BB2A2DB550E5000E5C2F /* LoginViewUITests.swift in Sources */,
 				3D8423B12DB15061009CF847 /* Constant.swift in Sources */,
 				3D5995142DB4167700E9215B /* BatteryInfo.swift in Sources */,
+				3D505B612DBA9EF200510486 /* Onboarding.swift in Sources */,
 				3D59950C2DB4138E00E9215B /* NetworkService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -433,10 +443,12 @@
 				3D5995162DB41E0D00E9215B /* MockNetworkService.swift in Sources */,
 				3DCE458F2D68C1B200FACBB8 /* OnboardingView.swift in Sources */,
 				3DF9BA512D67762C00D0CC62 /* HomeView.swift in Sources */,
+				3D505B5D2DBA657B00510486 /* AppSettings.swift in Sources */,
 				3D5995072DB4112100E9215B /* MemoryUsage.swift in Sources */,
 				3D5994FC2DB30B0100E9215B /* LoginViewModel.swift in Sources */,
 				3D98C7F42D4FE04500462EF4 /* ContentView.swift in Sources */,
 				3D98C7F22D4FE04500462EF4 /* SPARApp.swift in Sources */,
+				3D505B5F2DBA94B200510486 /* LoginModel.swift in Sources */,
 				3D5995052DB4110700E9215B /* BatteryInfo.swift in Sources */,
 				3D5995012DB410BD00E9215B /* DeviceSpecification.swift in Sources */,
 				3DF9BA532D67767D00D0CC62 /* OnBoardingScreenView.swift in Sources */,
