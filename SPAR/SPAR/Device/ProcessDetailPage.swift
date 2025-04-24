@@ -9,8 +9,8 @@ import SwiftUI
 import Charts
 
 struct ProcessDetailPage: View {
-    let processList: [ProcessStatus]
-    
+    @StateObject private var viewModel = ProcessViewModel()
+
     @State private var showCPU = true // Toggle between CPU and Memory
     
     var body: some View {
@@ -29,7 +29,7 @@ struct ProcessDetailPage: View {
                 .padding(.horizontal)
 
                 Chart {
-                    ForEach(processList, id: \.id) { process in
+                    ForEach(viewModel.processList, id: \.id) { process in
                         BarMark(
                             x: .value("Process", "\(process.name) (\(process.pid))"),
                             y: .value(showCPU ? "CPU" : "Memory", showCPU ? process.cpuUsage : process.memoryMB)
@@ -45,7 +45,7 @@ struct ProcessDetailPage: View {
                 .frame(height: 300)
                 .padding(.horizontal)
 
-                ForEach(processList, id: \.id) { process in
+                ForEach(viewModel.processList, id: \.id) { process in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Text("PID: \(process.pid)")
@@ -95,10 +95,5 @@ struct ProcessDetailPage: View {
 
 
 #Preview {
-    ProcessDetailPage(processList: [
-        ProcessStatus(id: 101, userId: "user123", pid: 1234, name: "chrome.exe", cpuUsage: 12.5, memoryMB: 200.0, timestamp: "2025-04-13T15:29:00.236114"),
-        ProcessStatus(id: 102, userId: "user123", pid: 5678, name: "node.exe", cpuUsage: 5.0, memoryMB: 150.0, timestamp: "2025-04-13T15:29:00.236114"),
-        ProcessStatus(id: 103, userId: "user123", pid: 1234, name: "chrome.exe", cpuUsage: 12.5, memoryMB: 200.0, timestamp: "2025-04-19T11:33:17.675373"),
-        ProcessStatus(id: 104, userId: "user123", pid: 5678, name: "node.exe", cpuUsage: 5.0, memoryMB: 150.0, timestamp: "2025-04-19T11:33:17.675373")
-    ])
+    ProcessDetailPage( )
 }

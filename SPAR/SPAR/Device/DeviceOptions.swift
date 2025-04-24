@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct DeviceOptions: View {
     @Binding var currentView: AppView
 
@@ -62,7 +60,7 @@ struct DeviceOptions: View {
                             BatteryDetailView() }
                         NavigationButton(title: "CPU") { Text("CPU Info Page") }
                         NavigationButton(title: "Disk Usage") { MemoryUsageDetailView() }
-                        NavigationButton(title: "Running Processes") { Text("Processes Page") }
+                        NavigationButton(title: "Running Processes") { ProcessDetailPage() }
                     }
                     .padding(.horizontal)
                 }

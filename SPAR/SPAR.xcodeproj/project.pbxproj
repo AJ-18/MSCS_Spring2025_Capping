@@ -19,6 +19,7 @@
 		3D505B552DB9DD5500510486 /* ProcessDetailPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B542DB9DD5500510486 /* ProcessDetailPage.swift */; };
 		3D505B572DB9DF3F00510486 /* BatteryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */; };
 		3D505B592DB9E14700510486 /* MemoryUsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */; };
+		3D505B5B2DB9E3F700510486 /* ProcessViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */; };
 		3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F22DB2B79400E9215B /* LoginView.swift */; };
 		3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */; };
 		3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F72DB2C08500E9215B /* DeviceDetail.swift */; };
@@ -83,6 +84,7 @@
 		3D505B542DB9DD5500510486 /* ProcessDetailPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessDetailPage.swift; sourceTree = "<group>"; };
 		3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryViewModel.swift; sourceTree = "<group>"; };
 		3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryUsageViewModel.swift; sourceTree = "<group>"; };
+		3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessViewModel.swift; sourceTree = "<group>"; };
 		3D5994F22DB2B79400E9215B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAnimationView.swift; sourceTree = "<group>"; };
 		3D5994F72DB2C08500E9215B /* DeviceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetail.swift; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 				3D5994FB2DB30B0100E9215B /* LoginViewModel.swift */,
 				3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */,
 				3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */,
+				3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -420,6 +423,7 @@
 				3DCE458B2D68C19F00FACBB8 /* SplashScreenView.swift in Sources */,
 				3DCE458D2D68C1A900FACBB8 /* Logger+Extension.swift in Sources */,
 				3D505B4D2DB9C1BE00510486 /* DeviceOptions.swift in Sources */,
+				3D505B5B2DB9E3F700510486 /* ProcessViewModel.swift in Sources */,
 				3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */,
 				3DCE45912D68C7E700FACBB8 /* View+Extension.swift in Sources */,
 				3D505B592DB9E14700510486 /* MemoryUsageViewModel.swift in Sources */,
