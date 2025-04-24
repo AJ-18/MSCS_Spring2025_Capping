@@ -29,6 +29,8 @@ enum StringConstant {
     static let submit = "Submit"
     static let searchIcon  = "It's icon for searching device."
     static let searchText = "Search devices..."
+    static let sdearchText = "Search devices..."
+
     
 }
 
