@@ -12,6 +12,13 @@
 		3D07B53C2D85C4350085B32C /* HalfDonutChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53B2D85C4350085B32C /* HalfDonutChart.swift */; };
 		3D07B53E2D8887F30085B32C /* ContentSizeCategory+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53D2D8887F30085B32C /* ContentSizeCategory+Extension.swift */; };
 		3D07B5402D88881D0085B32C /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53F2D88881D0085B32C /* Onboarding.swift */; };
+		3D505B4D2DB9C1BE00510486 /* DeviceOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B4C2DB9C1BE00510486 /* DeviceOptions.swift */; };
+		3D505B4F2DB9C6AD00510486 /* NavigationButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B4E2DB9C6AD00510486 /* NavigationButton.swift */; };
+		3D505B512DB9D76200510486 /* BatteryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B502DB9D76200510486 /* BatteryDetailView.swift */; };
+		3D505B532DB9DAA500510486 /* MemoryUsageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B522DB9DAA500510486 /* MemoryUsageDetailView.swift */; };
+		3D505B552DB9DD5500510486 /* ProcessDetailPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B542DB9DD5500510486 /* ProcessDetailPage.swift */; };
+		3D505B572DB9DF3F00510486 /* BatteryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */; };
+		3D505B592DB9E14700510486 /* MemoryUsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */; };
 		3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F22DB2B79400E9215B /* LoginView.swift */; };
 		3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */; };
 		3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F72DB2C08500E9215B /* DeviceDetail.swift */; };
@@ -69,6 +76,13 @@
 		3D07B53B2D85C4350085B32C /* HalfDonutChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HalfDonutChart.swift; sourceTree = "<group>"; };
 		3D07B53D2D8887F30085B32C /* ContentSizeCategory+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentSizeCategory+Extension.swift"; sourceTree = "<group>"; };
 		3D07B53F2D88881D0085B32C /* Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding.swift; sourceTree = "<group>"; };
+		3D505B4C2DB9C1BE00510486 /* DeviceOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceOptions.swift; sourceTree = "<group>"; };
+		3D505B4E2DB9C6AD00510486 /* NavigationButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButton.swift; sourceTree = "<group>"; };
+		3D505B502DB9D76200510486 /* BatteryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryDetailView.swift; sourceTree = "<group>"; };
+		3D505B522DB9DAA500510486 /* MemoryUsageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryUsageDetailView.swift; sourceTree = "<group>"; };
+		3D505B542DB9DD5500510486 /* ProcessDetailPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessDetailPage.swift; sourceTree = "<group>"; };
+		3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryViewModel.swift; sourceTree = "<group>"; };
+		3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryUsageViewModel.swift; sourceTree = "<group>"; };
 		3D5994F22DB2B79400E9215B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAnimationView.swift; sourceTree = "<group>"; };
 		3D5994F72DB2C08500E9215B /* DeviceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetail.swift; sourceTree = "<group>"; };
@@ -143,6 +157,7 @@
 			isa = PBXGroup;
 			children = (
 				3DCE45882D68C19200FACBB8 /* Constant.swift */,
+				3D505B4E2DB9C6AD00510486 /* NavigationButton.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -161,6 +176,8 @@
 				3D07B5392D85C3EC0085B32C /* ChartDataContainer.swift */,
 				3D5994F92DB307B400E9215B /* HomeViewModel.swift */,
 				3D5994FB2DB30B0100E9215B /* LoginViewModel.swift */,
+				3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */,
+				3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -177,6 +194,17 @@
 				3D5995062DB4112100E9215B /* MemoryUsage.swift */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		3D505B4B2DB9C19000510486 /* Device */ = {
+			isa = PBXGroup;
+			children = (
+				3D505B4C2DB9C1BE00510486 /* DeviceOptions.swift */,
+				3D505B502DB9D76200510486 /* BatteryDetailView.swift */,
+				3D505B522DB9DAA500510486 /* MemoryUsageDetailView.swift */,
+				3D505B542DB9DD5500510486 /* ProcessDetailPage.swift */,
+			);
+			path = Device;
 			sourceTree = "<group>";
 		};
 		3D5994F12DB2ACB300E9215B /* Login */ = {
@@ -239,6 +267,7 @@
 		3D98C7F02D4FE04500462EF4 /* SPAR */ = {
 			isa = PBXGroup;
 			children = (
+				3D505B4B2DB9C19000510486 /* Device */,
 				3D5994FD2DB3FF0700E9215B /* NetworkService */,
 				3D5994F62DB2C05E00E9215B /* Device detail Page */,
 				3D5994F12DB2ACB300E9215B /* Login */,
@@ -390,8 +419,11 @@
 				3D5994FA2DB307B400E9215B /* HomeViewModel.swift in Sources */,
 				3DCE458B2D68C19F00FACBB8 /* SplashScreenView.swift in Sources */,
 				3DCE458D2D68C1A900FACBB8 /* Logger+Extension.swift in Sources */,
+				3D505B4D2DB9C1BE00510486 /* DeviceOptions.swift in Sources */,
 				3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */,
 				3DCE45912D68C7E700FACBB8 /* View+Extension.swift in Sources */,
+				3D505B592DB9E14700510486 /* MemoryUsageViewModel.swift in Sources */,
+				3D505B552DB9DD5500510486 /* ProcessDetailPage.swift in Sources */,
 				3D5995172DB41E1500E9215B /* MockData.swift in Sources */,
 				3DF9BA592D678A9300D0CC62 /* (null) in Sources */,
 				3D5995162DB41E0D00E9215B /* MockNetworkService.swift in Sources */,
@@ -404,14 +436,18 @@
 				3D5995052DB4110700E9215B /* BatteryInfo.swift in Sources */,
 				3D5995012DB410BD00E9215B /* DeviceSpecification.swift in Sources */,
 				3DF9BA532D67767D00D0CC62 /* OnBoardingScreenView.swift in Sources */,
+				3D505B532DB9DAA500510486 /* MemoryUsageDetailView.swift in Sources */,
 				3D07B5382D85C3BB0085B32C /* ChartData.swift in Sources */,
 				3D5995092DB4114200E9215B /* NetworkManager.swift in Sources */,
 				3D5994FF2DB3FFBE00E9215B /* NetworkService.swift in Sources */,
 				3D5995032DB410DB00E9215B /* ProcessStatus.swift in Sources */,
 				3D07B53E2D8887F30085B32C /* ContentSizeCategory+Extension.swift in Sources */,
+				3D505B4F2DB9C6AD00510486 /* NavigationButton.swift in Sources */,
+				3D505B512DB9D76200510486 /* BatteryDetailView.swift in Sources */,
 				3D07B53A2D85C3EC0085B32C /* ChartDataContainer.swift in Sources */,
 				3D07B5402D88881D0085B32C /* Onboarding.swift in Sources */,
 				3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */,
+				3D505B572DB9DF3F00510486 /* BatteryViewModel.swift in Sources */,
 				3DCE45892D68C19200FACBB8 /* Constant.swift in Sources */,
 				3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */,
 				3D07B53C2D85C4350085B32C /* HalfDonutChart.swift in Sources */,

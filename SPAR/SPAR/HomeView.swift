@@ -6,11 +6,8 @@
 //
 
 import SwiftUI
-import Charts
-
 
 import SwiftUI
-import Charts
 
 struct HomeView: View {
     @Binding var currentView: AppView
@@ -35,7 +32,8 @@ struct HomeView: View {
                 HStack {
                     if viewModel.isSearching {
                         HStack {
-                            Image(systemName: ImageConstant.magnifyingGlass) .accessibilityLabel(StringConstant.searchIcon)
+                            Image(systemName: ImageConstant.magnifyingGlass)
+                                .accessibilityLabel(StringConstant.searchIcon)
                             TextField(StringConstant.searchText, text: $viewModel.searchText)
                                 .textFieldStyle(PlainTextFieldStyle())
                                 .autocorrectionDisabled(true)
@@ -76,24 +74,12 @@ struct HomeView: View {
                 // Devices List
                 ScrollView {
                     LazyVStack(spacing: 15) {
-                        ForEach(viewModel.filteredDevices, id: \.self) { device in
-                            NavigationLink {
-                                DeviceDetail(currentView: $currentView)
-                            } label: {
-                                HStack {
-                                    Text(device)
-                                        .font(.title3)
-                                        .padding()
-                                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-                                    Spacer()
-                                    Image(systemName: ImageConstant.chevronRight)
-                                        .padding()
-                                }
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue.opacity(0.1))
-                                .cornerRadius(10)
-                                .padding(.horizontal)
+                        ForEach(viewModel.devices, id: \.id) { device in
+                            // Replaced NavigationLink with NavigationButton
+                            NavigationButton(title: device.deviceName) {
+                                DeviceOptions(currentView: $currentView, device: device) // Pass device to next page
                             }
+                            .padding(.horizontal)
                         }
                     }
                     .padding(.top, 10)
@@ -113,5 +99,3 @@ struct HomeView: View {
 #Preview {
     HomeView(currentView: .constant(.home))
 }
-
-
