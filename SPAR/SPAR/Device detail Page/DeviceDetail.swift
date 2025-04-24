@@ -54,5 +54,5 @@ struct DeviceDetail: View {
 }
 
 #Preview {
-    HomeView(currentView: .constant(.detailPage))
+    DeviceDetail(currentView: .constant(.detailPage))
 }

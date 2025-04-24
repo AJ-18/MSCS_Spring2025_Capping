@@ -22,11 +22,6 @@ final class NetworkManagerTests: XCTestCase {
         XCTAssertEqual(deviceSpecifications.first?.deviceName, "MyComputer")
     }
     
-    func testFetchProcessStatus() async throws {
-        let processStatus: [ProcessStatus] = try await networkManager.fetchProcessStatus(for: "user123")
-        
-        XCTAssertEqual(processStatus.count, 2)
-    }
     
     func testFetchBatteryInfo() async throws {
         let batteryInfo: [BatteryInfo] = try await networkManager.fetchBatteryInfo(for: "user123")

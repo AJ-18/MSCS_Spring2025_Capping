@@ -11,6 +11,7 @@ import OSLog
 @main
 struct SPARApp: App {
     let logger = Logger.fileLocation
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
