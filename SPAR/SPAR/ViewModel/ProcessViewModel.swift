@@ -10,10 +10,10 @@ import Foundation
 class ProcessViewModel: ObservableObject {
     let processList: [ProcessStatus]
  = [
-    ProcessStatus(id: 101, userId: "user123", pid: 1234, name: "chrome.exe", cpuUsage: 12.5, memoryMB: 200.0, timestamp: "2025-04-13T15:29:00.236114"),
-    ProcessStatus(id: 102, userId: "user123", pid: 5678, name: "node.exe", cpuUsage: 5.0, memoryMB: 150.0, timestamp: "2025-04-13T15:29:00.236114"),
-    ProcessStatus(id: 103, userId: "user123", pid: 1234, name: "chrome.exe", cpuUsage: 12.5, memoryMB: 200.0, timestamp: "2025-04-19T11:33:17.675373"),
-    ProcessStatus(id: 104, userId: "user123", pid: 5678, name: "node.exe", cpuUsage: 5.0, memoryMB: 150.0, timestamp: "2025-04-19T11:33:17.675373")
+    ProcessStatus(id: 101, userId: "user123", pid: 1234, name: "chrome.exe", cpuUsage: 12.5, memoryMB: 200.0, timestamp: "2025-04-13T15:29:00.236114".toFormattedDate()),
+    ProcessStatus(id: 102, userId: "user123", pid: 5678, name: "node.exe", cpuUsage: 5.0, memoryMB: 150.0, timestamp: "2025-04-13T15:29:00.236114".toFormattedDate()),
+    ProcessStatus(id: 103, userId: "user123", pid: 1234, name: "chrome.exe", cpuUsage: 12.5, memoryMB: 200.0, timestamp: "2025-04-19T11:33:17.675373".toFormattedDate()),
+    ProcessStatus(id: 104, userId: "user123", pid: 5678, name: "node.exe", cpuUsage: 5.0, memoryMB: 150.0, timestamp: "2025-04-19T11:33:17.675373".toFormattedDate())
 ]
 
 }

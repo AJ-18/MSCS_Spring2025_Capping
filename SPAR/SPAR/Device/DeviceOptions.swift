@@ -38,7 +38,7 @@ struct DeviceOptions: View {
                             DeviceInfoRow(label: "Graphics", value: device.graphics)
                             DeviceInfoRow(label: "OS", value: device.operatingSystem)
                             DeviceInfoRow(label: "System Type", value: device.systemType)
-                            DeviceInfoRow(label: "Timestamp", value: device.timestamp)
+                            DeviceInfoRow(label: "Timestamp", value: device.timestamp.toFormattedDate())
                         }
                     }
                     .padding()
@@ -57,9 +57,11 @@ struct DeviceOptions: View {
                     // Glowing Navigation Buttons
                     VStack(spacing: 20) {
                         NavigationButton(title: "Battery Info") {
-                            BatteryDetailView() }
-                        NavigationButton(title: "CPU") { Text("CPU Info Page") }
-                        NavigationButton(title: "Disk Usage") { MemoryUsageDetailView() }
+                            BatteryDetailView(device: device) }
+                        NavigationButton(title: "CPU") { CpuUsageDetailView() }
+                        NavigationButton(title: "Memory Ussage") { MemoryUsageDetailView() }
+                        NavigationButton(title: "Disk Ussage ") { DiskUsageDetailView() }
+                        NavigationButton(title: "Disk IO ") { DiskIODetailView() }
                         NavigationButton(title: "Running Processes") { ProcessDetailPage() }
                     }
                     .padding(.horizontal)

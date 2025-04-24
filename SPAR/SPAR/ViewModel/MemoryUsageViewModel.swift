@@ -20,7 +20,7 @@ class MemoryUsageViewModel: ObservableObject {
             totalMemory: 16.0,
             usedMemory: 8.5,
             availableMemory: 7.5,
-            timestamp: "2025-04-19"
+            timestamp: "2025-04-19".toFormattedDate()
         )
         self.memoryInfo = memoryInfo
         
