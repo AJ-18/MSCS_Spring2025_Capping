@@ -38,6 +38,7 @@ struct OnBoardingScreenView: View {
             if showButton {
                 Button(action: {
                     // Change to home view when button is tapped
+                    AppSettings.shared.hasCompletedOnboarding = true
                     currentView = .login
                     logger.info("\(LoggerConstant.getStartedTapped)")
                 }) {
