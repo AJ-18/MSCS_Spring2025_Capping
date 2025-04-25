@@ -1,40 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import MetricGauge from './MetricGauge';
 import ProcessTable from './ProcessTable';
-import { mockSystemMetrics } from '../mocks/systemMetrics.mock';
 import { fetchSystemMetrics } from '../services/systemMetrics';
-
-// Sample metrics data structure for CPU, Memory, and Disk
-const systemMetrics = {
-  cpu: {
-    usage: 67,        // CPU usage percentage
-    color: '#36B5C5'  // Color for CPU gauge
-  },
-  memory: {
-    used: 1.65,       // GB of RAM used
-    total: 1.75,      // Total GB of RAM
-    color: '#2A9D8F'  // Color for memory gauge
-  },
-  disk: {
-    used: 9.67,       // GB of disk used
-    total: 20,        // Total GB of disk space
-    color: '#E63946'  // Color for disk gauge
-  }
-};
-
-// Sample process data for the process table
-const processData = [
-  // Each process has PID, name, CPU usage, memory usage, and runtime
-  { pid: 1, name: 'ROOT', cpu: 14, memory: 0.25, time: '0:13:34' },
-  { pid: 2, name: 'CHROME', cpu: 34, memory: 0.50, time: '0:19:15' },
-  { pid: 3, name: 'XLR', cpu: 2, memory: 0.20, time: '0:03:29' },
-  { pid: 4, name: 'SPOTIFY', cpu: 5, memory: 0.35, time: '1:22:45' },
-];
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Define gauge colors
   const gaugeColors = {
@@ -43,8 +17,20 @@ const Dashboard = () => {
     disk: '#45B7D1'     // Blue
   };
 
+  const handleLogout = () => {
+    // Clear all stored authentication data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('deviceId');
+    
+    // The metrics polling will automatically stop when the token is removed
+    // Navigate to login page
+    navigate('/login');
+  };
+
   useEffect(() => {
     let mounted = true;
+    let intervalId;
 
     const loadMetrics = async () => {
       try {
@@ -55,9 +41,8 @@ const Dashboard = () => {
         }
       } catch (err) {
         if (mounted) {
-          console.error('Error fetching metrics:', err);
+          console.error('Error loading metrics:', err);
           setError('Error loading system metrics');
-          setMetrics(null);
         }
       } finally {
         if (mounted) {
@@ -66,10 +51,17 @@ const Dashboard = () => {
       }
     };
 
+    // Load metrics immediately
     loadMetrics();
+
+    // Then update every 5 seconds
+    intervalId = setInterval(loadMetrics, 5000);
 
     return () => {
       mounted = false;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
   }, []);
 
@@ -82,7 +74,15 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-serif">S.P.A.R</h1>
-          <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+            >
+              Logout
+            </button>
+            <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
+          </div>
         </header>
 
         <div className="grid grid-cols-3 gap-6 mb-8">
@@ -108,7 +108,11 @@ const Dashboard = () => {
 
         <div className="bg-white rounded-lg p-6">
           <h2 className="text-xl font-medium mb-4">System Info</h2>
-          <ProcessTable processes={processData} />
+          <ProcessTable processes={[
+            { pid: 1, name: 'System', cpu: Math.random() * 10, memory: 0.5, time: '1:30:00' },
+            { pid: 2, name: 'User', cpu: Math.random() * 20, memory: 1.2, time: '0:45:30' },
+            { pid: 3, name: 'Browser', cpu: Math.random() * 30, memory: 2.1, time: '2:15:45' },
+          ]} />
         </div>
       </div>
     </div>
