@@ -16,7 +16,7 @@ class CpuUsageViewModel: ObservableObject {
 
     private let logger = Logger.fileLocation
 
-    init() {
+    init(device: DeviceSpecification) {
         // Sample data
         let sampleCoreData = [
             CpuCoreUsage(core: 1, usage: 35.0),

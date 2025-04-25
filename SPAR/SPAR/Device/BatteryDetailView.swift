@@ -13,7 +13,7 @@ struct BatteryDetailView: View {
     init(device: DeviceSpecification) {
           _viewModel = StateObject(wrappedValue: BatteryViewModel(device: device))
           self.device = device
-      }
+    }
 
     var body: some View {
         ZStack {

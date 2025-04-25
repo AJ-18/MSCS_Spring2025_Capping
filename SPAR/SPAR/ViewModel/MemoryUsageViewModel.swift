@@ -12,7 +12,7 @@ class MemoryUsageViewModel: ObservableObject {
     
     @Published var chartData: ChartData
 
-    init() {
+    init(device: DeviceSpecification) {
         // Initializing with some default data or fetching from an API or database.
         let memoryInfo = MemoryUsage(
             id: 1,

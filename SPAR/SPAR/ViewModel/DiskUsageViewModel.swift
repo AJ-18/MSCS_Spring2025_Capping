@@ -15,7 +15,7 @@ class DiskUsageViewModel: ObservableObject {
 
     private let logger = Logger.fileLocation
 
-    init() {
+    init(device: DeviceSpecification) {
         let diskInfo = DiskUsage(
             id: 1,
             filesystem: "/dev/sda1",

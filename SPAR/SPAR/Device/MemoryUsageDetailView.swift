@@ -8,7 +8,12 @@
 import SwiftUI
 
 struct MemoryUsageDetailView: View {
-    @StateObject private var viewModel = MemoryUsageViewModel()
+    @StateObject private var viewModel: MemoryUsageViewModel
+    let device: DeviceSpecification
+    init(device: DeviceSpecification) {
+          _viewModel = StateObject(wrappedValue: MemoryUsageViewModel(device: device))
+          self.device = device
+    }
 
     var body: some View {
         ZStack {
@@ -44,5 +49,19 @@ struct MemoryUsageDetailView: View {
 }
 
 #Preview {
-    MemoryUsageDetailView()
+    MemoryUsageDetailView(device: DeviceSpecification(
+        id: 1,
+        userId: "User123",
+        deviceName: "MyComputer",
+        manufacturer: "Dell",
+        model: "Inspiron 15",
+        processor: "Intel Core i7 2.8 GHz",
+        cpuPhysicalCores: 4,
+        cpuLogicalCores: 8,
+        installedRam: 16.0,
+        graphics: "NVIDIA GTX 1650",
+        operatingSystem: "Windows 10 x64",
+        systemType: "x64-based processor",
+        timestamp: "2025-03-28T16:03:30.041384"
+    ))
 }

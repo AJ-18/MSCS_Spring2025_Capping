@@ -14,7 +14,7 @@ class DiskIOViewModel: ObservableObject {
 
     private let logger = Logger.fileLocation
 
-    init() {
+    init(device: DeviceSpecification) {
         // Sample static data for testing purposes
         let sampleDiskIO = DiskIO(
             id: 5,

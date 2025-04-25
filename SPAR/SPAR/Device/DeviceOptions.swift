@@ -58,11 +58,11 @@ struct DeviceOptions: View {
                     VStack(spacing: 20) {
                         NavigationButton(title: "Battery Info") {
                             BatteryDetailView(device: device) }
-                        NavigationButton(title: "CPU") { CpuUsageDetailView() }
-                        NavigationButton(title: "Memory Ussage") { MemoryUsageDetailView() }
-                        NavigationButton(title: "Disk Ussage ") { DiskUsageDetailView() }
-                        NavigationButton(title: "Disk IO ") { DiskIODetailView() }
-                        NavigationButton(title: "Running Processes") { ProcessDetailPage() }
+                        NavigationButton(title: "CPU") { CpuUsageDetailView(device: device) }
+                        NavigationButton(title: "Memory Ussage") { MemoryUsageDetailView(device: device) }
+                        NavigationButton(title: "Disk Ussage ") { DiskUsageDetailView(device: device) }
+                        NavigationButton(title: "Disk IO ") { DiskIODetailView(device: device) }
+                        NavigationButton(title: "Running Processes") { ProcessDetailPage(device: device) }
                     }
                     .padding(.horizontal)
                 }

@@ -9,7 +9,12 @@ import SwiftUI
 import Charts
 
 struct ProcessDetailPage: View {
-    @StateObject private var viewModel = ProcessViewModel()
+    @StateObject private var viewModel: ProcessViewModel
+    let device: DeviceSpecification
+    init(device: DeviceSpecification) {
+          _viewModel = StateObject(wrappedValue: ProcessViewModel(device: device))
+          self.device = device
+    }
 
     @State private var showCPU = true // Toggle between CPU and Memory
     
@@ -95,5 +100,19 @@ struct ProcessDetailPage: View {
 
 
 #Preview {
-    ProcessDetailPage( )
+    ProcessDetailPage( device: DeviceSpecification(
+        id: 1,
+        userId: "User123",
+        deviceName: "MyComputer",
+        manufacturer: "Dell",
+        model: "Inspiron 15",
+        processor: "Intel Core i7 2.8 GHz",
+        cpuPhysicalCores: 4,
+        cpuLogicalCores: 8,
+        installedRam: 16.0,
+        graphics: "NVIDIA GTX 1650",
+        operatingSystem: "Windows 10 x64",
+        systemType: "x64-based processor",
+        timestamp: "2025-03-28T16:03:30.041384"
+    ))
 }

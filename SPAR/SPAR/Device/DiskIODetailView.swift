@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import Charts
 
 struct DiskIODetailView: View {
-    @StateObject private var viewModel = DiskIOViewModel()
+    @StateObject private var viewModel: DiskIOViewModel
+    let device: DeviceSpecification
+    init(device: DeviceSpecification) {
+          _viewModel = StateObject(wrappedValue: DiskIOViewModel(device: device))
+          self.device = device
+    }
 
     var body: some View {
         ZStack {
@@ -73,5 +76,19 @@ struct DiskIODetailView: View {
 
 
 #Preview {
-    DiskIODetailView()
+    DiskIODetailView(device: DeviceSpecification(
+        id: 1,
+        userId: "User123",
+        deviceName: "MyComputer",
+        manufacturer: "Dell",
+        model: "Inspiron 15",
+        processor: "Intel Core i7 2.8 GHz",
+        cpuPhysicalCores: 4,
+        cpuLogicalCores: 8,
+        installedRam: 16.0,
+        graphics: "NVIDIA GTX 1650",
+        operatingSystem: "Windows 10 x64",
+        systemType: "x64-based processor",
+        timestamp: "2025-03-28T16:03:30.041384"
+    ))
 }
