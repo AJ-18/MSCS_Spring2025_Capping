@@ -28,7 +28,7 @@ struct BatteryDetailView: View {
 
                 VStack(spacing: 30) {
                     // Title
-                    Text("Battery Status")
+                    Text(StringConstant.batteryStatus)
                         .font(.title)
                         .fontWeight(.bold)
                         .accessibilityAddTraits(.isHeader)
@@ -66,10 +66,10 @@ struct BatteryDetailView: View {
 
                     // Info Rows
                     VStack(alignment: .leading, spacing: 15) {
-                        InfoRow(label: "Device Name", value: device.deviceName)
-                        InfoRow(label: "Charging", value: viewModel.batteryInfo.charging ? "Yes ⚡️" : "No")
-                        InfoRow(label: "Power Consumption", value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
-                        InfoRow(label: "Timestamp", value: viewModel.batteryInfo.timestamp)
+                        InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                        InfoRow(label: StringConstant.Charging, value: viewModel.batteryInfo.charging ? StringConstant.batYes : StringConstant.batNo)
+                        InfoRow(label: StringConstant.power, value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
+                        InfoRow(label: StringConstant.timestamp, value: viewModel.batteryInfo.timestamp)
                     }
                 }
                 .padding()

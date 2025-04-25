@@ -33,11 +33,11 @@ struct MemoryUsageDetailView: View {
                 HalfDonutChart(chartDataObj: $viewModel.chartData)
 
                 VStack(alignment: .leading, spacing: 15) {
-                    InfoRow(label: "Device Name", value: device.deviceName)
-                    InfoRow(label: "Total Memory", value: String(format: "%.2f GB", viewModel.memoryInfo.totalMemory))
-                    InfoRow(label: "Used Memory", value: String(format: "%.2f GB", viewModel.memoryInfo.usedMemory))
-                    InfoRow(label: "Available Memory", value: String(format: "%.2f GB", viewModel.memoryInfo.availableMemory))
-                    InfoRow(label: "Timestamp", value: viewModel.memoryInfo.timestamp)
+                    InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                    InfoRow(label: StringConstant.totalMemeory, value: String(format: "%.2f GB", viewModel.memoryInfo.totalMemory))
+                    InfoRow(label: StringConstant.usedMemory, value: String(format: "%.2f GB", viewModel.memoryInfo.usedMemory))
+                    InfoRow(label: StringConstant.availableMemory, value: String(format: "%.2f GB", viewModel.memoryInfo.availableMemory))
+                    InfoRow(label: StringConstant.timestamp, value: viewModel.memoryInfo.timestamp)
                 }
                 .padding()
                 .frame(maxWidth: 320)

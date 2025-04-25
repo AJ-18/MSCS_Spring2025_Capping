@@ -26,7 +26,7 @@ struct CpuUsageDetailView: View {
 
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("CPU Usage")
+                    Text(StringConstant.cpuUsage)
                         .font(.largeTitle)
                         .bold()
                         .accessibilityAddTraits(.isHeader)
@@ -46,15 +46,14 @@ struct CpuUsageDetailView: View {
                     // Display CPU Usage Details
                     if let usage = viewModel.cpuUsage {
                         VStack(alignment: .leading, spacing: 16) {
-                            InfoRow(label: "Device Name", value: device.deviceName)
-                            InfoRow(label: "Total CPU Load", value: String(format: "%.1f%%", usage.totalCpuLoad))
-                            InfoRow(label: "Device Name", value: device.deviceName)
-                            InfoRow(label: "Timestamp", value: usage.timestamp)
+                            InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                            InfoRow(label: StringConstant.totalCPULoad, value: String(format: "%.1f%%", usage.totalCpuLoad))
+                            InfoRow(label: StringConstant.timestamp, value: usage.timestamp)
 
                             Divider().padding(.vertical, 8)
 
                             // Display Per-Core Usage List
-                            Text("All Core Usage")
+                            Text(StringConstant.allCore)
                                 .font(.headline)
 
                             ForEach(usage.perCoreUsage, id: \.core) { coreUsage in
@@ -64,7 +63,7 @@ struct CpuUsageDetailView: View {
                             Divider().padding(.vertical, 8)
 
                             // Display Top 5 Core Usage with Bar Graph
-                            Text("Top 5 Core Usage")
+                            Text(StringConstant.topFive)
                                 .font(.headline)
                                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 

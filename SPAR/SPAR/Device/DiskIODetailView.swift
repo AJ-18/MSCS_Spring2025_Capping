@@ -25,7 +25,7 @@ struct DiskIODetailView: View {
 
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("Disk I/O Usage")
+                    Text(StringConstant.diskIOUssage)
                         .font(.largeTitle)
                         .bold()
                         .accessibilityAddTraits(.isHeader)
@@ -36,15 +36,16 @@ struct DiskIODetailView: View {
                     // Displaying read and write speeds in a simple chart
                     if let diskIO = viewModel.diskIO {
                         VStack(alignment: .leading, spacing: 16) {
-                            InfoRow(label: "Device Name", value: device.deviceName)
-                            InfoRow(label: "Read Speed (MBps)", value: String(format: "%.1f MBps", diskIO.readSpeedMBps))
-                            InfoRow(label: "Write Speed (MBps)", value: String(format: "%.1f MBps", diskIO.writeSpeedMBps))
-                            InfoRow(label: "Timestamp", value: diskIO.timestamp)
+                            InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                            InfoRow(label: StringConstant.RS, value: String(format: "%.1f MBps", diskIO.readSpeedMBps))
+                            InfoRow(label: StringConstant.WS, value: String(format: "%.1f MBps", diskIO.writeSpeedMBps))
+                            InfoRow(label: StringConstant.timestamp, value: diskIO.timestamp)
 
                             Divider().padding(.vertical, 8)
 
-                            Text("Disk I/O Chart")
+                            Text(StringConstant.diskIOChart)
                                 .font(.headline)
+                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                             
                             Chart {
                                 BarMark(

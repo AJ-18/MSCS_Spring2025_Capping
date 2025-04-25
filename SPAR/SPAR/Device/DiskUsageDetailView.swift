@@ -23,7 +23,7 @@ struct DiskUsageDetailView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 30) {
-                Text("Disk Usage")
+                Text(StringConstant.diskUsage)
                     .font(.largeTitle)
                     .bold()
                     .accessibilityAddTraits(.isHeader)
@@ -34,12 +34,12 @@ struct DiskUsageDetailView: View {
 
                 if let diskInfo = viewModel.diskUsage {
                     VStack(alignment: .leading, spacing: 15) {
-                        InfoRow(label: "Device Name", value: device.deviceName)
-                        InfoRow(label: "Filesystem", value: diskInfo.filesystem)
-                        InfoRow(label: "Total Size", value: String(format: "%.2f GB", diskInfo.sizeGB))
-                        InfoRow(label: "Used Space", value: String(format: "%.2f GB", diskInfo.usedGB))
-                        InfoRow(label: "Available Space", value: String(format: "%.2f GB", diskInfo.availableGB))
-                        InfoRow(label: "Timestamp", value: diskInfo.timestamp)
+                        InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                        InfoRow(label: StringConstant.filesystem, value: diskInfo.filesystem)
+                        InfoRow(label: StringConstant.size, value: String(format: "%.2f GB", diskInfo.sizeGB))
+                        InfoRow(label: StringConstant.usedSpace, value: String(format: "%.2f GB", diskInfo.usedGB))
+                        InfoRow(label: StringConstant.availableSpace, value: String(format: "%.2f GB", diskInfo.availableGB))
+                        InfoRow(label: StringConstant.timestamp, value: diskInfo.timestamp)
                     }
                     .padding()
                     .frame(maxWidth: 320)

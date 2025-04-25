@@ -23,16 +23,16 @@ struct ProcessDetailPage: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                Text("Process Monitor")
+                Text(StringConstant.processMonitor)
                     .font(.largeTitle)
                     .bold()
                     .padding(.top)
                     .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-                Picker("Metric", selection: $showCPU) {
-                    Text("CPU Usage").tag(true)
+                Picker(StringConstant.metric, selection: $showCPU) {
+                    Text(StringConstant.cpuUsage).tag(true)
                         .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-                    Text("Memory Usage").tag(false)
+                    Text(StringConstant.memoryUsage).tag(false)
                         .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                 }
                 .pickerStyle(.segmented)
@@ -41,8 +41,8 @@ struct ProcessDetailPage: View {
                 Chart {
                     ForEach(viewModel.processList, id: \.id) { process in
                         BarMark(
-                            x: .value("Process", "\(process.name) (\(process.pid))"),
-                            y: .value(showCPU ? "CPU" : "Memory", showCPU ? process.cpuUsage : process.memoryMB)
+                            x: .value(StringConstant.process, "\(process.name) (\(process.pid))"),
+                            y: .value(showCPU ? StringConstant.cpu : StringConstant.memory, showCPU ? process.cpuUsage : process.memoryMB)
                         )
                         .foregroundStyle(showCPU ? Color.blue : Color.green)
                         .annotation(position: .top) {
