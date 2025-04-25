@@ -11,6 +11,8 @@ import SwiftUI
 class HomeViewModel: ObservableObject {
     @Published var isSearching = false
     @Published var searchText = ""
+    @Published var animate: Bool = false
+
     // Accepts list of DeviceSpecification
     let devices: [DeviceSpecification] = [
         DeviceSpecification(

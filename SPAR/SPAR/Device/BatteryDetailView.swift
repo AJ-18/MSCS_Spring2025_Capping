@@ -8,8 +8,14 @@
 import SwiftUI
 
 struct BatteryDetailView: View {
-    @StateObject private var viewModel = BatteryViewModel()
+    @StateObject private var viewModel: BatteryViewModel
+    let device: DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
 
+    init(device: DeviceSpecification) {
+          _viewModel = StateObject(wrappedValue: BatteryViewModel(device: device))
+          self.device = device
+    }
 
     var body: some View {
         ZStack {
@@ -22,10 +28,11 @@ struct BatteryDetailView: View {
 
                 VStack(spacing: 30) {
                     // Title
-                    Text("Battery Status")
+                    Text(StringConstant.batteryStatus)
                         .font(.title)
                         .fontWeight(.bold)
                         .accessibilityAddTraits(.isHeader)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                     // Battery Visualization
                     VStack(spacing: 8) {
@@ -51,6 +58,7 @@ struct BatteryDetailView: View {
                                 .foregroundColor(.white)
                                 .frame(width: 200, height: 80)
                                 .background(Color.clear)
+                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                         }
 
             
@@ -58,9 +66,10 @@ struct BatteryDetailView: View {
 
                     // Info Rows
                     VStack(alignment: .leading, spacing: 15) {
-                        InfoRow(label: "Charging", value: viewModel.batteryInfo.charging ? "Yes ⚡️" : "No")
-                        InfoRow(label: "Power Consumption", value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
-                        InfoRow(label: "Timestamp", value: viewModel.batteryInfo.timestamp)
+                        InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                        InfoRow(label: StringConstant.Charging, value: viewModel.batteryInfo.charging ? StringConstant.batYes : StringConstant.batNo)
+                        InfoRow(label: StringConstant.power, value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
+                        InfoRow(label: StringConstant.timestamp, value: viewModel.batteryInfo.timestamp)
                     }
                 }
                 .padding()
@@ -72,6 +81,8 @@ struct BatteryDetailView: View {
                 Spacer()
             }
             .padding()
+        }.onAppear {
+            self.logPageVisit()
         }
     }
 
@@ -94,23 +105,23 @@ struct BatteryDetailView: View {
     }
 }
 
-struct InfoRow: View {
-    let label: String
-    let value: String
 
-    var body: some View {
-        HStack {
-            Text(label)
-                .fontWeight(.semibold)
-                .foregroundColor(.gray)
-            Spacer()
-            Text(value)
-                .foregroundColor(.black)
-        }
-    }
-}
 
 #Preview {
-    BatteryDetailView()
+    BatteryDetailView(device: DeviceSpecification(
+        id: 1,
+        userId: "User123",
+        deviceName: "MyComputer",
+        manufacturer: "Dell",
+        model: "Inspiron 15",
+        processor: "Intel Core i7 2.8 GHz",
+        cpuPhysicalCores: 4,
+        cpuLogicalCores: 8,
+        installedRam: 16.0,
+        graphics: "NVIDIA GTX 1650",
+        operatingSystem: "Windows 10 x64",
+        systemType: "x64-based processor",
+        timestamp: "2025-03-28T16:03:30.041384"
+    ))
 }
 

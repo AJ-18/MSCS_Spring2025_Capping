@@ -24,6 +24,19 @@
 		3D505B5F2DBA94B200510486 /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5E2DBA94B200510486 /* LoginModel.swift */; };
 		3D505B602DBA9EE900510486 /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5E2DBA94B200510486 /* LoginModel.swift */; };
 		3D505B612DBA9EF200510486 /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D07B53F2D88881D0085B32C /* Onboarding.swift */; };
+		3D505B632DBAAE2C00510486 /* DiskUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B622DBAAE2C00510486 /* DiskUsage.swift */; };
+		3D505B652DBAAE4D00510486 /* DiskUsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B642DBAAE4D00510486 /* DiskUsageViewModel.swift */; };
+		3D505B672DBAAFFE00510486 /* DiskUsageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B662DBAAFFE00510486 /* DiskUsageDetailView.swift */; };
+		3D505B692DBAB31D00510486 /* CPUUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B682DBAB31D00510486 /* CPUUsage.swift */; };
+		3D505B6B2DBAC5EC00510486 /* CpuUsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B6A2DBAC5EC00510486 /* CpuUsageViewModel.swift */; };
+		3D505B6D2DBAC6EA00510486 /* CpuUsageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B6C2DBAC6EA00510486 /* CpuUsageDetailView.swift */; };
+		3D505B6F2DBACDCA00510486 /* DiskIOModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B6E2DBACDCA00510486 /* DiskIOModel.swift */; };
+		3D505B712DBACDE500510486 /* DiskIOViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B702DBACDE500510486 /* DiskIOViewModel.swift */; };
+		3D505B732DBACE3800510486 /* DiskIODetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B722DBACE3800510486 /* DiskIODetailView.swift */; };
+		3D505B752DBACEBF00510486 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B742DBACEBF00510486 /* String+Extension.swift */; };
+		3D505B762DBACFB100510486 /* DiskUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B622DBAAE2C00510486 /* DiskUsage.swift */; };
+		3D505B772DBACFB500510486 /* CPUUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B682DBAB31D00510486 /* CPUUsage.swift */; };
+		3D505B792DBB170700510486 /* InfoRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B782DBB170700510486 /* InfoRow.swift */; };
 		3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F22DB2B79400E9215B /* LoginView.swift */; };
 		3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */; };
 		3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F72DB2C08500E9215B /* DeviceDetail.swift */; };
@@ -91,6 +104,17 @@
 		3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessViewModel.swift; sourceTree = "<group>"; };
 		3D505B5C2DBA657B00510486 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		3D505B5E2DBA94B200510486 /* LoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModel.swift; sourceTree = "<group>"; };
+		3D505B622DBAAE2C00510486 /* DiskUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskUsage.swift; sourceTree = "<group>"; };
+		3D505B642DBAAE4D00510486 /* DiskUsageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskUsageViewModel.swift; sourceTree = "<group>"; };
+		3D505B662DBAAFFE00510486 /* DiskUsageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskUsageDetailView.swift; sourceTree = "<group>"; };
+		3D505B682DBAB31D00510486 /* CPUUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUUsage.swift; sourceTree = "<group>"; };
+		3D505B6A2DBAC5EC00510486 /* CpuUsageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CpuUsageViewModel.swift; sourceTree = "<group>"; };
+		3D505B6C2DBAC6EA00510486 /* CpuUsageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CpuUsageDetailView.swift; sourceTree = "<group>"; };
+		3D505B6E2DBACDCA00510486 /* DiskIOModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskIOModel.swift; sourceTree = "<group>"; };
+		3D505B702DBACDE500510486 /* DiskIOViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskIOViewModel.swift; sourceTree = "<group>"; };
+		3D505B722DBACE3800510486 /* DiskIODetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskIODetailView.swift; sourceTree = "<group>"; };
+		3D505B742DBACEBF00510486 /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
+		3D505B782DBB170700510486 /* InfoRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoRow.swift; sourceTree = "<group>"; };
 		3D5994F22DB2B79400E9215B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAnimationView.swift; sourceTree = "<group>"; };
 		3D5994F72DB2C08500E9215B /* DeviceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetail.swift; sourceTree = "<group>"; };
@@ -148,6 +172,7 @@
 				3DCE45902D68C7E700FACBB8 /* View+Extension.swift */,
 				3DCE458C2D68C1A900FACBB8 /* Logger+Extension.swift */,
 				3D07B53D2D8887F30085B32C /* ContentSizeCategory+Extension.swift */,
+				3D505B742DBACEBF00510486 /* String+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -167,6 +192,7 @@
 				3DCE45882D68C19200FACBB8 /* Constant.swift */,
 				3D505B4E2DB9C6AD00510486 /* NavigationButton.swift */,
 				3D505B5C2DBA657B00510486 /* AppSettings.swift */,
+				3D505B782DBB170700510486 /* InfoRow.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -188,6 +214,10 @@
 				3D505B562DB9DF3F00510486 /* BatteryViewModel.swift */,
 				3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */,
 				3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */,
+				3D505B642DBAAE4D00510486 /* DiskUsageViewModel.swift */,
+				3D505B6A2DBAC5EC00510486 /* CpuUsageViewModel.swift */,
+				3D505B6E2DBACDCA00510486 /* DiskIOModel.swift */,
+				3D505B702DBACDE500510486 /* DiskIOViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -203,6 +233,8 @@
 				3D5995042DB4110700E9215B /* BatteryInfo.swift */,
 				3D5995062DB4112100E9215B /* MemoryUsage.swift */,
 				3D505B5E2DBA94B200510486 /* LoginModel.swift */,
+				3D505B622DBAAE2C00510486 /* DiskUsage.swift */,
+				3D505B682DBAB31D00510486 /* CPUUsage.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -214,6 +246,9 @@
 				3D505B502DB9D76200510486 /* BatteryDetailView.swift */,
 				3D505B522DB9DAA500510486 /* MemoryUsageDetailView.swift */,
 				3D505B542DB9DD5500510486 /* ProcessDetailPage.swift */,
+				3D505B662DBAAFFE00510486 /* DiskUsageDetailView.swift */,
+				3D505B6C2DBAC6EA00510486 /* CpuUsageDetailView.swift */,
+				3D505B722DBACE3800510486 /* DiskIODetailView.swift */,
 			);
 			path = Device;
 			sourceTree = "<group>";
@@ -411,6 +446,7 @@
 				3D59950B2DB4137E00E9215B /* MockNetworkService.swift in Sources */,
 				3D5995112DB4162400E9215B /* NetworkManager.swift in Sources */,
 				3D5995152DB4167A00E9215B /* MemoryUsage.swift in Sources */,
+				3D505B762DBACFB100510486 /* DiskUsage.swift in Sources */,
 				3D5995132DB4167400E9215B /* ProcessStatus.swift in Sources */,
 				3D8423A72DB14F86009CF847 /* SPARTests.swift in Sources */,
 				3D8423B32DB15082009CF847 /* OnboardingTests.swift in Sources */,
@@ -419,6 +455,7 @@
 				3D505B602DBA9EE900510486 /* LoginModel.swift in Sources */,
 				3D78BB2A2DB550E5000E5C2F /* LoginViewUITests.swift in Sources */,
 				3D8423B12DB15061009CF847 /* Constant.swift in Sources */,
+				3D505B772DBACFB500510486 /* CPUUsage.swift in Sources */,
 				3D5995142DB4167700E9215B /* BatteryInfo.swift in Sources */,
 				3D505B612DBA9EF200510486 /* Onboarding.swift in Sources */,
 				3D59950C2DB4138E00E9215B /* NetworkService.swift in Sources */,
@@ -434,6 +471,7 @@
 				3DCE458D2D68C1A900FACBB8 /* Logger+Extension.swift in Sources */,
 				3D505B4D2DB9C1BE00510486 /* DeviceOptions.swift in Sources */,
 				3D505B5B2DB9E3F700510486 /* ProcessViewModel.swift in Sources */,
+				3D505B632DBAAE2C00510486 /* DiskUsage.swift in Sources */,
 				3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */,
 				3DCE45912D68C7E700FACBB8 /* View+Extension.swift in Sources */,
 				3D505B592DB9E14700510486 /* MemoryUsageViewModel.swift in Sources */,
@@ -444,8 +482,12 @@
 				3DCE458F2D68C1B200FACBB8 /* OnboardingView.swift in Sources */,
 				3DF9BA512D67762C00D0CC62 /* HomeView.swift in Sources */,
 				3D505B5D2DBA657B00510486 /* AppSettings.swift in Sources */,
+				3D505B752DBACEBF00510486 /* String+Extension.swift in Sources */,
 				3D5995072DB4112100E9215B /* MemoryUsage.swift in Sources */,
+				3D505B712DBACDE500510486 /* DiskIOViewModel.swift in Sources */,
+				3D505B6B2DBAC5EC00510486 /* CpuUsageViewModel.swift in Sources */,
 				3D5994FC2DB30B0100E9215B /* LoginViewModel.swift in Sources */,
+				3D505B6F2DBACDCA00510486 /* DiskIOModel.swift in Sources */,
 				3D98C7F42D4FE04500462EF4 /* ContentView.swift in Sources */,
 				3D98C7F22D4FE04500462EF4 /* SPARApp.swift in Sources */,
 				3D505B5F2DBA94B200510486 /* LoginModel.swift in Sources */,
@@ -453,13 +495,17 @@
 				3D5995012DB410BD00E9215B /* DeviceSpecification.swift in Sources */,
 				3DF9BA532D67767D00D0CC62 /* OnBoardingScreenView.swift in Sources */,
 				3D505B532DB9DAA500510486 /* MemoryUsageDetailView.swift in Sources */,
+				3D505B6D2DBAC6EA00510486 /* CpuUsageDetailView.swift in Sources */,
 				3D07B5382D85C3BB0085B32C /* ChartData.swift in Sources */,
+				3D505B692DBAB31D00510486 /* CPUUsage.swift in Sources */,
 				3D5995092DB4114200E9215B /* NetworkManager.swift in Sources */,
 				3D5994FF2DB3FFBE00E9215B /* NetworkService.swift in Sources */,
 				3D5995032DB410DB00E9215B /* ProcessStatus.swift in Sources */,
+				3D505B732DBACE3800510486 /* DiskIODetailView.swift in Sources */,
 				3D07B53E2D8887F30085B32C /* ContentSizeCategory+Extension.swift in Sources */,
 				3D505B4F2DB9C6AD00510486 /* NavigationButton.swift in Sources */,
 				3D505B512DB9D76200510486 /* BatteryDetailView.swift in Sources */,
+				3D505B792DBB170700510486 /* InfoRow.swift in Sources */,
 				3D07B53A2D85C3EC0085B32C /* ChartDataContainer.swift in Sources */,
 				3D07B5402D88881D0085B32C /* Onboarding.swift in Sources */,
 				3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */,
@@ -467,6 +513,8 @@
 				3DCE45892D68C19200FACBB8 /* Constant.swift in Sources */,
 				3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */,
 				3D07B53C2D85C4350085B32C /* HalfDonutChart.swift in Sources */,
+				3D505B672DBAAFFE00510486 /* DiskUsageDetailView.swift in Sources */,
+				3D505B652DBAAE4D00510486 /* DiskUsageViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

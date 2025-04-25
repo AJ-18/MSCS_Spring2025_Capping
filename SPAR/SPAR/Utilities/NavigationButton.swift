@@ -43,6 +43,7 @@ struct NavigationButton<Destination: View>: View {
            
             .accessibilityElement(children: .ignore) // Ensures only the button's main label is read by screen readers
             .accessibilityAddTraits(.isButton) // Marks this as a button for screen readers
+            
             .focusable(true) // Make sure it is focusable for keyboard navigation
         }
     }

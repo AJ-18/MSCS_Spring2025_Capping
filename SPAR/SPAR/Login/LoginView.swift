@@ -93,6 +93,7 @@ struct LoginView: View {
                 // Submit Button
                 Button(action: {
                     viewModel.submit()
+                    viewModel.logger.info("\(LoggerConstant.LoginSubmitTapped)")
                 }) {
                     Text(StringConstant.submit)
                         .frame(maxWidth: .infinity)
@@ -104,6 +105,8 @@ struct LoginView: View {
                         .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                         .shadow(radius: 10)
                 }
+                .accessibilityElement(children: .ignore) // Ensures only the button's main label is read by screen readers
+                .accessibilityAddTraits(.isButton) 
             }
             .padding(40)
         }

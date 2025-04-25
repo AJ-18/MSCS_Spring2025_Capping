@@ -9,8 +9,9 @@ import SwiftUI
 
 struct DeviceOptions: View {
     @Binding var currentView: AppView
-
     let device : DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
+
 
     var body: some View {
         ZStack {
@@ -21,24 +22,25 @@ struct DeviceOptions: View {
                 VStack(spacing: 30) {
                     // Device Info Card
                     VStack(alignment: .leading, spacing: 15) {
-                        Text("Device Info")
+                        Text(StringConstant.deviceInfo)
                             .font(.largeTitle)
                             .fontWeight(.heavy)
                             .foregroundColor(.white)
                             .padding(.bottom, 10)
+                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                         Group {
-                            DeviceInfoRow(label: "Device Name", value: device.deviceName)
-                            DeviceInfoRow(label: "Manufacturer", value: device.manufacturer)
-                            DeviceInfoRow(label: "Model", value: device.model)
-                            DeviceInfoRow(label: "Processor", value: device.processor)
-                            DeviceInfoRow(label: "Physical Cores", value: "\(device.cpuPhysicalCores)")
-                            DeviceInfoRow(label: "Logical Cores", value: "\(device.cpuLogicalCores)")
-                            DeviceInfoRow(label: "RAM", value: "\(device.installedRam) GB")
-                            DeviceInfoRow(label: "Graphics", value: device.graphics)
-                            DeviceInfoRow(label: "OS", value: device.operatingSystem)
-                            DeviceInfoRow(label: "System Type", value: device.systemType)
-                            DeviceInfoRow(label: "Timestamp", value: device.timestamp)
+                            DeviceInfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                            DeviceInfoRow(label: StringConstant.manufacturer, value: device.manufacturer)
+                            DeviceInfoRow(label: StringConstant.model, value: device.model)
+                            DeviceInfoRow(label: StringConstant.processor, value: device.processor)
+                            DeviceInfoRow(label: StringConstant.physicalCore, value: "\(device.cpuPhysicalCores)")
+                            DeviceInfoRow(label: StringConstant.logicalCores, value: "\(device.cpuLogicalCores)")
+                            DeviceInfoRow(label: StringConstant.RAM, value: "\(device.installedRam) GB")
+                            DeviceInfoRow(label: StringConstant.graphics, value: device.graphics)
+                            DeviceInfoRow(label: StringConstant.OS, value: device.operatingSystem)
+                            DeviceInfoRow(label: StringConstant.systemType, value: device.systemType)
+                            DeviceInfoRow(label: StringConstant.timestamp, value: device.timestamp.toFormattedDate())
                         }
                     }
                     .padding()
@@ -56,18 +58,24 @@ struct DeviceOptions: View {
 
                     // Glowing Navigation Buttons
                     VStack(spacing: 20) {
-                        NavigationButton(title: "Battery Info") {
-                            BatteryDetailView() }
-                        NavigationButton(title: "CPU") { Text("CPU Info Page") }
-                        NavigationButton(title: "Disk Usage") { MemoryUsageDetailView() }
-                        NavigationButton(title: "Running Processes") { ProcessDetailPage() }
+                        NavigationButton(title: StringConstant.batteryInfo) {
+                          
+                            BatteryDetailView(device: device) }
+                        NavigationButton(title: StringConstant.cpu) { CpuUsageDetailView(device: device) }
+                        NavigationButton(title: StringConstant.memoryUsage) { MemoryUsageDetailView(device: device) }
+                        NavigationButton(title: StringConstant.diskUsage) { DiskUsageDetailView(device: device) }
+                        NavigationButton(title: StringConstant.diskIO) { DiskIODetailView(device: device) }
+                        NavigationButton(title: StringConstant.processlist) { ProcessDetailPage(device: device) }
                     }
                     .padding(.horizontal)
                 }
                 .padding(.vertical)
             }
         }
-        .navigationTitle("Details")
+        .navigationTitle(StringConstant.details)
+        .onAppear {
+            self.logPageVisit()
+        }
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -76,15 +84,19 @@ struct DeviceOptions: View {
 struct DeviceInfoRow: View {
     let label: String
     let value: String
+    @Environment(\.sizeCategory) var sizeCategory
+
 
     var body: some View {
         HStack {
             Text(label + ":")
                 .foregroundColor(.white)
                 .fontWeight(.semibold)
+                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
             Spacer()
             Text(value)
                 .foregroundColor(.cyan)
+                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
         }
         .font(.system(size: 16, design: .rounded))
     }

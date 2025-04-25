@@ -30,6 +30,63 @@ enum StringConstant {
     static let searchIcon  = "It's icon for searching device."
     static let searchText = "Search devices..."
     static let sdearchText = "Search devices..."
+    
+    // device detail
+    static let deviceInfo = "Device Info"
+    static let deviceName = "Device Name"
+    static let manufacturer = "Manufacturer"
+    static let model = "Model"
+    static let processor = "Processor"
+    static let physicalCore = "Physical Cores"
+    static let logicalCores = "Logical Cores"
+    static let RAM = "RAM"
+    static let graphics = "Graphics"
+    static let OS = "OS"
+    static let systemType = "System Type"
+    static let timestamp = "Timestamp"
+    static let batteryInfo = "Battery Info"
+    static let cpu = "CPU"
+    static let memoryUsage = "Memory Usage"
+    static let diskUsage = "Disk Usage"
+    static let diskIO = "Disk IO"
+    static let processlist = "Running Processes"
+    static let details = "Details"
+    static let diskIOUssage = "Disk I/O Usage"
+    
+    // battery detail
+    static let batteryStatus = "Battery Status"
+    static let Charging = "Charging"
+    static let batYes = "Yes ⚡️"
+    static let batNo = "No❗️"
+    static let power = "Power Consumption"
+    
+    // memeory
+    static let totalMemeory = "Total Memory"
+    static let usedMemory = "Used Memory"
+    static let availableMemory = "Available Memory"
+    
+    // process
+    static let processMonitor = "Process Monitor"
+    static let metric =  "Metric"
+    static let cpuUsage = "CPU Usage"
+    static let memory = "Memory"
+    static let process = "Process"
+    
+    // diskUsage
+    static let filesystem = "Filesystem"
+    static let size = "Total Size"
+    static let usedSpace = "Used Space"
+    static let availableSpace = "Available Space"
+    // cpu
+    static let totalCPULoad = "Total CPU Load"
+    static let allCore = "All Core Usage"
+    static let topFive = "Top 5 Core Usage"
+    
+    // diskio
+    static let RS = "Read Speed (MBps)"
+    static let WS = "Write Speed (MBps)"
+    static let diskIOChart = "Disk I/O Chart"
+    
 
     
 }
