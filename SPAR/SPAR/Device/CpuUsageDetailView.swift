@@ -12,6 +12,8 @@ import Charts
 struct CpuUsageDetailView: View {
     @StateObject private var viewModel: CpuUsageViewModel
     let device: DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
+
     init(device: DeviceSpecification) {
           _viewModel = StateObject(wrappedValue: CpuUsageViewModel(device: device))
           self.device = device
@@ -28,6 +30,7 @@ struct CpuUsageDetailView: View {
                         .font(.largeTitle)
                         .bold()
                         .accessibilityAddTraits(.isHeader)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                     Spacer(minLength: 20)
 
@@ -43,6 +46,7 @@ struct CpuUsageDetailView: View {
                     // Display CPU Usage Details
                     if let usage = viewModel.cpuUsage {
                         VStack(alignment: .leading, spacing: 16) {
+                            InfoRow(label: "Device Name", value: device.deviceName)
                             InfoRow(label: "Total CPU Load", value: String(format: "%.1f%%", usage.totalCpuLoad))
                             InfoRow(label: "Device Name", value: device.deviceName)
                             InfoRow(label: "Timestamp", value: usage.timestamp)
@@ -62,6 +66,7 @@ struct CpuUsageDetailView: View {
                             // Display Top 5 Core Usage with Bar Graph
                             Text("Top 5 Core Usage")
                                 .font(.headline)
+                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                             // Get top 5 cores sorted by usage
                             let topCores = usage.perCoreUsage.sorted { $0.usage > $1.usage }.prefix(5)
@@ -91,6 +96,9 @@ struct CpuUsageDetailView: View {
                 .padding()
                 .animation(.easeInOut, value: viewModel.cpuUsage?.totalCpuLoad)
             }
+        }.onAppear {
+            self.logPageVisit()
+
         }
     }
 }

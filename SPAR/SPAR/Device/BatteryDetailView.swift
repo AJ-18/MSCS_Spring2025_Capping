@@ -10,6 +10,8 @@ import SwiftUI
 struct BatteryDetailView: View {
     @StateObject private var viewModel: BatteryViewModel
     let device: DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
+
     init(device: DeviceSpecification) {
           _viewModel = StateObject(wrappedValue: BatteryViewModel(device: device))
           self.device = device
@@ -30,6 +32,7 @@ struct BatteryDetailView: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .accessibilityAddTraits(.isHeader)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                     // Battery Visualization
                     VStack(spacing: 8) {
@@ -55,6 +58,7 @@ struct BatteryDetailView: View {
                                 .foregroundColor(.white)
                                 .frame(width: 200, height: 80)
                                 .background(Color.clear)
+                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                         }
 
             
@@ -62,6 +66,7 @@ struct BatteryDetailView: View {
 
                     // Info Rows
                     VStack(alignment: .leading, spacing: 15) {
+                        InfoRow(label: "Device Name", value: device.deviceName)
                         InfoRow(label: "Charging", value: viewModel.batteryInfo.charging ? "Yes ⚡️" : "No")
                         InfoRow(label: "Power Consumption", value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
                         InfoRow(label: "Timestamp", value: viewModel.batteryInfo.timestamp)
@@ -76,6 +81,8 @@ struct BatteryDetailView: View {
                 Spacer()
             }
             .padding()
+        }.onAppear {
+            self.logPageVisit()
         }
     }
 
@@ -98,21 +105,7 @@ struct BatteryDetailView: View {
     }
 }
 
-struct InfoRow: View {
-    let label: String
-    let value: String
 
-    var body: some View {
-        HStack {
-            Text(label)
-                .fontWeight(.semibold)
-                .foregroundColor(.gray)
-            Spacer()
-            Text(value)
-                .foregroundColor(.black)
-        }
-    }
-}
 
 #Preview {
     BatteryDetailView(device: DeviceSpecification(

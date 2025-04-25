@@ -11,6 +11,8 @@ import Charts
 struct DiskIODetailView: View {
     @StateObject private var viewModel: DiskIOViewModel
     let device: DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
+
     init(device: DeviceSpecification) {
           _viewModel = StateObject(wrappedValue: DiskIOViewModel(device: device))
           self.device = device
@@ -27,12 +29,14 @@ struct DiskIODetailView: View {
                         .font(.largeTitle)
                         .bold()
                         .accessibilityAddTraits(.isHeader)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                     Spacer(minLength: 20)
 
                     // Displaying read and write speeds in a simple chart
                     if let diskIO = viewModel.diskIO {
                         VStack(alignment: .leading, spacing: 16) {
+                            InfoRow(label: "Device Name", value: device.deviceName)
                             InfoRow(label: "Read Speed (MBps)", value: String(format: "%.1f MBps", diskIO.readSpeedMBps))
                             InfoRow(label: "Write Speed (MBps)", value: String(format: "%.1f MBps", diskIO.writeSpeedMBps))
                             InfoRow(label: "Timestamp", value: diskIO.timestamp)
@@ -70,6 +74,9 @@ struct DiskIODetailView: View {
                 }
                 .padding()
             }
+        }.onAppear {
+            self.logPageVisit()
+
         }
     }
 }

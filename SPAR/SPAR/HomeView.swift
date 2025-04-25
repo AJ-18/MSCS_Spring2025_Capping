@@ -16,81 +16,85 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                
-                // SPAR title
-                HStack {
-                    Text(StringConstant.appName)
-                        .fontWeight(.heavy)
-                        .font(.system(size: 48))
-                        .padding(.horizontal, 15)
-                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-                    Spacer()
-                }
+            ZStack {
+                BackgroundAnimationView(animate: $viewModel.animate)
 
-                // Custom Navigation Bar
-                HStack {
-                    if viewModel.isSearching {
-                        HStack {
-                            Image(systemName: ImageConstant.magnifyingGlass)
-                                .accessibilityLabel(StringConstant.searchIcon)
-                            TextField(StringConstant.searchText, text: $viewModel.searchText)
-                                .textFieldStyle(PlainTextFieldStyle())
-                                .autocorrectionDisabled(true)
-                                .submitLabel(.search)
+                VStack(spacing: 20) {
+                    
+                    // SPAR title
+                    HStack {
+                        Text(StringConstant.appName)
+                            .fontWeight(.heavy)
+                            .font(.system(size: 48))
+                            .padding(.horizontal, 15)
+                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                        Spacer()
+                    }
+
+                    // Custom Navigation Bar
+                    HStack {
+                        if viewModel.isSearching {
+                            HStack {
+                                Image(systemName: ImageConstant.magnifyingGlass)
+                                    .accessibilityLabel(StringConstant.searchIcon)
+                                TextField(StringConstant.searchText, text: $viewModel.searchText)
+                                    .textFieldStyle(PlainTextFieldStyle())
+                                    .autocorrectionDisabled(true)
+                                    .submitLabel(.search)
+                                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+
+                                Button(action: {
+                                    viewModel.cancelSearching()
+                                }) {
+                                    Image(systemName: ImageConstant.xmarkCircleFill)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .padding(8)
+                            .background(Color(.systemGray5))
+                            .cornerRadius(10)
+                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                        } else {
+                            Text(StringConstant.Dashboard)
+                                .fontWeight(.heavy)
+                                .font(.system(size: 28))
+                                .padding(.horizontal, 5)
                                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
+                            Spacer()
+
                             Button(action: {
-                                viewModel.cancelSearching()
+                                viewModel.startSearching()
                             }) {
-                                Image(systemName: ImageConstant.xmarkCircleFill)
-                                    .foregroundColor(.gray)
+                                Image(systemName: ImageConstant.magnifyingGlass)
+                                    .font(.title2)
+                                    .padding(.trailing, 10)
                             }
                         }
-                        .padding(8)
-                        .background(Color(.systemGray5))
-                        .cornerRadius(10)
-                        .transition(.move(edge: .trailing).combined(with: .opacity))
-                    } else {
-                        Text(StringConstant.Dashboard)
-                            .fontWeight(.heavy)
-                            .font(.system(size: 28))
-                            .padding(.horizontal, 5)
-                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-
-                        Spacer()
-
-                        Button(action: {
-                            viewModel.startSearching()
-                        }) {
-                            Image(systemName: ImageConstant.magnifyingGlass)
-                                .font(.title2)
-                                .padding(.trailing, 10)
-                        }
                     }
-                }
-                .padding(.horizontal)
+                    .padding(.horizontal)
 
-                // Devices List
-                ScrollView {
-                    LazyVStack(spacing: 15) {
-                        ForEach(viewModel.devices, id: \.id) { device in
-                            // Replaced NavigationLink with NavigationButton
-                            NavigationButton(title: device.deviceName) {
-                                DeviceOptions(currentView: $currentView, device: device) // Pass device to next page
+                    // Devices List
+                    ScrollView {
+                        LazyVStack(spacing: 15) {
+                            ForEach(viewModel.devices, id: \.id) { device in
+                                // Replaced NavigationLink with NavigationButton
+                                NavigationButton(title: device.deviceName) {
+                                    DeviceOptions(currentView: $currentView, device: device) // Pass device to next page
+                                }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
+                        .padding(.top, 10)
                     }
-                    .padding(.top, 10)
-                }
 
-                Spacer()
+                    Spacer()
+                }
+                .padding(.top)
+                .navigationBarHidden(true)
+                .onAppear {
+                    self.logPageVisit()
             }
-            .padding(.top)
-            .navigationBarHidden(true)
-            .onAppear {
-                self.logPageVisit()
             }
         }
     }

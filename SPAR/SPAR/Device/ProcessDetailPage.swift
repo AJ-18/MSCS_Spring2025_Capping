@@ -11,6 +11,8 @@ import Charts
 struct ProcessDetailPage: View {
     @StateObject private var viewModel: ProcessViewModel
     let device: DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
+
     init(device: DeviceSpecification) {
           _viewModel = StateObject(wrappedValue: ProcessViewModel(device: device))
           self.device = device
@@ -25,10 +27,13 @@ struct ProcessDetailPage: View {
                     .font(.largeTitle)
                     .bold()
                     .padding(.top)
+                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                 Picker("Metric", selection: $showCPU) {
                     Text("CPU Usage").tag(true)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                     Text("Memory Usage").tag(false)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
@@ -55,9 +60,11 @@ struct ProcessDetailPage: View {
                         HStack {
                             Text("PID: \(process.pid)")
                                 .font(.headline)
+                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                             Spacer()
                             Text(process.name)
                                 .fontWeight(.semibold)
+                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                         }
 
                         HStack {
@@ -71,6 +78,7 @@ struct ProcessDetailPage: View {
                         Text("Timestamp: \(formattedDate(process.timestamp))")
                             .font(.caption)
                             .foregroundColor(.secondary)
+                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                     }
                     .padding()
                     .background(.white)
@@ -81,6 +89,9 @@ struct ProcessDetailPage: View {
                 
                 Spacer(minLength: 40)
             }
+        }
+        .onAppear {
+            self.logPageVisit()
         }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }

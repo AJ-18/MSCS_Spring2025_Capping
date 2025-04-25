@@ -10,6 +10,8 @@ import SwiftUI
 struct MemoryUsageDetailView: View {
     @StateObject private var viewModel: MemoryUsageViewModel
     let device: DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
+
     init(device: DeviceSpecification) {
           _viewModel = StateObject(wrappedValue: MemoryUsageViewModel(device: device))
           self.device = device
@@ -25,11 +27,13 @@ struct MemoryUsageDetailView: View {
                     .font(.largeTitle)
                     .bold()
                     .accessibilityAddTraits(.isHeader)
+                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                 // Pass chart data from viewModel to the HalfDonutChart
                 HalfDonutChart(chartDataObj: $viewModel.chartData)
 
                 VStack(alignment: .leading, spacing: 15) {
+                    InfoRow(label: "Device Name", value: device.deviceName)
                     InfoRow(label: "Total Memory", value: String(format: "%.2f GB", viewModel.memoryInfo.totalMemory))
                     InfoRow(label: "Used Memory", value: String(format: "%.2f GB", viewModel.memoryInfo.usedMemory))
                     InfoRow(label: "Available Memory", value: String(format: "%.2f GB", viewModel.memoryInfo.availableMemory))
@@ -44,6 +48,9 @@ struct MemoryUsageDetailView: View {
                 Spacer()
             }
             .padding()
+        }.onAppear {
+            self.logPageVisit()
+
         }
     }
 }

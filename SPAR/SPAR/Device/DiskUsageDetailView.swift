@@ -10,6 +10,8 @@ import SwiftUI
 struct DiskUsageDetailView: View {
     @StateObject private var viewModel: DiskUsageViewModel
     let device: DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
+
     init(device: DeviceSpecification) {
           _viewModel = StateObject(wrappedValue: DiskUsageViewModel(device: device))
           self.device = device
@@ -25,12 +27,14 @@ struct DiskUsageDetailView: View {
                     .font(.largeTitle)
                     .bold()
                     .accessibilityAddTraits(.isHeader)
+                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                 // Disk usage donut chart
                 HalfDonutChart(chartDataObj: $viewModel.chartData)
 
                 if let diskInfo = viewModel.diskUsage {
                     VStack(alignment: .leading, spacing: 15) {
+                        InfoRow(label: "Device Name", value: device.deviceName)
                         InfoRow(label: "Filesystem", value: diskInfo.filesystem)
                         InfoRow(label: "Total Size", value: String(format: "%.2f GB", diskInfo.sizeGB))
                         InfoRow(label: "Used Space", value: String(format: "%.2f GB", diskInfo.usedGB))
@@ -51,6 +55,9 @@ struct DiskUsageDetailView: View {
                 Spacer()
             }
             .padding()
+        }
+        .onAppear {
+            self.logPageVisit()
         }
     }
 }

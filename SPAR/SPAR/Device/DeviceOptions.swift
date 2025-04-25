@@ -9,8 +9,9 @@ import SwiftUI
 
 struct DeviceOptions: View {
     @Binding var currentView: AppView
-
     let device : DeviceSpecification
+    @Environment(\.sizeCategory) var sizeCategory
+
 
     var body: some View {
         ZStack {
@@ -26,6 +27,7 @@ struct DeviceOptions: View {
                             .fontWeight(.heavy)
                             .foregroundColor(.white)
                             .padding(.bottom, 10)
+                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
                         Group {
                             DeviceInfoRow(label: "Device Name", value: device.deviceName)
@@ -57,6 +59,7 @@ struct DeviceOptions: View {
                     // Glowing Navigation Buttons
                     VStack(spacing: 20) {
                         NavigationButton(title: "Battery Info") {
+                          
                             BatteryDetailView(device: device) }
                         NavigationButton(title: "CPU") { CpuUsageDetailView(device: device) }
                         NavigationButton(title: "Memory Ussage") { MemoryUsageDetailView(device: device) }
@@ -70,6 +73,9 @@ struct DeviceOptions: View {
             }
         }
         .navigationTitle("Details")
+        .onAppear {
+            self.logPageVisit()
+        }
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -78,15 +84,19 @@ struct DeviceOptions: View {
 struct DeviceInfoRow: View {
     let label: String
     let value: String
+    @Environment(\.sizeCategory) var sizeCategory
+
 
     var body: some View {
         HStack {
             Text(label + ":")
                 .foregroundColor(.white)
                 .fontWeight(.semibold)
+                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
             Spacer()
             Text(value)
                 .foregroundColor(.cyan)
+                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
         }
         .font(.system(size: 16, design: .rounded))
     }
