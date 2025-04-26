@@ -3,6 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 import validators from '../utils/validators';
 
+/*
+Temporary login:
+Full Name: Bob Man
+Email: bobman@gmail.com
+Password: yfg#L2f54
+
+*/
+
+
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
