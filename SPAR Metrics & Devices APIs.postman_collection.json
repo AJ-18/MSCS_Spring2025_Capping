@@ -1,0 +1,509 @@
+{
+	"info": {
+		"_postman_id": "f2abe2fb-cdf4-4cba-bd5e-b07387c1d288",
+		"name": "SPAR Metrics & Devices APIs",
+		"description": "Auth, Metrics (POST/GET), and User–Devices add‑or‑get endpoints with JWT auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43666530"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Sign Up",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"alice\",\n  \"password\": \"pass123\",\n  \"email\": \"alice@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json = pm.response.json();",
+									"pm.environment.set(\"jwt\", json.token);",
+									"pm.environment.set(\"userId\", json.id || pm.environment.get(\"userId\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"alice\",\n  \"password\": \"pass123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/signin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"signin"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Metrics",
+			"item": [
+				{
+					"name": "Register Device",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json = pm.response.json();",
+									"pm.environment.set(\"deviceId\", json.deviceId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deviceName\": \"MyComputer\",\n  \"manufacturer\": \"Dell\",\n  \"model\": \"Inspiron 15\",\n  \"processor\": \"Intel Core i7 2.8 GHz\",\n  \"cpuPhysicalCores\": 4,\n  \"cpuLogicalCores\": 8,\n  \"installedRam\": 16.0,\n  \"graphics\": \"NVIDIA GTX 1650\",\n  \"operatingSystem\": \"Windows 10 x64\",\n  \"systemType\": \"x64 operating system, x64-based processor\",\n  \"user\": { \"id\": {{userId}} }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/device-specifications",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"device-specifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Battery Info",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"hasBattery\": true,\n  \"batteryPercentage\": 85,\n  \"isCharging\": false,\n  \"powerConsumption\": 5.0,\n  \"user\": { \"id\": {{userId}} },\n  \"device\": { \"deviceId\": \"{{deviceId}}\" }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/battery-info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"battery-info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest Battery Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/battery-info/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"battery-info",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add CPU Usage",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"totalCpuLoad\": 55.5,\n  \"perCoreUsageJson\": \"[{ \\\"core\\\": 1, \\\"usage\\\": 50.0 }]\",\n  \"user\": { \"id\": {{userId}} },\n  \"device\": { \"deviceId\": \"{{deviceId}}\" }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/cpu-usage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"cpu-usage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest CPU Usage",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/cpu-usage/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"cpu-usage",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add RAM Usage",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"totalMemory\": 16.0,\n  \"usedMemory\": 8.2,\n  \"availableMemory\": 7.8,\n  \"user\": { \"id\": {{userId}} },\n  \"device\": { \"deviceId\": \"{{deviceId}}\" }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/ram-usage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"ram-usage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest RAM Usage",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/ram-usage/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"ram-usage",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Disk I/O",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"readSpeedMBps\": 120.5,\n  \"writeSpeedMBps\": 80.3,\n  \"user\": { \"id\": {{userId}} },\n  \"device\": { \"deviceId\": \"{{deviceId}}\" }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/disk-io",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"disk-io"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest Disk I/O",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/disk-io/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"disk-io",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Disk Usage",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filesystem\": \"/dev/sda1\",\n  \"sizeGB\": 512.0,\n  \"usedGB\": 200.0,\n  \"availableGB\": 312.0,\n  \"user\": { \"id\": {{userId}} },\n  \"device\": { \"deviceId\": \"{{deviceId}}\" }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/disk-usage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"disk-usage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Latest Disk Usage",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/disk-usage/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"disk-usage",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Devices",
+			"item": [
+				{
+					"name": "Add or Get Devices",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var arr = pm.response.json();",
+									"if (arr.length > 0) {",
+									"    pm.environment.set(\"deviceId\", arr[0].deviceId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deviceName\": \"MyComputer\",\n  \"manufacturer\": \"Dell\",\n  \"model\": \"Inspiron 15\",\n  \"processor\": \"Intel Core i7 2.8 GHz\",\n  \"cpuPhysicalCores\": 4,\n  \"cpuLogicalCores\": 8,\n  \"installedRam\": 16.0,\n  \"graphics\": \"NVIDIA GTX 1650\",\n  \"operatingSystem\": \"Windows 10 x64\",\n  \"systemType\": \"x64 operating system, x64-based processor\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{userId}}/devices",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{userId}}",
+								"devices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "jwt",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "deviceId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
