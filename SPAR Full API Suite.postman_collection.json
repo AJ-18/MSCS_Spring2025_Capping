@@ -1,0 +1,380 @@
+{
+	"info": {
+		"_postman_id": "a52d5f3f-554e-4f2e-91a9-7bc52457d270",
+		"name": "SPAR Full API Suite",
+		"description": "Sign up / Sign in, Device registration, Metrics batch ingestion, and GET endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43666530"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Sign Up",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"alice\",\n  \"password\": \"pass123\",\n  \"email\": \"alice@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json = pm.response.json();",
+									"pm.environment.set(\"jwt\", json.token);",
+									"pm.environment.set(\"userId\", json.id || pm.environment.get(\"userId\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"alice\",\n  \"password\": \"pass123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/signin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"signin"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Device",
+			"item": [
+				{
+					"name": "Register Device",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var j = pm.response.json();",
+									"pm.environment.set(\"deviceId\", j.deviceId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deviceName\": \"MyLaptop\",\n  \"manufacturer\": \"Dell\",\n  \"model\": \"XPS 15\",\n  \"processor\": \"Intel Core i7-9750H\",\n  \"cpuPhysicalCores\": 6,\n  \"cpuLogicalCores\": 12,\n  \"installedRam\": 16.0,\n  \"graphics\": \"NVIDIA GTX 1650\",\n  \"operatingSystem\": \"Windows 10 x64\",\n  \"systemType\": \"x64\",\n  \"user\": { \"id\": {{userId}} }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/device-specifications",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"device-specifications"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Metrics Batch",
+			"item": [
+				{
+					"name": "Send Metrics Batch",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": {{userId}},\n  \"deviceId\": \"{{deviceId}}\",\n\n  \"batteryInfo\": {\n    \"hasBattery\": true,\n    \"batteryPercentage\": 85,\n    \"isCharging\": false,\n    \"powerConsumption\": 5.0\n  },\n\n  \"cpuUsage\": {\n    \"totalCpuLoad\": 42.5,\n    \"perCoreUsageJson\": \"[{\\\"core\\\":1,\\\"usage\\\":35.0}]\"\n  },\n\n  \"ramUsage\": {\n    \"totalMemory\": 16.0,\n    \"usedMemory\": 7.2,\n    \"availableMemory\": 8.8\n  },\n\n  \"diskIO\": {\n    \"readSpeedMBps\": 120.0,\n    \"writeSpeedMBps\": 80.0\n  },\n\n  \"diskUsage\": {\n    \"filesystem\": \"/dev/sda1\",\n    \"sizeGB\": 512.0,\n    \"usedGB\": 200.0,\n    \"availableGB\": 312.0\n  },\n\n  \"processStatuses\": [\n    { \"pid\": 1234, \"name\": \"chrome\", \"cpuUsage\": 2.5, \"memoryMB\": 150.0 },\n    { \"pid\": 5678, \"name\": \"code\",   \"cpuUsage\": 1.8, \"memoryMB\": 120.0 }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/batch",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"batch"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Latest Metrics",
+			"item": [
+				{
+					"name": "Battery Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/battery-info/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"battery-info",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CPU Usage",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/cpu-usage/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"cpu-usage",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RAM Usage",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/ram-usage/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"ram-usage",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Disk I/O",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/disk-io/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"disk-io",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Disk Usage",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/disk-usage/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"disk-usage",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Network Interfaces",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/network-interfaces/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"network-interfaces",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Process Statuses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/metrics/process-status/{{userId}}/{{deviceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"metrics",
+								"process-status",
+								"{{userId}}",
+								"{{deviceId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "jwt",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "deviceId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

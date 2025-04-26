@@ -1,40 +1,113 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { fetchSystemMetrics } from '../../services/systemMetrics';
 import MetricGauge from '../MetricGauge';
+
+// Mock data for development
+const MOCK_DISK_INFO = {
+  usage: {
+    filesystem: '/dev/sda1',
+    sizeGB: 512.0,
+    usedGB: 200.0,
+    availableGB: 312.0
+  },
+  io: {
+    readSpeedMBps: 120.5,
+    writeSpeedMBps: 80.3
+  },
+  timestamp: new Date().toISOString()
+};
 
 const DiskMetrics = () => {
   const { deviceId } = useParams();
-  const [metrics, setMetrics] = useState(null);
+  const [diskInfo, setDiskInfo] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadMetrics = async () => {
+    const loadDiskInfo = async () => {
       try {
-        const data = await fetchSystemMetrics();
-        setMetrics(data);
+        // In development mode, use mock data
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Using mock disk metrics in development mode');
+          setDiskInfo({
+            ...MOCK_DISK_INFO,
+            timestamp: new Date().toISOString()
+          });
+          setError(null);
+          return;
+        }
+
+        // Production mode - real API calls
+        const userId = localStorage.getItem('userId');
+        if (!userId || !deviceId) {
+          throw new Error('Missing user ID or device ID');
+        }
+
+        // Fetch both disk usage and I/O metrics
+        const [usageResponse, ioResponse] = await Promise.all([
+          fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/metrics/disk-usage/${userId}/${deviceId}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Accept': 'application/json'
+            }
+          }),
+          fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/metrics/disk-io/${userId}/${deviceId}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Accept': 'application/json'
+            }
+          })
+        ]);
+
+        if (!usageResponse.ok || !ioResponse.ok) {
+          throw new Error('Failed to fetch disk metrics');
+        }
+
+        const [usageData, ioData] = await Promise.all([
+          usageResponse.json(),
+          ioResponse.json()
+        ]);
+
+        setDiskInfo({
+          usage: {
+            filesystem: usageData.filesystem,
+            sizeGB: usageData.sizeGB,
+            usedGB: usageData.usedGB,
+            availableGB: usageData.availableGB
+          },
+          io: {
+            readSpeedMBps: ioData.readSpeedMBps,
+            writeSpeedMBps: ioData.writeSpeedMBps
+          },
+          timestamp: new Date().toISOString()
+        });
+        setError(null);
       } catch (error) {
         console.error('Error loading disk metrics:', error);
+        if (process.env.NODE_ENV === 'development') {
+          // In development, fall back to mock data on error
+          console.log('Falling back to mock data due to error');
+          setDiskInfo({
+            ...MOCK_DISK_INFO,
+            timestamp: new Date().toISOString()
+          });
+          setError(null);
+        } else {
+          setError(`Failed to load disk information: ${error.message}`);
+          setDiskInfo(null);
+        }
       }
     };
 
-    loadMetrics();
-    const interval = setInterval(loadMetrics, 1000);
+    loadDiskInfo();
+    const interval = setInterval(loadDiskInfo, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [deviceId]);
 
-  if (!metrics) return <div>Loading...</div>;
-
-  // Calculate disk usage in GB
-  const totalGB = metrics.disk.total / 1024;
-  const usedGB = metrics.disk.used / 1024;
-  const availableGB = totalGB - usedGB;
-  const usagePercentage = (usedGB / totalGB) * 100;
-
-  return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="mb-6">
           <Link
             to={`/dashboard/device/${deviceId}`}
             className="text-blue-500 hover:text-blue-600 flex items-center"
@@ -44,102 +117,110 @@ const DiskMetrics = () => {
             </svg>
             Back to Device Overview
           </Link>
-          <h2 className="text-2xl font-bold mt-2">Disk Usage</h2>
         </div>
-        <div className="text-sm text-gray-500">
-          Last updated: {new Date().toLocaleTimeString()}
+        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md mx-auto">
+          <h2 className="text-2xl font-bold mb-4">Disk Metrics</h2>
+          <div className="text-red-500">{error}</div>
         </div>
       </div>
+    );
+  }
 
-      <div className="grid gap-8">
-        {/* Main Disk Usage Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Disk Usage Gauge */}
-            <div>
-              <MetricGauge
-                title="Disk"
-                value={usagePercentage}
-                color="#22C55E"
-                suffix="%"
-                subtitle="Storage Usage"
-              />
+  if (!diskInfo) {
+    return <div className="p-4">Loading disk information...</div>;
+  }
+
+  const usedPercentage = (diskInfo.usage.usedGB / diskInfo.usage.sizeGB) * 100;
+
+  return (
+    <div className="p-4">
+      <div className="mb-6">
+        <Link
+          to={`/dashboard/device/${deviceId}`}
+          className="text-blue-500 hover:text-blue-600 flex items-center"
+        >
+          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Device Overview
+        </Link>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm p-8 max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold mb-8">Disk Metrics</h2>
+
+        {/* Disk Usage with Gauge */}
+        <div className="mb-8">
+          <div className="flex justify-center mb-6">
+            <MetricGauge
+              title="Disk Usage"
+              value={usedPercentage}
+              color={
+                usedPercentage > 90 ? '#EF4444' :  // red-500
+                usedPercentage > 70 ? '#F59E0B' :  // yellow-500
+                '#22C55E'  // green-500
+              }
+              suffix="%"
+              subtitle={`${diskInfo.usage.usedGB.toFixed(1)}/${diskInfo.usage.sizeGB.toFixed(1)} GB`}
+            />
+          </div>
+        </div>
+
+        {/* Disk Usage Section */}
+        <div className="mb-12">
+          <h3 className="text-lg font-semibold mb-4">Disk Usage</h3>
+          <div className="mb-6">
+            <div className="text-sm text-gray-500 mb-1">Filesystem: {diskInfo.usage.filesystem}</div>
+            <div className="bg-gray-100 rounded-full p-1">
+              <div 
+                className={`text-white text-center py-2 px-4 rounded-full transition-all duration-500 ease-in-out ${
+                  usedPercentage > 90 ? 'bg-red-500' : 
+                  usedPercentage > 70 ? 'bg-yellow-500' : 
+                  'bg-green-500'
+                }`}
+                style={{ width: `${usedPercentage}%` }}
+              >
+                {usedPercentage.toFixed(1)}%
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h4 className="text-gray-500 mb-2">Total Size</h4>
+              <div className="text-2xl font-semibold">{diskInfo.usage.sizeGB.toFixed(1)} GB</div>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h4 className="text-gray-500 mb-2">Used Space</h4>
+              <div className="text-2xl font-semibold">{diskInfo.usage.usedGB.toFixed(1)} GB</div>
             </div>
 
-            {/* Disk Information Table */}
-            <div className="self-center">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 items-center">
-                  <span className="text-gray-500">Filesystem</span>
-                  <span className="font-medium">/dev/sda1</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4 items-center">
-                  <span className="text-gray-500">Total Size</span>
-                  <span className="font-medium">{totalGB.toFixed(2)} GB</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4 items-center">
-                  <span className="text-gray-500">Used Space</span>
-                  <span className="font-medium">{usedGB.toFixed(2)} GB</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4 items-center">
-                  <span className="text-gray-500">Available Space</span>
-                  <span className="font-medium">{availableGB.toFixed(2)} GB</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4 items-center">
-                  <span className="text-gray-500">Timestamp</span>
-                  <span className="font-medium">{new Date().toLocaleString()}</span>
-                </div>
-              </div>
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h4 className="text-gray-500 mb-2">Available Space</h4>
+              <div className="text-2xl font-semibold">{diskInfo.usage.availableGB.toFixed(1)} GB</div>
             </div>
           </div>
         </div>
 
         {/* Disk I/O Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold mb-6">Disk I/O Performance</h3>
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Disk I/O</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <MetricGauge
-                title="Read Speed"
-                value={(metrics.disk.read / 100) * 100}
-                color="#3B82F6"
-                suffix="MB/s"
-                subtitle="Current Disk Read Speed"
-              />
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h4 className="text-gray-500 mb-2">Read Speed</h4>
+              <div className="text-2xl font-semibold">{diskInfo.io.readSpeedMBps.toFixed(1)} MB/s</div>
             </div>
-            <div>
-              <MetricGauge
-                title="Write Speed"
-                value={(metrics.disk.write / 100) * 100}
-                color="#8B5CF6"
-                suffix="MB/s"
-                subtitle="Current Disk Write Speed"
-              />
+            
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h4 className="text-gray-500 mb-2">Write Speed</h4>
+              <div className="text-2xl font-semibold">{diskInfo.io.writeSpeedMBps.toFixed(1)} MB/s</div>
             </div>
           </div>
         </div>
 
-        {/* Disk Health Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold mb-6">Disk Health</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Temperature</p>
-              <p className="font-medium mt-1">45°C</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Power On Hours</p>
-              <p className="font-medium mt-1">2,160</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Health Status</p>
-              <p className="font-medium mt-1 text-green-600">Good</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Type</p>
-              <p className="font-medium mt-1">SSD</p>
-            </div>
-          </div>
+        <div className="mt-6 text-sm text-gray-500 text-right">
+          Last updated: {new Date(diskInfo.timestamp).toLocaleString()}
         </div>
       </div>
     </div>

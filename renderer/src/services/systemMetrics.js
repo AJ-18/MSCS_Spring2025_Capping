@@ -1,57 +1,115 @@
-// Mock metrics for development
+import axios from 'axios';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+
+// Mock metrics for development that match our API structure
 const getMockMetrics = () => ({
-  cpu: {
-    usage: Math.floor(Math.random() * 100),        // Random CPU usage between 0-100%
-    cores: Array(4).fill(0).map(() => ({          // Simulate 4 cores
-      load: Math.floor(Math.random() * 100)
-    })),
-    temperature: Math.floor(Math.random() * 30) + 40 // Random temperature between 40-70°C
+  batteryInfo: {
+    hasBattery: true,
+    batteryPercentage: 85,
+    isCharging: false,
+    powerConsumption: 5.0
   },
-  memory: {
-    used: Math.floor(Math.random() * 8 * 1024),   // Random RAM usage up to 8GB (in MB)
-    total: 8 * 1024,                              // 8GB total RAM (in MB)
-    free: Math.floor(Math.random() * 4 * 1024),   // Random free RAM up to 4GB (in MB)
-    cached: Math.floor(Math.random() * 2 * 1024)  // Random cached RAM up to 2GB (in MB)
+  cpuUsage: {
+    totalCpuLoad: 42.5,
+    perCoreUsageJson: JSON.stringify(Array(8).fill(0).map((_, i) => ({
+      core: i + 1,
+      usage: Math.random() * 100
+    })))
   },
-  disk: {
-    used: Math.floor(Math.random() * 256 * 1024), // Random disk usage up to 256GB (in MB)
-    total: 256 * 1024,                            // 256GB total disk space (in MB)
-    read: Math.floor(Math.random() * 100),        // Random read speed in MB/s
-    write: Math.floor(Math.random() * 100)        // Random write speed in MB/s
+  ramUsage: {
+    totalMemory: 16.0,
+    usedMemory: 7.2,
+    availableMemory: 8.8
   },
-  battery: {
-    percentage: 100,                              // Battery percentage
-    isCharging: true,                             // Charging status
-    timeRemaining: '2:30'                         // Time remaining
+  diskIO: {
+    readSpeedMBps: 120.0,
+    writeSpeedMBps: 80.0
   },
-  network: {
-    upload: Math.floor(Math.random() * 10),       // Random upload speed in MB/s
-    download: Math.floor(Math.random() * 50),     // Random download speed in MB/s
-    latency: Math.floor(Math.random() * 100)      // Random latency in ms
+  diskUsage: {
+    filesystem: '/dev/sda1',
+    sizeGB: 512.0,
+    usedGB: 200.0,
+    availableGB: 312.0
   },
-  processes: Array(10).fill(0).map((_, i) => ({   // Top 10 processes
-    pid: Math.floor(Math.random() * 10000),
-    name: ['Chrome', 'Firefox', 'VSCode', 'Node', 'Spotify'][Math.floor(Math.random() * 5)],
-    cpu: Math.floor(Math.random() * 100),
-    memory: Math.floor(Math.random() * 1024),
-    status: ['running', 'sleeping', 'waiting'][Math.floor(Math.random() * 3)]
+  processStatuses: Array(20).fill(0).map((_, i) => ({
+    pid: 1000 + i,
+    name: ['chrome', 'code', 'node', 'spotify'][Math.floor(Math.random() * 4)],
+    cpuUsage: Math.random() * 10,
+    memoryMB: Math.random() * 500
   }))
 });
 
+// Create authenticated axios instance
+const createAuthenticatedClient = () => {
+  const token = localStorage.getItem('token');
+  return axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+};
+
+// Fetch metrics from the API
+const fetchMetricsFromAPI = async (endpoint, userId, deviceId) => {
+  try {
+    const client = createAuthenticatedClient();
+    const response = await client.get(`/api/metrics/${endpoint}/${userId}/${deviceId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    throw error;
+  }
+};
+
 export const fetchSystemMetrics = async () => {
   try {
-    // Check if we're in development mode (no Electron API)
-    if (!window.electronAPI?.getSystemMetrics) {
+    // Check if we're in development mode
+    if (process.env.NODE_ENV === 'development') {
       console.log('Using mock metrics in development mode');
       return getMockMetrics();
     }
 
-    // If Electron API is available, use it
-    const data = await window.electronAPI.getSystemMetrics();
-    return data;
+    // If we're in production, fetch real metrics
+    const userId = localStorage.getItem('userId');
+    const deviceId = localStorage.getItem('deviceId');
+
+    if (!userId || !deviceId) {
+      throw new Error('Missing user ID or device ID');
+    }
+
+    // Fetch all metrics in parallel
+    const [
+      batteryInfo,
+      cpuUsage,
+      ramUsage,
+      diskIO,
+      diskUsage,
+      processStatuses
+    ] = await Promise.all([
+      fetchMetricsFromAPI('battery-info', userId, deviceId),
+      fetchMetricsFromAPI('cpu-usage', userId, deviceId),
+      fetchMetricsFromAPI('ram-usage', userId, deviceId),
+      fetchMetricsFromAPI('disk-io', userId, deviceId),
+      fetchMetricsFromAPI('disk-usage', userId, deviceId),
+      fetchMetricsFromAPI('process-status', userId, deviceId)
+    ]);
+
+    return {
+      batteryInfo,
+      cpuUsage,
+      ramUsage,
+      diskIO,
+      diskUsage,
+      processStatuses
+    };
   } catch (error) {
-    console.warn('Error fetching system metrics:', error);
-    // Fallback to mock data if there's an error
-    return getMockMetrics();
+    console.error('Error fetching system metrics:', error);
+    if (process.env.NODE_ENV === 'development') {
+      return getMockMetrics();
+    }
+    throw error;
   }
 };
