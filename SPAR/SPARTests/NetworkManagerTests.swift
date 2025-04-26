@@ -16,7 +16,7 @@ final class NetworkManagerTests: XCTestCase {
     }
     
     func testFetchDeviceSpecifications() async throws {
-        let deviceSpecifications: [DeviceSpecification] = try await networkManager.fetchDeviceSpecifications(for: "user123")
+        let deviceSpecifications: [DeviceSpecification] = try await networkManager.fetchDeviceSpecifications(for: 1)
         
         XCTAssertEqual(deviceSpecifications.count, 2)
         XCTAssertEqual(deviceSpecifications.first?.deviceName, "MyComputer")
@@ -24,13 +24,13 @@ final class NetworkManagerTests: XCTestCase {
     
     
     func testFetchBatteryInfo() async throws {
-        let batteryInfo: [BatteryInfo] = try await networkManager.fetchBatteryInfo(for: "user123")
+        let batteryInfo: [BatteryInfo] = try await networkManager.fetchBatteryInfo(for: 1)
         
         XCTAssertEqual(batteryInfo.count, 1)
     }
     
     func testFetchMemoryUsage() async throws {
-        let memoryUsage: [MemoryUsage] = try await networkManager.fetchMemoryUsage(for: "user123")
+        let memoryUsage: [MemoryUsage] = try await networkManager.fetchMemoryUsage(for: 1)
         
         XCTAssertEqual(memoryUsage.count, 1)
     }

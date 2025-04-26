@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
 
 struct HomeView: View {
     @Binding var currentView: AppView
@@ -77,7 +76,7 @@ struct HomeView: View {
                     // Devices List
                     ScrollView {
                         LazyVStack(spacing: 15) {
-                            ForEach(viewModel.devices, id: \.id) { device in
+                            ForEach(viewModel.filteredDevices, id: \.id) { device in
                                 // Replaced NavigationLink with NavigationButton
                                 NavigationButton(title: device.deviceName) {
                                     DeviceOptions(currentView: $currentView, device: device) // Pass device to next page

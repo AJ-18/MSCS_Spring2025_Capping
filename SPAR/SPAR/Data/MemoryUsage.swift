@@ -9,7 +9,7 @@ import Foundation
 
 struct MemoryUsage: Codable, Identifiable {
     let id: Int
-    let userId: String
+    let userId: Int
     let totalMemory: Double
     let usedMemory: Double
     let availableMemory: Double

@@ -36,30 +36,30 @@ class LoginViewModel: ObservableObject {
             return
         }
         
-        if username.lowercased() == "user" && password == "Password" {
-            errorMessage = ""
-            self.delegate?.didLoginSuccessfully()
-            print("Login successful!")
-        } else {
-            errorMessage = StringConstant.incorrectCredentials
-        }
-
-//        Task {
-//            do {
-//                let response = try await networkManager.login(username: username, password: password)
-//                
-//                AppSettings.shared.authToken = response.token
-//                AppSettings.shared.userId = response.id
-//
-//                DispatchQueue.main.async {
-//                    self.delegate?.didLoginSuccessfully()
-//                }
-//            } catch {
-//                DispatchQueue.main.async {
-//                    self.errorMessage = "Invalid credentials or network error."
-//                }
-//            }
+//        if username.lowercased() == "user" && password == "Password" {
+//            errorMessage = ""
+//            self.delegate?.didLoginSuccessfully()
+//            print("Login successful!")
+//        } else {
+//            errorMessage = StringConstant.incorrectCredentials
 //        }
+
+        Task {
+            do {
+                let response = try await networkManager.login(username: username, password: password)
+                
+                AppSettings.shared.authToken = response.token
+                AppSettings.shared.userId = response.userId
+
+                DispatchQueue.main.async {
+                    self.delegate?.didLoginSuccessfully()
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.errorMessage = StringConstant.incorrectCredentials
+                }
+            }
+        }
     }
 }
 

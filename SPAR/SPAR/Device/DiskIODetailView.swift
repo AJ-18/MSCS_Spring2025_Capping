@@ -86,7 +86,7 @@ struct DiskIODetailView: View {
 #Preview {
     DiskIODetailView(device: DeviceSpecification(
         id: 1,
-        userId: "User123",
+        userId: 1,
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",

@@ -11,7 +11,7 @@ struct MockData {
     static let sampleDeviceData = """
     [
         {
-            "userId": "user123",
+            "userId": 1,
             "deviceId": 5,
             "deviceName": "MyComputer",
             "manufacturer": "Dell",
@@ -26,15 +26,15 @@ struct MockData {
             "timestamp": "2025-03-28T16:03:30.041384"
         },
         {
-            "userId": "user123",
+            "userId": 1,
             "deviceId": 13,
-            "deviceName": "MyComputer",
+            "deviceName": "Home",
             "manufacturer": "Dell",
             "model": "Inspiron 15",
             "processor": "Intel Core i7 2.8 GHz",
             "cpuPhysicalCores": 4,
             "cpuLogicalCores": 8,
-            "installedRam": 16.0,
+            "installedRam": 32.0,
             "graphics": "NVIDIA GTX 1650",
             "operatingSystem": "Windows 10 x64",
             "systemType": "x64 operating system, x64-based processor",
@@ -46,7 +46,7 @@ struct MockData {
     static let sampleProcessData = """
     [
         {
-            "userId": "user123",
+            "userId": 1,
             "id": 101,
             "pid": 1234,
             "name": "chrome.exe",
@@ -55,7 +55,7 @@ struct MockData {
             "timestamp": "2025-04-13T15:29:00.236114"
         },
         {
-            "userId": "user123",
+            "userId": 1,
             "id": 102,
             "pid": 5678,
             "name": "node.exe",
@@ -69,7 +69,7 @@ struct MockData {
     static let sampleBatteryData = """
     [
         {
-            "userId": "user123",
+            "userId": 1,
             "id": 7,
             "hasBattery": true,
             "batteryPercentage": 85,
@@ -83,7 +83,7 @@ struct MockData {
     static let sampleMemoryUsageData = """
     [
         {
-            "userId": "user123",
+            "userId": 1,
             "id": 7,
             "totalMemory": 16.0,
             "usedMemory": 8.5,
@@ -91,6 +91,12 @@ struct MockData {
             "timestamp": "2025-04-13T15:28:49.261218"
         }
     ]
+    """.data(using: .utf8)!
+    static let sampleLoginData = """
+    {
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZSIsImlhdCI6MTc0NTM1MDY1NCwiZXhwIjo5MjIzNTQ2NTcxOTIwMn0.BypJMZiF7ooVbYXCioOQAljTyjmR9ET5aJTC9auiVxw",
+        "userId": 1
+    }
     """.data(using: .utf8)!
 }
 

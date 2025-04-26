@@ -21,7 +21,7 @@ enum StringConstant {
     static let onboardingImages = "Onbording image of %@"
     static let getstarted = "Get Started"
     static let Dashboard = "Dashboard"
-    static let incorrectCredentials = "Incorrect username or password."
+    static let incorrectCredentials = "Invalid credentials or network error."
     static let welcomeBack = "Welcome Back"
     static let login = "LOGIN"
     static let Username = "Username"

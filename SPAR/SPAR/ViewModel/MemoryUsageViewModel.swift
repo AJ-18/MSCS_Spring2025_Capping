@@ -16,7 +16,7 @@ class MemoryUsageViewModel: ObservableObject {
         // Initializing with some default data or fetching from an API or database.
         let memoryInfo = MemoryUsage(
             id: 1,
-            userId: "User",
+            userId: 1,
             totalMemory: 16.0,
             usedMemory: 8.5,
             availableMemory: 7.5,

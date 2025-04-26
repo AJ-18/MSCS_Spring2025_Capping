@@ -9,7 +9,15 @@ import Foundation
 
 class MockNetworkService: NetworkServicing {
     func post<T, U>(to url: URL, body: U) async throws -> T where T : Decodable, U : Encodable {
-        throw URLError(.unsupportedURL)
+        let sampleData = MockData.sampleLoginData
+        do {
+            let decoded = try JSONDecoder().decode(T.self, from: sampleData)
+            return decoded
+        } catch {
+            print("⚠️ Decoding error: \(error)")
+            throw error
+        }
+
     }
 
     
@@ -24,7 +32,10 @@ class MockNetworkService: NetworkServicing {
             sampleData = MockData.sampleBatteryData
         } else if url.absoluteString.contains("memory-usage") {
             sampleData = MockData.sampleMemoryUsageData
-        } else {
+        } else if url.absoluteString.contains("auth/signin") {
+            sampleData = MockData.sampleLoginData
+        }
+        else {
             throw URLError(.badURL)
         }
         
