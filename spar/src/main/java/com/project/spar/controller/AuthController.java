@@ -1,6 +1,7 @@
 // src/main/java/com/project/spar/controller/AuthController.java
 package com.project.spar.controller;
 
+import com.project.spar.constants.AppConstants;
 import com.project.spar.model.User;
 import com.project.spar.repository.UserRepository;
 import com.project.spar.security.JwtUtils;
@@ -30,19 +31,19 @@ public class AuthController {
         if (userRepo.findByUsername(req.getUsername()).isPresent()) {
             return ResponseEntity
                     .badRequest()
-                    .body("Error: Username is already taken!");
+                    .body(AppConstants.ERROR_USERNAME_ALREADY_TAKEN);
         }
         if (userRepo.findByEmail(req.getEmail()).isPresent()) {
             return ResponseEntity
                     .badRequest()
-                    .body("Error: Email is already in use!");
+                    .body(AppConstants.ERROR_EMAIL_ALREADY_USED);
         }
         User user = new User();
         user.setUsername(req.getUsername());
         user.setPassword(encoder.encode(req.getPassword()));
         user.setEmail(req.getEmail());
         userRepo.save(user);
-        return ResponseEntity.ok("User registered successfully!");
+        return ResponseEntity.ok(AppConstants.USER_REGISTERED_SUCCESSFULLY);
     }
 
     @PostMapping("/signin")

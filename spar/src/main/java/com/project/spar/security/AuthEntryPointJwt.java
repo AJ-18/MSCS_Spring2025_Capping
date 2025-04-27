@@ -1,5 +1,6 @@
 package com.project.spar.security;
 
+import com.project.spar.constants.AppConstants;
 import jakarta.servlet.http.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -11,6 +12,6 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest req, HttpServletResponse res,
                          AuthenticationException authEx) throws IOException {
-        res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
+        res.sendError(HttpServletResponse.SC_UNAUTHORIZED, AppConstants.ERROR_UNAUTHORIZED);
     }
 }
