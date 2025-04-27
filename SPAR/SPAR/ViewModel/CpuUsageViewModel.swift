@@ -24,7 +24,7 @@ class CpuUsageViewModel: ObservableObject {
          let sampleUsage = CpuUsage(
              id: 7,
              totalCpuLoad: 32.1,
-             perCoreUsageJson: sampleCoreData,
+             perCoreUsage: sampleCoreData,
              userId: 1,
              deviceId: "1",
              timestamp: "2025-04-22T15:57:10.351457"

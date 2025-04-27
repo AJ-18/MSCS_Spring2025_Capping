@@ -101,14 +101,14 @@ struct MockData {
       }
     """.data(using: .utf8)!
     static let sampleCPUUsageData = """
-     {
-         "id": 7,
-         "totalCpuLoad": 42.5,
-         "perCoreUsageJson": "[{\"core\":1,\"usage\":35.0}]",
-         "userId": 1,
-         "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
-         "timestamp": "2025-04-22T15:57:10.351457"
-     }
+    {
+        "id": 7,
+        "totalCpuLoad": 42.5,
+        "perCoreUsageJson": "[{\"core\":1,\"usage\":35.0}]",
+        "userId": 1,
+        "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
+        "timestamp": "2025-04-22T15:57:10.351457"
+    }
     """.data(using: .utf8)!
     static let sampleDiskIOUsageData = """
        {"id": 5,

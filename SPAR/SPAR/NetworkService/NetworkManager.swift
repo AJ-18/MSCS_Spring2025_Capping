@@ -29,6 +29,7 @@ class NetworkManager {
         guard let url = makeURL(endpoint: "cpu-usage", userId: userId, deviceId: deviceId),let token = AppSettings.shared.authToken  else {
             throw URLError(.badURL)
         }
+        
         return try await networkService.get(from: url, token: token)
     }
     func fetchProcessStatus(for userId: Int, deviceId: Int) async throws -> [ProcessStatus] {
