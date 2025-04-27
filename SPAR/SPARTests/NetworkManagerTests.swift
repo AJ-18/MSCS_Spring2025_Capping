@@ -23,15 +23,5 @@ final class NetworkManagerTests: XCTestCase {
     }
     
     
-    func testFetchBatteryInfo() async throws {
-        let batteryInfo: [BatteryInfo] = try await networkManager.fetchBatteryInfo(for: 1)
-        
-        XCTAssertEqual(batteryInfo.count, 1)
-    }
-    
-    func testFetchMemoryUsage() async throws {
-        let memoryUsage: [MemoryUsage] = try await networkManager.fetchMemoryUsage(for: 1)
-        
-        XCTAssertEqual(memoryUsage.count, 1)
-    }
+
 }

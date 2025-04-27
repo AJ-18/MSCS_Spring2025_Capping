@@ -9,15 +9,28 @@ import Foundation
 
 class ProcessViewModel: ObservableObject {
     @Published var processList: [ProcessStatus]
+    private let networkManager = NetworkManager()
+
     
     init(device: DeviceSpecification) {
-         processList
-        = [
-            ProcessStatus(id: 101, userId: 1, pid: 1234, name: "chrome.exe", cpuUsage: 12.5, memoryMB: 200.0, timestamp: "2025-04-13T15:29:00.236114".toFormattedDate()),
-            ProcessStatus(id: 102, userId: 1, pid: 5678, name: "node.exe", cpuUsage: 5.0, memoryMB: 150.0, timestamp: "2025-04-13T15:29:00.236114".toFormattedDate()),
-            ProcessStatus(id: 103, userId: 1, pid: 1234, name: "chrome.exe", cpuUsage: 12.5, memoryMB: 200.0, timestamp: "2025-04-19T11:33:17.675373".toFormattedDate()),
-            ProcessStatus(id: 104, userId: 1, pid: 5678, name: "node.exe", cpuUsage: 5.0, memoryMB: 150.0, timestamp: "2025-04-19T11:33:17.675373".toFormattedDate())
-        ]
+         processList = []
+        fetchProcessInfo(device: device)
     }
+    
+    func fetchProcessInfo(device: DeviceSpecification) {
+        Task {
+            do {
+                guard let userId = AppSettings.shared.userId else { return }
+                let response = try await networkManager.fetchProcessStatus(for: userId, deviceId: device.id)
+                
+                    DispatchQueue.main.async {
+                        self.processList = response
+                }
+            } catch {
+                print("Failed to fetch Process info: \(error)")
+            }
+        }
+    }
+
 
 }

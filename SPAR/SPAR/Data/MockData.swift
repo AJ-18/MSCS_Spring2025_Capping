@@ -67,7 +67,6 @@ struct MockData {
     """.data(using: .utf8)!
 
     static let sampleBatteryData = """
-    [
         {
             "userId": 1,
             "id": 7,
@@ -77,11 +76,9 @@ struct MockData {
             "timestamp": "2025-04-13T15:29:10.549936",
             "charging": false
         }
-    ]
     """.data(using: .utf8)!
 
     static let sampleMemoryUsageData = """
-    [
         {
             "userId": 1,
             "id": 7,
@@ -90,7 +87,37 @@ struct MockData {
             "availableMemory": 7.5,
             "timestamp": "2025-04-13T15:28:49.261218"
         }
-    ]
+    """.data(using: .utf8)!
+    static let sampleDiskUsageData = """
+      {
+          "id": 5,
+          "readSpeedMBps": 120.0,
+          "writeSpeedMBps": 80.0,
+          "userId": 1,
+          "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
+          "timestamp": "2025-04-22T15:57:10.377292"
+      }
+    """.data(using: .utf8)!
+    static let sampleCPUUsageData = """
+     {
+         "id": 7,
+         "totalCpuLoad": 42.5,
+         "perCoreUsageJson": "[{\"core\":1,\"usage\":35.0}]",
+         "userId": 1,
+         "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
+         "timestamp": "2025-04-22T15:57:10.351457"
+     }
+    """.data(using: .utf8)!
+    static let sampleDiskIOUsageData = """
+       {
+           "id": 4,
+           "totalMemory": 16.0,
+           "usedMemory": 7.2,
+           "availableMemory": 8.8,
+           "userId": 1,
+           "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
+           "timestamp": "2025-04-22T15:57:10.366022"
+       }
     """.data(using: .utf8)!
     static let sampleLoginData = """
     {

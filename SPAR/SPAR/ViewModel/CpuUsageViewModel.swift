@@ -15,6 +15,7 @@ class CpuUsageViewModel: ObservableObject {
     @Published var chartData: ChartData?
 
     private let logger = Logger.fileLocation
+    private let networkManager = NetworkManager()
 
     init(device: DeviceSpecification) {
         // Sample data
@@ -46,6 +47,28 @@ class CpuUsageViewModel: ObservableObject {
             type: "CPU",
             percent: CGFloat(sampleUsage.totalCpuLoad)
         )
+        fetchCPUInfo(device: device)
+    }
+    
+    func fetchCPUInfo(device: DeviceSpecification) {
+        Task {
+            do {
+                guard let userId = AppSettings.shared.userId else { return }
+                let response = try await networkManager.fetchCPUUsageInfo(for: userId, deviceId: device.id)
+                
+                    DispatchQueue.main.async {
+                        self.cpuUsage = response
+                        self.chartData = ChartData(
+                            color: Color.purple,
+                            type: "CPU",
+                            percent: CGFloat(response.totalCpuLoad)
+                        )
+                    }
+                
+            } catch {
+                print("Failed to fetch CPU info: \(error)")
+            }
+        }
     }
 }
 

@@ -24,20 +24,20 @@ class BatteryViewModel: ObservableObject {
         )
         
         // 2. Then fetch actual data from API
-        fetchBatteryInfo()
+        fetchBatteryInfo(device: device)
     }
     
-    func fetchBatteryInfo() {
+    func fetchBatteryInfo(device: DeviceSpecification) {
         Task {
             do {
                 guard let userId = AppSettings.shared.userId else { return }
-                let response = try await networkManager.fetchBatteryInfo(for: userId)
+                let response = try await networkManager.fetchBatteryInfo(for: userId, deviceId: device.id)
                 
-                if let battery = response.first {
+             
                     DispatchQueue.main.async {
-                        self.batteryInfo = battery
+                        self.batteryInfo = response
                     }
-                }
+                
             } catch {
                 print("Failed to fetch battery info: \(error)")
             }

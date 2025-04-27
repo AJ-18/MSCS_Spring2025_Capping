@@ -37,7 +37,7 @@ struct MemoryUsageDetailView: View {
                     InfoRow(label: StringConstant.totalMemeory, value: String(format: "%.2f GB", viewModel.memoryInfo.totalMemory))
                     InfoRow(label: StringConstant.usedMemory, value: String(format: "%.2f GB", viewModel.memoryInfo.usedMemory))
                     InfoRow(label: StringConstant.availableMemory, value: String(format: "%.2f GB", viewModel.memoryInfo.availableMemory))
-                    InfoRow(label: StringConstant.timestamp, value: viewModel.memoryInfo.timestamp)
+                    InfoRow(label: StringConstant.timestamp, value: viewModel.memoryInfo.timestamp.toFormattedDate())
                 }
                 .padding()
                 .frame(maxWidth: 320)

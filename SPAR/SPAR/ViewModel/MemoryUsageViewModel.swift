@@ -9,7 +9,8 @@ import SwiftUI
 
 class MemoryUsageViewModel: ObservableObject {
     @Published var memoryInfo: MemoryUsage
-    
+    private let networkManager = NetworkManager()
+
     @Published var chartData: ChartData
 
     init(device: DeviceSpecification) {
@@ -30,6 +31,29 @@ class MemoryUsageViewModel: ObservableObject {
             type: "Memory",
             percent: CGFloat(usedPercent)
         )
+        
+        fetchRamInfo(device: device)
+    }
+    func fetchRamInfo(device: DeviceSpecification) {
+        Task {
+            do {
+                guard let userId = AppSettings.shared.userId else { return }
+                let response = try await networkManager.fetchMemoryUsage(for: userId, deviceId: device.id)
+                
+                    DispatchQueue.main.async {
+                        self.memoryInfo = response
+                        let usedPercent = (response.usedMemory / response.totalMemory) * 100
+                        self.chartData = ChartData(
+                            color: Color.purple,
+                            type: "Memory",
+                            percent: CGFloat(usedPercent)
+                        )
+                    }
+                
+            } catch {
+                print("Failed to fetch memory info: \(error)")
+            }
+        }
     }
 }
 

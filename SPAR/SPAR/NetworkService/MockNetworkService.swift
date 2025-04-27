@@ -32,7 +32,11 @@ class MockNetworkService: NetworkServicing {
             sampleData = MockData.sampleBatteryData
         } else if url.absoluteString.contains("memory-usage") {
             sampleData = MockData.sampleMemoryUsageData
-        } else if url.absoluteString.contains("auth/signin") {
+        } else if url.absoluteString.contains("disk-usage") {
+            sampleData = MockData.sampleDiskUsageData
+        } else if url.absoluteString.contains("disk-io") {
+            sampleData = MockData.sampleDiskIOUsageData
+        }  else if url.absoluteString.contains("auth/signin") {
             sampleData = MockData.sampleLoginData
         }
         else {
