@@ -1,5 +1,6 @@
 package com.project.spar.controller;
 
+import com.project.spar.constants.AppConstants;
 import com.project.spar.dto.*;
 import com.project.spar.model.*;
 import com.project.spar.repository.DeviceSpecificationRepository;
@@ -34,7 +35,7 @@ public class MetricsController {
     @PostMapping("/device-specifications")
     public ResponseEntity<DeviceSpecification> addDeviceSpecification(@RequestBody DeviceSpecification ds) {
         var user = userRepo.findById(ds.getUser().getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, AppConstants.USER_NOT_FOUND));
         ds.setUser(user);
         return ResponseEntity.ok(metricsService.saveDeviceSpecification(ds));
     }
@@ -44,9 +45,9 @@ public class MetricsController {
      */
     private DeviceSpecification lookupDevice(Long userId, String deviceId) {
         var user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, AppConstants.USER_NOT_FOUND));
         return deviceRepo.findByUserAndDeviceId(user, deviceId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Device not registered"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, AppConstants.DEVICE_NOT_REGISTERED));
     }
 
     @PostMapping("/cpu-usage")

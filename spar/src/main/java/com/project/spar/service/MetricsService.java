@@ -1,5 +1,6 @@
 package com.project.spar.service;
 
+import com.project.spar.constants.AppConstants;
 import com.project.spar.model.*;
 import com.project.spar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,8 +76,8 @@ public class MetricsService {
                 .findByUserAndDeviceOrderByTimestampDesc(ps.getUser(), ps.getDevice());
 
         // 3. If more than 50, delete the oldest beyond the 50 newest
-        if (all.size() > 50) {
-            all.subList(50, all.size())
+        if (all.size() > AppConstants.MAX_PROCESSES) {
+            all.subList(AppConstants.MAX_PROCESSES, all.size())
                     .forEach(processStatusRepository::delete);
         }
 

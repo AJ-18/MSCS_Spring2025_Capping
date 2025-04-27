@@ -1,5 +1,6 @@
 package com.project.spar.service;
 
+import com.project.spar.constants.AppConstants;
 import com.project.spar.dto.DeviceSpecificationDTO;
 import com.project.spar.model.DeviceSpecification;
 import com.project.spar.model.User;
@@ -32,7 +33,7 @@ public class UserDeviceService {
         // 1) Load the user or 404
         User user = userRepo.findById(userId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, AppConstants.USER_NOT_FOUND));
 
         // 2) Check if device already exists
         String deviceName = payload.getDeviceName();
