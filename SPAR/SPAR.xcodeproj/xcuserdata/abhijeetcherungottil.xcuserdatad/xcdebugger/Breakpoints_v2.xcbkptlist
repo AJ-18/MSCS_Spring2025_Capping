@@ -23,22 +23,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5E7DF252-E56F-423A-8779-1E23456F4E22"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SPAR/NetworkService/MockNetworkService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "12"
-            endingLineNumber = "12"
-            landmarkName = "post(to:body:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "32F93E3F-4F09-420E-9295-E8DA588C0C40"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -66,64 +50,6 @@
             endingLineNumber = "37"
             landmarkName = "getDeviceData()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "04D26233-6466-4FCF-87B6-2158621E72B8 - 960b476f4558dad6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async -&gt; () in SPAR.HomeViewModel.getDeviceData() -&gt; ()"
-                  moduleName = "SPAR"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/abhijeetcherungottil/Desktop/MSCS_Spring2025_Capping/SPAR/SPAR/ViewModel/HomeViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "37"
-                  endingLineNumber = "37">
-               </Location>
-               <Location
-                  uuid = "04D26233-6466-4FCF-87B6-2158621E72B8 - 709da5b9f5cf06be"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) await resume partial function for closure #1 @Sendable () async -&gt; () in SPAR.HomeViewModel.getDeviceData() -&gt; ()"
-                  moduleName = "SPAR"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/abhijeetcherungottil/Desktop/MSCS_Spring2025_Capping/SPAR/SPAR/ViewModel/HomeViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "37"
-                  endingLineNumber = "37">
-               </Location>
-               <Location
-                  uuid = "04D26233-6466-4FCF-87B6-2158621E72B8 - dc0576e0e0739ed0"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in SPAR.HomeViewModel.getDeviceData() -&gt; ()"
-                  moduleName = "SPAR"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/abhijeetcherungottil/Desktop/MSCS_Spring2025_Capping/SPAR/SPAR/ViewModel/HomeViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "37"
-                  endingLineNumber = "37">
-               </Location>
-               <Location
-                  uuid = "04D26233-6466-4FCF-87B6-2158621E72B8 - f9186e214e1f3cd3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async -&gt; () in SPAR.HomeViewModel.getDeviceData() -&gt; ()"
-                  moduleName = "SPAR"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/abhijeetcherungottil/Desktop/MSCS_Spring2025_Capping/SPAR/SPAR/ViewModel/HomeViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "37"
-                  endingLineNumber = "37">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

@@ -7,42 +7,29 @@
 
 import Foundation
 
-class MockNetworkService: NetworkServicing {
-    func post<T, U>(to url: URL, body: U) async throws -> T where T : Decodable, U : Encodable {
-        let sampleData = MockData.sampleLoginData
-        do {
-            let decoded = try JSONDecoder().decode(T.self, from: sampleData)
-            return decoded
-        } catch {
-            print("⚠️ Decoding error: \(error)")
-            throw error
-        }
 
-    }
-
+final class MockNetworkService: NetworkServicing {
+    
+    private let sampleDataMapping: [String: Data] = [
+        "device-specifications": MockData.sampleDeviceData,
+        "process-status": MockData.sampleProcessData,
+        "battery-info": MockData.sampleBatteryData,
+        "memory-usage": MockData.sampleMemoryUsageData,
+        "disk-usage": MockData.sampleDiskUsageData,
+        "disk-io": MockData.sampleDiskIOUsageData,
+        "cpu-usage": MockData.sampleCPUUsageData,
+        "auth/signin": MockData.sampleLoginData
+    ]
     
     func get<T: Decodable>(from url: URL, token: String?) async throws -> T {
-        let sampleData: Data
-        
-        if url.absoluteString.contains("device-specifications") {
-            sampleData = MockData.sampleDeviceData
-        } else if url.absoluteString.contains("process-status") {
-            sampleData = MockData.sampleProcessData
-        } else if url.absoluteString.contains("battery-info") {
-            sampleData = MockData.sampleBatteryData
-        } else if url.absoluteString.contains("memory-usage") {
-            sampleData = MockData.sampleMemoryUsageData
-        } else if url.absoluteString.contains("disk-usage") {
-            sampleData = MockData.sampleDiskUsageData
-        } else if url.absoluteString.contains("disk-io") {
-            sampleData = MockData.sampleDiskIOUsageData
-        }  else if url.absoluteString.contains("auth/signin") {
-            sampleData = MockData.sampleLoginData
-        }
-        else {
+        guard let (key, data) = sampleDataMapping.first(where: { url.absoluteString.contains($0.key) }) else {
             throw URLError(.badURL)
         }
-        
-        return try JSONDecoder().decode(T.self, from: sampleData)
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+    
+    func post<T: Decodable, U: Encodable>(to url: URL, body: U) async throws -> T {
+        // Always returning login sample for mock POST
+        return try JSONDecoder().decode(T.self, from: MockData.sampleLoginData)
     }
 }

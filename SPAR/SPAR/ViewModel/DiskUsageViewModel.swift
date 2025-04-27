@@ -26,7 +26,7 @@ class DiskUsageViewModel: ObservableObject {
             usedGB: 200.0,
             availableGB: 312.0,
             userId: 1,
-            deviceId: "331330ac-5f82-43b0-9d39-84e1f7e7e358",
+            deviceId: "1",
             timestamp: "2025-04-22T15:57:10.390972".toFormattedDate()
         )
         

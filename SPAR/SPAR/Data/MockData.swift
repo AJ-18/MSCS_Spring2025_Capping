@@ -90,12 +90,14 @@ struct MockData {
     """.data(using: .utf8)!
     static let sampleDiskUsageData = """
       {
-          "id": 5,
-          "readSpeedMBps": 120.0,
-          "writeSpeedMBps": 80.0,
-          "userId": 1,
-          "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
-          "timestamp": "2025-04-22T15:57:10.377292"
+              "id": 5,
+              "filesystem": "/dev/sda1",
+              "sizeGB": 512.0,
+              "usedGB": 200.0,
+              "availableGB": 312.0,
+              "userId": 1,
+              "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
+              "timestamp": "2025-04-22T15:57:10.390972"
       }
     """.data(using: .utf8)!
     static let sampleCPUUsageData = """
@@ -109,15 +111,13 @@ struct MockData {
      }
     """.data(using: .utf8)!
     static let sampleDiskIOUsageData = """
-       {
-           "id": 4,
-           "totalMemory": 16.0,
-           "usedMemory": 7.2,
-           "availableMemory": 8.8,
-           "userId": 1,
-           "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
-           "timestamp": "2025-04-22T15:57:10.366022"
-       }
+       {"id": 5,
+          "readSpeedMBps": 120.0,
+          "writeSpeedMBps": 80.0,
+          "userId": 1,
+          "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
+          "timestamp": "2025-04-22T15:57:10.377292"
+    }
     """.data(using: .utf8)!
     static let sampleLoginData = """
     {
