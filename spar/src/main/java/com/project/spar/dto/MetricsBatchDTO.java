@@ -18,6 +18,6 @@ public class MetricsBatchDTO {
     private CpuUsageDTO          cpuUsage;
     private RamUsageDTO          ramUsage;
     private DiskIODTO            diskIO;
-    private DiskUsageDTO         diskUsage;
+    private List<DiskUsageDTO> diskUsage;
     private List<ProcessStatusDTO>    processStatuses;
 }

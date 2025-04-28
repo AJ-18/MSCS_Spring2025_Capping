@@ -83,32 +83,36 @@ public class MetricsBatchService {
         }
 
         // 7) DiskUsage
-        DiskUsageDTO duDto = batch.getDiskUsage();
-        if (duDto != null) {
-            DiskUsage du = new DiskUsage();
-            du.setFilesystem(duDto.getFilesystem());
-            du.setSizeGB(duDto.getSizeGB());
-            du.setUsedGB(duDto.getUsedGB());
-            du.setAvailableGB(duDto.getAvailableGB());
-            du.setUser(user);
-            du.setDevice(device);
-            metricsService.saveDiskUsage(du);
-        }
+        List<DiskUsageDTO> duList = batch.getDiskUsage();
+        if (duList != null) {
+            // (optional) clear old ones once before saving the new batch
+            metricsService.deleteAllDiskUsageFor(user, device);
+
+            for (DiskUsageDTO duDto : duList) {
+                DiskUsage du = new DiskUsage();
+                du.setFilesystem(duDto.getFilesystem());
+                du.setSizeGB(duDto.getSizeGB());
+                du.setUsedGB(duDto.getUsedGB());
+                du.setAvailableGB(duDto.getAvailableGB());
+                du.setUser(user);
+                du.setDevice(device);
+                metricsService.saveDiskUsage(du);
+            }
 
 
-
-        // 8). ProcessStatus
-        List<ProcessStatusDTO> psList = batch.getProcessStatuses();
-        if (psList != null) {
-            for (ProcessStatusDTO psDto : psList) {
-                ProcessStatus ps = new ProcessStatus();
-                ps.setPid(psDto.getPid());
-                ps.setName(psDto.getName());
-                ps.setCpuUsage(psDto.getCpuUsage());
-                ps.setMemoryMB(psDto.getMemoryMB());
-                ps.setUser(user);
-                ps.setDevice(device);
-                metricsService.saveProcessStatus(ps);
+            // 8). ProcessStatus
+            List<ProcessStatusDTO> psList = batch.getProcessStatuses();
+            if (psList != null) {
+                for (ProcessStatusDTO psDto : psList) {
+                    ProcessStatus ps = new ProcessStatus();
+                    ps.setPid(psDto.getPid());
+                    ps.setName(psDto.getName());
+                    ps.setCpuUsage(psDto.getCpuUsage());
+                    ps.setMemoryMB(psDto.getMemoryMB());
+                    ps.setUser(user);
+                    ps.setDevice(device);
+                    metricsService.saveProcessStatus(ps);
+                }
             }
         }
         return AppConstants.METRIC_SUCCESS;

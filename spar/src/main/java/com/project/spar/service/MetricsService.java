@@ -56,9 +56,14 @@ public class MetricsService {
 
     @Transactional
     public DiskUsage saveDiskUsage(DiskUsage diskUsage) {
-        diskUsageRepository.deleteByUserAndDevice(diskUsage.getUser(), diskUsage.getDevice());
         return diskUsageRepository.save(diskUsage);
     }
+
+    @Transactional
+    public void deleteAllDiskUsageFor(User user, DeviceSpecification device) {
+        diskUsageRepository.deleteByUserAndDevice(user, device);
+    }
+
 
     @Transactional
     public DiskIO saveDiskIO(DiskIO diskIO) {
