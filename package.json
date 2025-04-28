@@ -34,8 +34,10 @@
     }
   },
   "dependencies": {
+    "@trufflesuite/ps-list": "^0.0.3",
     "axios": "^1.9.0",
     "package": "^1.0.1",
+    "perfmon": "^0.2.0",
     "react-router-dom": "^7.5.2",
     "systeminformation": "^5.25.11"
   },
