@@ -21,12 +21,8 @@ let latestDiskIO = {
   [diskCounters[0]]: 0, 
   [diskCounters[1]]: 0 
 };
-diskIOStream.on('data', stat => {
-  latestDiskIO = stat.counters;
-});
-diskIOStream.on('error', err => {
-  console.error('perfmon error:', err);
-});
+diskIOStream.on('data', stat => { latestDiskIO = stat.counters; });
+diskIOStream.on('error', err => { console.error('perfmon error:', err); });
 
 // ---- Helper: WMI map of pid → WorkingSetSize ----
 async function getWmiMemoryMap() {
@@ -58,7 +54,7 @@ class MetricsPoller {
   }
 
   async collectDeviceInfo() {
-    const [system, cpu, graphics, os, mem] = await Promise.all([
+    const [ system, cpu, graphics, os, mem ] = await Promise.all([
       si.system(), si.cpu(), si.graphics(), si.osInfo(), si.mem()
     ]);
 
@@ -77,70 +73,54 @@ class MetricsPoller {
   }
 
   async registerDevice(baseUrl, token, userId) {
-    const deviceInfo = await this.collectDeviceInfo();
+    const info = await this.collectDeviceInfo();
     const res = await axios.post(
       `${baseUrl}/api/users/${userId}/devices`,
-      deviceInfo,
+      info,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    // Spring returns an array of devices
     const devices = Array.isArray(res.data) ? res.data : [];
-    if (!devices.length) {
-      throw new Error('No devices returned from registration');
-    }
-    // find exact match or take last
+    if (!devices.length) throw new Error('No devices returned');
     const match = devices.find(d =>
-      d.deviceName   === deviceInfo.deviceName &&
-      d.manufacturer === deviceInfo.manufacturer &&
-      d.model        === deviceInfo.model
+      d.deviceName   === info.deviceName &&
+      d.manufacturer === info.manufacturer &&
+      d.model        === info.model
     );
-    return (match || devices[devices.length - 1]).deviceId;
+    return (match || devices[devices.length-1]).deviceId;
   }
 
   async collectSystemMetrics() {
-    // 1) get WMI memory map
+    // WMI memory map
     const wmiMemMap = await getWmiMemoryMap();
 
-    // 2) gather SI metrics
+    // Grab SI metrics
     const [ battery, load, mem, fsList ] = await Promise.all([
-      si.battery(),
-      si.currentLoad(),
-      si.mem(),
-      si.fsSize()
+      si.battery(), si.currentLoad(), si.mem(), si.fsSize()
     ]);
 
-    // 3) build batteryInfo
+    // Battery
     const batteryInfo = {
-      hasBattery:      battery.hasBattery,
+      hasBattery:       battery.hasBattery,
       batteryPercentage: battery.percent,
-      isCharging:      battery.isCharging,
+      isCharging:       battery.isCharging,
       powerConsumption: battery.powerConsumption || 0
     };
 
-    // 4) build cpuUsage (and JSON stringify per-core)
+    // CPU
     const perCore = load.cpus.map((c,i) => ({ core:i+1, usage:c.load }));
     const cpuUsage = {
-      totalCpuLoad:       load.currentLoad,
-      perCoreUsageJson:   JSON.stringify(perCore)
+      totalCpuLoad:     load.currentLoad,
+      perCoreUsageJson: JSON.stringify(perCore)
     };
 
-    // 5) build ramUsage
+    // RAM
     const ramUsage = {
-      totalMemory:     mem.total / 1024**3,
-      usedMemory:      mem.used  / 1024**3,
+      totalMemory:     mem.total     / 1024**3,
+      usedMemory:      mem.used      / 1024**3,
       availableMemory: mem.available / 1024**3
     };
 
-    // 6) build diskUsage from first FS
-    const fs0 = fsList[0] || { fs:'N/A', size:0, used:0, available:0 };
-    const diskUsage = {
-      filesystem: fs0.fs,
-      sizeGB:     fs0.size      / 1024**3,
-      usedGB:     fs0.used      / 1024**3,
-      availableGB:fs0.available / 1024**3
-    };
-
-    // 7) diskIO via perfmon counters → to KB/s
+    // Disk I/O
     const readBps  = latestDiskIO[diskCounters[0]] || 0;
     const writeBps = latestDiskIO[diskCounters[1]] || 0;
     const diskIO = {
@@ -148,16 +128,24 @@ class MetricsPoller {
       writeSpeedMBps: writeBps / 1024**2
     };
 
-    // 8) processes via ps-list + WMI
-    const allProcs = await psList();
-    const top = allProcs
-      .sort((a,b) => (b.cpu||0) - (a.cpu||0))
-      .slice(0, 10)
+    // **All** filesystems
+    const diskUsage = fsList.map(d => ({
+      filesystem:  d.fs,
+      sizeGB:      d.size      / 1024**3,
+      usedGB:      d.used      / 1024**3,
+      availableGB: d.available / 1024**3
+    }));
+
+    // Processes
+    const procs = await psList();
+    const processStatuses = procs
+      .sort((a,b) => (b.cpu||0)-(a.cpu||0))
+      .slice(0,10)
       .map(p => ({
-        pid:       p.pid,
-        name:      p.name,
-        cpuUsage:  p.cpu || 0,
-        memoryMB:  (wmiMemMap[p.pid] || 0) / 1024**2
+        pid:      p.pid,
+        name:     p.name,
+        cpuUsage: p.cpu || 0,
+        memoryMB: (wmiMemMap[p.pid] || 0) / 1024**2
       }));
 
     return {
@@ -168,7 +156,7 @@ class MetricsPoller {
       ramUsage,
       diskIO,
       diskUsage,
-      processStatuses: top
+      processStatuses
     };
   }
 
@@ -187,17 +175,13 @@ class MetricsPoller {
 
   async start(config) {
     this.config = config;
-    // 1) register device first
     this.config.deviceId = await this.registerDevice(
-      config.baseUrl,
-      config.jwt,
-      config.userId
+      config.baseUrl, config.jwt, config.userId
     );
-    // 2) then fire & schedule metrics
     this.sendBatchMetrics();
     this.pollingInterval = setInterval(
       () => this.sendBatchMetrics(),
-      5000
+      30000
     );
   }
 
