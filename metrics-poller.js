@@ -1,132 +1,194 @@
-const si = require('systeminformation');
-const axios = require('axios');
+// metrics-poller.js
 
-function createClient(baseUrl, jwt) {
-  return axios.create({
-    baseURL: baseUrl,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${jwt}`
-    },
-    timeout: 10_000
-  });
-}
+const si       = require('systeminformation');
+const psList   = require('@trufflesuite/ps-list');
+const perfmon  = require('perfmon');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+const axios    = require('axios');
 
-async function sendBatteryInfo(client, userId, deviceId) {
-  const bi = await si.battery();
-  const payload = {
-    hasBattery: bi.hasBattery,
-    batteryPercentage: bi.percent || 0,
-    isCharging: bi.isCharging,
-    powerConsumption: bi.powerConsumption ?? null,
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/battery-info', payload);
-}
+const execAsync = promisify(exec);
 
-async function sendCpuUsage(client, userId, deviceId) {
-  const load = await si.currentLoad();
-  const payload = {
-    totalCpuLoad: load.currentLoad,
-    perCoreUsageJson: JSON.stringify(load.cpus.map((c, i) => ({
-      core: i + 1,
-      usage: c.load
-    }))),
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/cpu-usage', payload);
-}
+// ---- PerfMon counters for Disk I/O ----
+const diskCounters = [
+  '\\PhysicalDisk(_Total)\\Disk Read Bytes/sec',
+  '\\PhysicalDisk(_Total)\\Disk Write Bytes/sec'
+];
 
-async function sendRamUsage(client, userId, deviceId) {
-  const mem = await si.mem();
-  const payload = {
-    totalMemory: mem.total / 1024 / 1024 / 1024,    // Convert to GB
-    usedMemory: mem.used / 1024 / 1024 / 1024,      // Convert to GB
-    availableMemory: mem.available / 1024 / 1024 / 1024, // Convert to GB
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/ram-usage', payload);
-}
+// start perfmon stream immediately
+const diskIOStream = perfmon(diskCounters);
+let latestDiskIO = { 
+  [diskCounters[0]]: 0, 
+  [diskCounters[1]]: 0 
+};
+diskIOStream.on('data', stat => { latestDiskIO = stat.counters; });
+diskIOStream.on('error', err => { console.error('perfmon error:', err); });
 
-async function sendDiskIO(client, userId, deviceId) {
-  const dio = await si.disksIO();
-  const payload = {
-    readSpeedMBps: dio.rIO_sec ? dio.rIO_sec / 1024 / 1024 : 0,  // Convert to MB/s
-    writeSpeedMBps: dio.wIO_sec ? dio.wIO_sec / 1024 / 1024 : 0, // Convert to MB/s
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/disk-io', payload);
-}
-
-async function sendDiskUsage(client, userId, deviceId) {
-  const fsArr = await si.fsSize();
-  const d = fsArr[0] || {};
-  const payload = {
-    filesystem: d.fs || 'unknown',
-    sizeGB: d.size / 1024 / 1024 / 1024,      // Convert to GB
-    usedGB: d.used / 1024 / 1024 / 1024,      // Convert to GB
-    availableGB: d.available / 1024 / 1024 / 1024, // Convert to GB
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/disk-usage', payload);
-}
-
-async function sendProcessStatus(client, userId, deviceId) {
-  const procs = await si.processes();
-  // Take top 20 processes by CPU usage
-  const processPayloads = procs.list
-    .sort((a, b) => b.cpu - a.cpu)
-    .slice(0, 20)
-    .map(p => ({
-      pid: p.pid,
-      name: p.name,
-      cpuUsage: p.cpu,
-      memoryMB: p.mem / 1024 / 1024, // Convert to MB
-      user: { id: userId },
-      device: { deviceId }
-    }));
-
-  // Send all process statuses in a single request
-  await client.post('/api/metrics/process-status', processPayloads);
-}
-
-async function collectAndSendAll(client, userId, deviceId) {
+// ---- Helper: WMI map of pid → WorkingSetSize ----
+async function getWmiMemoryMap() {
   try {
-    await Promise.all([
-      sendBatteryInfo(client, userId, deviceId),
-      sendCpuUsage(client, userId, deviceId),
-      sendRamUsage(client, userId, deviceId),
-      sendDiskIO(client, userId, deviceId),
-      sendDiskUsage(client, userId, deviceId),
-      sendProcessStatus(client, userId, deviceId)
-    ]);
-    console.log('Metrics batch sent successfully.');
+    const { stdout } = await execAsync(
+      'wmic process get ProcessId,WorkingSetSize /FORMAT:CSV'
+    );
+    const lines = stdout.trim().split(/\r?\n/).slice(1);
+    const map = {};
+    for (let line of lines) {
+      const [ , pidStr, wsStr ] = line.split(',');
+      const pid = parseInt(pidStr, 10);
+      const ws  = parseInt(wsStr, 10);
+      if (!isNaN(pid) && !isNaN(ws)) {
+        map[pid] = ws;
+      }
+    }
+    return map;
   } catch (e) {
-    console.error('Error sending metrics batch:', e.message);
+    console.error('WMI memory fetch failed:', e);
+    return {};
   }
 }
 
-/**
- * Starts polling all metrics every `intervalMs` milliseconds.
- * Returns a `stop()` function which you can call to end the polling.
- */
-function startMetricsPolling({ baseUrl, jwt, userId, deviceId, intervalMs = 5000 }) {
-  const client = createClient(baseUrl, jwt);
+class MetricsPoller {
+  constructor() {
+    this.pollingInterval = null;
+    this.config          = null;
+  }
 
-  // Send immediately once
-  collectAndSendAll(client, userId, deviceId);
+  async collectDeviceInfo() {
+    const [ system, cpu, graphics, os, mem ] = await Promise.all([
+      si.system(), si.cpu(), si.graphics(), si.osInfo(), si.mem()
+    ]);
 
-  // Then every intervalMs
-  const handle = setInterval(() => {
-    collectAndSendAll(client, userId, deviceId);
-  }, intervalMs);
+    return {
+      deviceName:       system.model,
+      manufacturer:     system.manufacturer,
+      model:            system.model,
+      processor:        `${cpu.manufacturer} ${cpu.brand} ${cpu.speed} GHz`,
+      cpuPhysicalCores: cpu.physicalCores,
+      cpuLogicalCores:  cpu.cores,
+      installedRam:     mem.total / 1024**3,
+      graphics:         graphics.controllers[0]?.model || 'N/A',
+      operatingSystem:  `${os.distro} ${os.release} ${os.arch}`,
+      systemType:       `${os.arch} OS, ${cpu.manufacturer}-based CPU`
+    };
+  }
 
-  return () => clearInterval(handle);
+  async registerDevice(baseUrl, token, userId) {
+    const info = await this.collectDeviceInfo();
+    const res = await axios.post(
+      `${baseUrl}/api/users/${userId}/devices`,
+      info,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const devices = Array.isArray(res.data) ? res.data : [];
+    if (!devices.length) throw new Error('No devices returned');
+    const match = devices.find(d =>
+      d.deviceName   === info.deviceName &&
+      d.manufacturer === info.manufacturer &&
+      d.model        === info.model
+    );
+    return (match || devices[devices.length-1]).deviceId;
+  }
+
+  async collectSystemMetrics() {
+    // WMI memory map
+    const wmiMemMap = await getWmiMemoryMap();
+
+    // Grab SI metrics
+    const [ battery, load, mem, fsList ] = await Promise.all([
+      si.battery(), si.currentLoad(), si.mem(), si.fsSize()
+    ]);
+
+    // Battery
+    const batteryInfo = {
+      hasBattery:       battery.hasBattery,
+      batteryPercentage: battery.percent,
+      isCharging:       battery.isCharging,
+      powerConsumption: battery.powerConsumption || 0
+    };
+
+    // CPU
+    const perCore = load.cpus.map((c,i) => ({ core:i+1, usage:c.load }));
+    const cpuUsage = {
+      totalCpuLoad:     load.currentLoad,
+      perCoreUsageJson: JSON.stringify(perCore)
+    };
+
+    // RAM
+    const ramUsage = {
+      totalMemory:     mem.total     / 1024**3,
+      usedMemory:      mem.used      / 1024**3,
+      availableMemory: mem.available / 1024**3
+    };
+
+    // Disk I/O
+    const readBps  = latestDiskIO[diskCounters[0]] || 0;
+    const writeBps = latestDiskIO[diskCounters[1]] || 0;
+    const diskIO = {
+      readSpeedMBps:  readBps  / 1024**2,
+      writeSpeedMBps: writeBps / 1024**2
+    };
+
+    // **All** filesystems
+    const diskUsage = fsList.map(d => ({
+      filesystem:  d.fs,
+      sizeGB:      d.size      / 1024**3,
+      usedGB:      d.used      / 1024**3,
+      availableGB: d.available / 1024**3
+    }));
+
+    // Processes
+    const procs = await psList();
+    const processStatuses = procs
+      .sort((a,b) => (b.cpu||0)-(a.cpu||0))
+      .slice(0,10)
+      .map(p => ({
+        pid:      p.pid,
+        name:     p.name,
+        cpuUsage: p.cpu || 0,
+        memoryMB: (wmiMemMap[p.pid] || 0) / 1024**2
+      }));
+
+    return {
+      userId:          this.config.userId,
+      deviceId:        this.config.deviceId,
+      batteryInfo,
+      cpuUsage,
+      ramUsage,
+      diskIO,
+      diskUsage,
+      processStatuses
+    };
+  }
+
+  async sendBatchMetrics() {
+    try {
+      const payload = await this.collectSystemMetrics();
+      await axios.post(
+        `${this.config.baseUrl}/api/metrics/batch`,
+        payload,
+        { headers: { Authorization: `Bearer ${this.config.jwt}` } }
+      );
+    } catch (e) {
+      console.error('Error sending batch metrics:', e);
+    }
+  }
+
+  async start(config) {
+    this.config = config;
+    this.config.deviceId = await this.registerDevice(
+      config.baseUrl, config.jwt, config.userId
+    );
+    this.sendBatchMetrics();
+    this.pollingInterval = setInterval(
+      () => this.sendBatchMetrics(),
+      30000
+    );
+  }
+
+  stop() {
+    clearInterval(this.pollingInterval);
+    this.config = null;
+  }
 }
 
-module.exports = { startMetricsPolling }; 
+module.exports = new MetricsPoller();

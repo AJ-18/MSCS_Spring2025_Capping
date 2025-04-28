@@ -1,14 +1,7 @@
 // Regular expressions for validation
 const REGEX = {
-  // Only allow letters, spaces, and hyphens, 2-50 characters
-  NAME: /^[a-zA-Z\s-]{2,50}$/,
-  
-  // Standard email format with additional security checks
-  // - Must be between 5 and 255 characters
-  // - Must follow standard email format
-  // - Only allows certain special characters
-  // - Prevents consecutive special characters
-  EMAIL: /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]{0,63}[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9.-]{0,253}[a-zA-Z0-9])\.[a-zA-Z]{2,}$/,
+  // Only allow letters, numbers, and underscores, 3-20 characters
+  USERNAME: /^[a-zA-Z0-9_]{3,20}$/,
   
   // Password must:
   // - Be between 8 and 128 characters
@@ -22,13 +15,9 @@ const REGEX = {
 
 // Validation error messages
 const ERROR_MESSAGES = {
-  NAME: {
-    REQUIRED: 'Name is required',
-    INVALID: 'Name must contain only letters, spaces, and hyphens (2-50 characters)'
-  },
-  EMAIL: {
-    REQUIRED: 'Email is required',
-    INVALID: 'Please enter a valid email address'
+  USERNAME: {
+    REQUIRED: 'Username is required',
+    INVALID: 'Username must be 3-20 characters and contain only letters, numbers, and underscores'
   },
   PASSWORD: {
     REQUIRED: 'Password is required',
@@ -39,17 +28,10 @@ const ERROR_MESSAGES = {
 
 // Validation functions
 export const validators = {
-  // Validate name
-  validateName: (name) => {
-    if (!name) return ERROR_MESSAGES.NAME.REQUIRED;
-    if (!REGEX.NAME.test(name)) return ERROR_MESSAGES.NAME.INVALID;
-    return null;
-  },
-
-  // Validate email
-  validateEmail: (email) => {
-    if (!email) return ERROR_MESSAGES.EMAIL.REQUIRED;
-    if (!REGEX.EMAIL.test(email)) return ERROR_MESSAGES.EMAIL.INVALID;
+  // Validate username
+  validateUsername: (username) => {
+    if (!username) return ERROR_MESSAGES.USERNAME.REQUIRED;
+    if (!REGEX.USERNAME.test(username)) return ERROR_MESSAGES.USERNAME.INVALID;
     return null;
   },
 
@@ -77,16 +59,14 @@ export const validators = {
   // Validate entire registration form
   validateRegistrationForm: (formData) => {
     const errors = {};
-    const nameError = validators.validateName(formData.name);
-    const emailError = validators.validateEmail(formData.email);
+    const usernameError = validators.validateUsername(formData.username);
     const passwordError = validators.validatePassword(formData.password);
     const passwordMatchError = validators.validatePasswordMatch(
       formData.password,
       formData.confirmPassword
     );
 
-    if (nameError) errors.name = nameError;
-    if (emailError) errors.email = emailError;
+    if (usernameError) errors.username = usernameError;
     if (passwordError) errors.password = passwordError;
     if (passwordMatchError) errors.confirmPassword = passwordMatchError;
 
@@ -99,10 +79,10 @@ export const validators = {
   // Validate login form
   validateLoginForm: (formData) => {
     const errors = {};
-    const emailError = validators.validateEmail(formData.email);
+    const usernameError = validators.validateUsername(formData.username);
     const passwordError = validators.validatePassword(formData.password);
 
-    if (emailError) errors.email = emailError;
+    if (usernameError) errors.username = usernameError;
     if (passwordError) errors.password = passwordError;
 
     return {
