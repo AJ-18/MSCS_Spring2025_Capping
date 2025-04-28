@@ -1,132 +1,187 @@
 const si = require('systeminformation');
 const axios = require('axios');
 
-function createClient(baseUrl, jwt) {
-  return axios.create({
-    baseURL: baseUrl,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${jwt}`
-    },
-    timeout: 10_000
-  });
+class MetricsPoller {
+    constructor() {
+        this.pollingInterval = null;
+        this.config = null;
+    }
+
+    async collectSystemMetrics() {
+        try {
+            // Collect all metrics in parallel
+            const [
+                battery,
+                currentLoad,
+                mem,
+                fsSize,
+                diskIOMetrics,
+                processes
+            ] = await Promise.all([
+                si.battery(),
+                si.currentLoad(),
+                si.mem(),
+                si.fsSize(),
+                si.disksIO(),
+                si.processes()
+            ]);
+
+            // Format battery info
+            const batteryInfo = {
+                hasBattery: battery.hasBattery,
+                batteryPercentage: battery.percent,
+                isCharging: battery.isCharging,
+                powerConsumption: battery.powerConsumption || 0
+            };
+
+            // Format CPU usage
+            const perCoreUsage = currentLoad.cpus.map((core, index) => ({
+                core: index + 1,
+                usage: core.load
+            }));
+
+            const cpuUsage = {
+                totalCpuLoad: currentLoad.currentLoad,
+                perCoreUsageJson: JSON.stringify(perCoreUsage)
+            };
+
+            // Format RAM usage (convert to GB)
+            const ramUsage = {
+                totalMemory: mem.total / (1024 * 1024 * 1024),
+                usedMemory: mem.used / (1024 * 1024 * 1024),
+                availableMemory: mem.available / (1024 * 1024 * 1024)
+            };
+
+            // Format Disk I/O
+            const diskIO = {
+                readSpeedMBps: diskIOMetrics.rIO_sec / 1024 / 1024,
+                writeSpeedMBps: diskIOMetrics.wIO_sec / 1024 / 1024
+            };
+
+            // Format Disk Usage
+            const mainDisk = fsSize[0]; // Using first disk
+            const diskUsage = {
+                filesystem: mainDisk.fs,
+                sizeGB: mainDisk.size / (1024 * 1024 * 1024),
+                usedGB: mainDisk.used / (1024 * 1024 * 1024),
+                availableGB: mainDisk.available / (1024 * 1024 * 1024)
+            };
+
+            // Format Process Status (top 10 processes by CPU usage)
+            const processStatuses = processes.list
+                .sort((a, b) => b.cpu - a.cpu)
+                .slice(0, 10)
+                .map(proc => ({
+                    pid: proc.pid,
+                    name: proc.name,
+                    cpuUsage: proc.cpu,
+                    memoryMB: proc.memRss / 1024 / 1024
+                }));
+
+            return {
+                userId: this.config.userId,
+                deviceId: this.config.deviceId,
+                batteryInfo,
+                cpuUsage,
+                ramUsage,
+                diskIO,
+                diskUsage,
+                processStatuses
+            };
+        } catch (error) {
+            console.error('Error collecting metrics:', error);
+            throw error;
+        }
+    }
+
+    async collectDeviceInfo() {
+        try {
+            const [system, cpu, graphics, os] = await Promise.all([
+                si.system(),
+                si.cpu(),
+                si.graphics(),
+                si.osInfo()
+            ]);
+
+            return {
+                deviceName: system.model,
+                manufacturer: system.manufacturer,
+                model: system.model,
+                processor: `${cpu.manufacturer} ${cpu.brand} ${cpu.speed} GHz`,
+                cpuPhysicalCores: cpu.physicalCores,
+                cpuLogicalCores: cpu.cores,
+                installedRam: (await si.mem()).total / (1024 * 1024 * 1024),
+                graphics: graphics.controllers[0]?.model || 'N/A',
+                operatingSystem: `${os.distro} ${os.arch}`,
+                systemType: `${os.arch} operating system, ${cpu.manufacturer}-based processor`
+            };
+        } catch (error) {
+            console.error('Error collecting device info:', error);
+            throw error;
+        }
+    }
+
+    async registerDevice(baseUrl, token, userId) {
+        try {
+            const deviceInfo = await this.collectDeviceInfo();
+            const response = await axios.post(
+                `${baseUrl}/api/users/${userId}/devices`,
+                {
+                    ...deviceInfo,
+                    user: { id: userId }
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            return response.data.deviceId;
+        } catch (error) {
+            console.error('Error registering device:', error);
+            throw error;
+        }
+    }
+
+    async sendBatchMetrics() {
+        try {
+            const metrics = await this.collectSystemMetrics();
+            await axios.post(
+                `${this.config.baseUrl}/api/metrics/batch`,
+                metrics,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.config.jwt}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Error sending batch metrics:', error);
+        }
+    }
+
+    start(config) {
+        this.config = config;
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+        }
+        
+        // Send metrics immediately and then every 5 seconds
+        this.sendBatchMetrics();
+        this.pollingInterval = setInterval(() => {
+            this.sendBatchMetrics();
+        }, 5000);
+    }
+
+    stop() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+        }
+        this.config = null;
+    }
 }
 
-async function sendBatteryInfo(client, userId, deviceId) {
-  const bi = await si.battery();
-  const payload = {
-    hasBattery: bi.hasBattery,
-    batteryPercentage: bi.percent || 0,
-    isCharging: bi.isCharging,
-    powerConsumption: bi.powerConsumption ?? null,
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/battery-info', payload);
-}
-
-async function sendCpuUsage(client, userId, deviceId) {
-  const load = await si.currentLoad();
-  const payload = {
-    totalCpuLoad: load.currentLoad,
-    perCoreUsageJson: JSON.stringify(load.cpus.map((c, i) => ({
-      core: i + 1,
-      usage: c.load
-    }))),
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/cpu-usage', payload);
-}
-
-async function sendRamUsage(client, userId, deviceId) {
-  const mem = await si.mem();
-  const payload = {
-    totalMemory: mem.total / 1024 / 1024 / 1024,    // Convert to GB
-    usedMemory: mem.used / 1024 / 1024 / 1024,      // Convert to GB
-    availableMemory: mem.available / 1024 / 1024 / 1024, // Convert to GB
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/ram-usage', payload);
-}
-
-async function sendDiskIO(client, userId, deviceId) {
-  const dio = await si.disksIO();
-  const payload = {
-    readSpeedMBps: dio.rIO_sec ? dio.rIO_sec / 1024 / 1024 : 0,  // Convert to MB/s
-    writeSpeedMBps: dio.wIO_sec ? dio.wIO_sec / 1024 / 1024 : 0, // Convert to MB/s
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/disk-io', payload);
-}
-
-async function sendDiskUsage(client, userId, deviceId) {
-  const fsArr = await si.fsSize();
-  const d = fsArr[0] || {};
-  const payload = {
-    filesystem: d.fs || 'unknown',
-    sizeGB: d.size / 1024 / 1024 / 1024,      // Convert to GB
-    usedGB: d.used / 1024 / 1024 / 1024,      // Convert to GB
-    availableGB: d.available / 1024 / 1024 / 1024, // Convert to GB
-    user: { id: userId },
-    device: { deviceId }
-  };
-  await client.post('/api/metrics/disk-usage', payload);
-}
-
-async function sendProcessStatus(client, userId, deviceId) {
-  const procs = await si.processes();
-  // Take top 20 processes by CPU usage
-  const processPayloads = procs.list
-    .sort((a, b) => b.cpu - a.cpu)
-    .slice(0, 20)
-    .map(p => ({
-      pid: p.pid,
-      name: p.name,
-      cpuUsage: p.cpu,
-      memoryMB: p.mem / 1024 / 1024, // Convert to MB
-      user: { id: userId },
-      device: { deviceId }
-    }));
-
-  // Send all process statuses in a single request
-  await client.post('/api/metrics/process-status', processPayloads);
-}
-
-async function collectAndSendAll(client, userId, deviceId) {
-  try {
-    await Promise.all([
-      sendBatteryInfo(client, userId, deviceId),
-      sendCpuUsage(client, userId, deviceId),
-      sendRamUsage(client, userId, deviceId),
-      sendDiskIO(client, userId, deviceId),
-      sendDiskUsage(client, userId, deviceId),
-      sendProcessStatus(client, userId, deviceId)
-    ]);
-    console.log('Metrics batch sent successfully.');
-  } catch (e) {
-    console.error('Error sending metrics batch:', e.message);
-  }
-}
-
-/**
- * Starts polling all metrics every `intervalMs` milliseconds.
- * Returns a `stop()` function which you can call to end the polling.
- */
-function startMetricsPolling({ baseUrl, jwt, userId, deviceId, intervalMs = 5000 }) {
-  const client = createClient(baseUrl, jwt);
-
-  // Send immediately once
-  collectAndSendAll(client, userId, deviceId);
-
-  // Then every intervalMs
-  const handle = setInterval(() => {
-    collectAndSendAll(client, userId, deviceId);
-  }, intervalMs);
-
-  return () => clearInterval(handle);
-}
-
-module.exports = { startMetricsPolling }; 
+module.exports = new MetricsPoller(); 

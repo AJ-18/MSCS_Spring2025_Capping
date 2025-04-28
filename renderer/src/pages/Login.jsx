@@ -15,7 +15,7 @@ Password: yfg#L2f54
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
   });
   const [errors, setErrors] = useState({});
@@ -39,23 +39,6 @@ const Login = () => {
     }
   };
 
-  const startMetricsPolling = (token, user, deviceId) => {
-    try {
-      if (window.metrics && typeof window.metrics.start === 'function') {
-        window.metrics.start({
-          baseUrl: 'http://localhost:8080',
-          jwt: token,
-          userId: user.id,
-          deviceId: deviceId
-        });
-      } else {
-        console.log('Metrics polling not available in development mode');
-      }
-    } catch (error) {
-      console.warn('Failed to start metrics polling:', error);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -70,20 +53,48 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Use mock auth service instead of axios
+      // 1. Sign in and get JWT + userId
       const response = await authService.login(formData);
       const { token, user } = response;
 
-      // Store the token and user info
+      // Store auth data
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // Start metrics polling
-      const deviceId = localStorage.getItem('deviceId') || crypto.randomUUID();
-      localStorage.setItem('deviceId', deviceId);
+      // 2. Register device and get deviceId
+      const baseUrl = 'http://localhost:8080';
+      let deviceId;
+      
+      try {
+        if (window.metrics && typeof window.metrics.registerDevice === 'function') {
+          deviceId = await window.metrics.registerDevice(baseUrl, token, user.id);
+          localStorage.setItem('deviceId', deviceId);
+        } else {
+          console.warn('Device registration not available');
+          deviceId = crypto.randomUUID();
+          localStorage.setItem('deviceId', deviceId);
+        }
+      } catch (error) {
+        console.error('Failed to register device:', error);
+        deviceId = crypto.randomUUID();
+        localStorage.setItem('deviceId', deviceId);
+      }
 
-      // Try to start metrics polling, but don't block if it fails
-      startMetricsPolling(token, user, deviceId);
+      // 3. Start metrics polling
+      try {
+        if (window.metrics && typeof window.metrics.start === 'function') {
+          window.metrics.start({
+            baseUrl,
+            jwt: token,
+            userId: user.id,
+            deviceId
+          });
+        } else {
+          console.warn('Metrics polling not available');
+        }
+      } catch (error) {
+        console.error('Failed to start metrics polling:', error);
+      }
 
       // Navigate to dashboard
       navigate('/dashboard');
@@ -112,21 +123,21 @@ const Login = () => {
           )}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
+              <label htmlFor="username" className="sr-only">Username</label>
               <input
-                id="email"
-                name="email"
-                type="email"
+                id="username"
+                name="username"
+                type="text"
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  errors.email ? 'border-red-300' : 'border-gray-300'
+                  errors.username ? 'border-red-300' : 'border-gray-300'
                 } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Email address"
-                value={formData.email}
+                placeholder="Username"
+                value={formData.username}
                 onChange={handleChange}
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              {errors.username && (
+                <p className="mt-1 text-sm text-red-600">{errors.username}</p>
               )}
             </div>
             <div>
