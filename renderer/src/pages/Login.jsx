@@ -1,16 +1,8 @@
+// src/components/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 import validators from '../utils/validators';
-
-/*
-Temporary login:
-Full Name: Bob Man
-Email: bobman@gmail.com
-Password: yfg#L2f54
-
-*/
-
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,85 +15,68 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Sanitize input before setting it
     const sanitizedValue = validators.sanitizeInput(value);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: sanitizedValue
+      [name]: sanitizedValue,
     }));
-
-    // Clear error for this field when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
+      setErrors((prev) => ({ ...prev, [name]: null }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate form
     const { isValid, errors: validationErrors } = validators.validateLoginForm(formData);
-    
     if (!isValid) {
       setErrors(validationErrors);
       return;
     }
 
     setLoading(true);
-
     try {
-      // 1. Sign in and get JWT + userId
-      const response = await authService.login(formData);
-      const { token, user } = response;
-
-      // Store auth data
+      // 1. Authenticate
+      const { token, user } = await authService.login(formData);
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // 2. Register device and get deviceId
       const baseUrl = 'http://localhost:8080';
       let deviceId;
-      
+
+      // 2. Register device (or fallback)
       try {
-        if (window.metrics && typeof window.metrics.registerDevice === 'function') {
+        if (window.metrics?.registerDevice) {
           deviceId = await window.metrics.registerDevice(baseUrl, token, user.id);
-          localStorage.setItem('deviceId', deviceId);
         } else {
           console.warn('Device registration not available');
           deviceId = crypto.randomUUID();
-          localStorage.setItem('deviceId', deviceId);
         }
-      } catch (error) {
-        console.error('Failed to register device:', error);
+      } catch (err) {
+        console.error('Failed to register device:', err);
         deviceId = crypto.randomUUID();
-        localStorage.setItem('deviceId', deviceId);
       }
+      localStorage.setItem('deviceId', deviceId);
 
       // 3. Start metrics polling
       try {
-        if (window.metrics && typeof window.metrics.start === 'function') {
+        if (window.metrics?.start) {
           window.metrics.start({
             baseUrl,
             jwt: token,
             userId: user.id,
-            deviceId
+            deviceId,
           });
         } else {
           console.warn('Metrics polling not available');
         }
-      } catch (error) {
-        console.error('Failed to start metrics polling:', error);
+      } catch (err) {
+        console.error('Failed to start metrics polling:', err);
       }
 
-      // Navigate to dashboard
+      // 4. Navigate
       navigate('/dashboard');
     } catch (err) {
-      setErrors({
-        submit: err.message || 'Login failed. Please try again.'
-      });
+      setErrors({ submit: err.message || 'Login failed. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -131,14 +106,12 @@ const Login = () => {
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
                   errors.username ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                 placeholder="Username"
                 value={formData.username}
                 onChange={handleChange}
               />
-              {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username}</p>
-              )}
+              {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
             </div>
             <div>
               <label htmlFor="password" className="sr-only">Password</label>
@@ -149,22 +122,19 @@ const Login = () => {
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
                   errors.password ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                } placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
               />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-              )}
+              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
           </div>
-
           <div>
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
@@ -186,4 +156,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;
