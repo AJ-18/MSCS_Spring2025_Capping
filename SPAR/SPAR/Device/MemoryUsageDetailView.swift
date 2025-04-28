@@ -37,7 +37,7 @@ struct MemoryUsageDetailView: View {
                     InfoRow(label: StringConstant.totalMemeory, value: String(format: "%.2f GB", viewModel.memoryInfo.totalMemory))
                     InfoRow(label: StringConstant.usedMemory, value: String(format: "%.2f GB", viewModel.memoryInfo.usedMemory))
                     InfoRow(label: StringConstant.availableMemory, value: String(format: "%.2f GB", viewModel.memoryInfo.availableMemory))
-                    InfoRow(label: StringConstant.timestamp, value: viewModel.memoryInfo.timestamp)
+                    InfoRow(label: StringConstant.timestamp, value: viewModel.memoryInfo.timestamp.toFormattedDate())
                 }
                 .padding()
                 .frame(maxWidth: 320)
@@ -58,7 +58,7 @@ struct MemoryUsageDetailView: View {
 #Preview {
     MemoryUsageDetailView(device: DeviceSpecification(
         id: 1,
-        userId: "User123",
+        userId: 1,
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",

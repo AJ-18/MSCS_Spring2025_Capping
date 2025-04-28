@@ -14,5 +14,5 @@ struct LoginRequest: Encodable {
 
 struct LoginResponse: Decodable {
     let token: String
-    let id: Int
+    let userId: Int
 }

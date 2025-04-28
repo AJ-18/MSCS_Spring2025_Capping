@@ -12,37 +12,37 @@ class HomeViewModel: ObservableObject {
     @Published var isSearching = false
     @Published var searchText = ""
     @Published var animate: Bool = false
-
+    private let networkManager = NetworkManager()
     // Accepts list of DeviceSpecification
-    let devices: [DeviceSpecification] = [
-        DeviceSpecification(
-            id: 1,
-            userId: "User123",
-            deviceName: "MyComputer",
-            manufacturer: "Dell",
-            model: "Inspiron 15",
-            processor: "Intel Core i7 2.8 GHz",
-            cpuPhysicalCores: 4,
-            cpuLogicalCores: 8,
-            installedRam: 16.0,
-            graphics: "NVIDIA GTX 1650",
-            operatingSystem: "Windows 10 x64",
-            systemType: "x64-based processor",
-            timestamp: "2025-03-28T16:03:30.041384"
-        )
-    ]
+    @Published var devices: [DeviceSpecification] = []
+    
+    init() {
+        getDeviceData()
+    }
 
     var filteredDevices: [DeviceSpecification] {
         if searchText.isEmpty {
             return devices
         } else {
             return devices.filter {
-                $0.deviceName.localizedCaseInsensitiveContains(searchText) ||
-                $0.manufacturer.localizedCaseInsensitiveContains(searchText) ||
-                $0.model.localizedCaseInsensitiveContains(searchText) ||
-                $0.processor.localizedCaseInsensitiveContains(searchText) ||
-                $0.graphics.localizedCaseInsensitiveContains(searchText) ||
-                $0.operatingSystem.localizedCaseInsensitiveContains(searchText)
+                $0.deviceName.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+    }
+    
+    func getDeviceData() {
+        Task {
+            do {
+                guard let id = AppSettings.shared.userId else {return }
+                let response = try await networkManager.fetchDeviceSpecifications(for:  id)
+                print(response)
+                DispatchQueue.main.async {
+                    self.devices = response
+                }
+
+            } catch {
+                print("⚠️ Decoding error: \(error)")
+
             }
         }
     }
@@ -60,3 +60,20 @@ class HomeViewModel: ObservableObject {
         }
     }
 }
+
+
+//DeviceSpecification(
+//    id: 1,
+//    userId: "User123",
+//    deviceName: "MyComputer",
+//    manufacturer: "Dell",
+//    model: "Inspiron 15",
+//    processor: "Intel Core i7 2.8 GHz",
+//    cpuPhysicalCores: 4,
+//    cpuLogicalCores: 8,
+//    installedRam: 16.0,
+//    graphics: "NVIDIA GTX 1650",
+//    operatingSystem: "Windows 10 x64",
+//    systemType: "x64-based processor",
+//    timestamp: "2025-03-28T16:03:30.041384"
+//)

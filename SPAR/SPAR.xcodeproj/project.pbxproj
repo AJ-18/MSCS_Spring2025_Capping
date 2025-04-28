@@ -68,6 +68,8 @@
 		3D98C7F42D4FE04500462EF4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D98C7F32D4FE04500462EF4 /* ContentView.swift */; };
 		3D98C7F62D4FE04700462EF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3D98C7F52D4FE04700462EF4 /* Assets.xcassets */; };
 		3D98C7F92D4FE04700462EF4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3D98C7F82D4FE04700462EF4 /* Preview Assets.xcassets */; };
+		3DA1AA442DBDB01300678160 /* DiskIOModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B6E2DBACDCA00510486 /* DiskIOModel.swift */; };
+		3DA1AA452DBDB08700678160 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5C2DBA657B00510486 /* AppSettings.swift */; };
 		3DCE45892D68C19200FACBB8 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCE45882D68C19200FACBB8 /* Constant.swift */; };
 		3DCE458B2D68C19F00FACBB8 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCE458A2D68C19F00FACBB8 /* SplashScreenView.swift */; };
 		3DCE458D2D68C1A900FACBB8 /* Logger+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCE458C2D68C1A900FACBB8 /* Logger+Extension.swift */; };
@@ -216,7 +218,6 @@
 				3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */,
 				3D505B642DBAAE4D00510486 /* DiskUsageViewModel.swift */,
 				3D505B6A2DBAC5EC00510486 /* CpuUsageViewModel.swift */,
-				3D505B6E2DBACDCA00510486 /* DiskIOModel.swift */,
 				3D505B702DBACDE500510486 /* DiskIOViewModel.swift */,
 			);
 			path = ViewModel;
@@ -235,6 +236,7 @@
 				3D505B5E2DBA94B200510486 /* LoginModel.swift */,
 				3D505B622DBAAE2C00510486 /* DiskUsage.swift */,
 				3D505B682DBAB31D00510486 /* CPUUsage.swift */,
+				3D505B6E2DBACDCA00510486 /* DiskIOModel.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -445,6 +447,7 @@
 				3D5995102DB413E300E9215B /* NetworkManagerTests.swift in Sources */,
 				3D59950B2DB4137E00E9215B /* MockNetworkService.swift in Sources */,
 				3D5995112DB4162400E9215B /* NetworkManager.swift in Sources */,
+				3DA1AA442DBDB01300678160 /* DiskIOModel.swift in Sources */,
 				3D5995152DB4167A00E9215B /* MemoryUsage.swift in Sources */,
 				3D505B762DBACFB100510486 /* DiskUsage.swift in Sources */,
 				3D5995132DB4167400E9215B /* ProcessStatus.swift in Sources */,
@@ -458,6 +461,7 @@
 				3D505B772DBACFB500510486 /* CPUUsage.swift in Sources */,
 				3D5995142DB4167700E9215B /* BatteryInfo.swift in Sources */,
 				3D505B612DBA9EF200510486 /* Onboarding.swift in Sources */,
+				3DA1AA452DBDB08700678160 /* AppSettings.swift in Sources */,
 				3D59950C2DB4138E00E9215B /* NetworkService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

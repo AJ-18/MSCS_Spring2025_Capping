@@ -9,7 +9,7 @@ import Foundation
 
 struct DeviceSpecification: Codable, Identifiable {
     let id: Int
-    let userId: String
+    let userId: Int
     let deviceName: String
     let manufacturer: String
     let model: String

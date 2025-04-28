@@ -9,7 +9,7 @@ import Foundation
 
 struct ProcessStatus: Codable, Identifiable {
     let id: Int
-    let userId: String
+    let userId: Int
     let pid: Int
     let name: String
     let cpuUsage: Double

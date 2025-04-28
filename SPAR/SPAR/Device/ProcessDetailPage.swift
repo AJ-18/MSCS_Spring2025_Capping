@@ -113,7 +113,7 @@ struct ProcessDetailPage: View {
 #Preview {
     ProcessDetailPage( device: DeviceSpecification(
         id: 1,
-        userId: "User123",
+        userId: 1,
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",

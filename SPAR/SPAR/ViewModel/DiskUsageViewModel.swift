@@ -7,11 +7,14 @@
 
 import Foundation
 import OSLog
+import SwiftUI
 
 class DiskUsageViewModel: ObservableObject {
     @Published var diskUsage: DiskUsage?
     @Published var errorMessage: String = ""
     @Published var chartData: ChartData = ChartData(color: .gray, type: "Disk", percent: 0)
+    private let networkManager = NetworkManager()
+
 
     private let logger = Logger.fileLocation
 
@@ -23,7 +26,7 @@ class DiskUsageViewModel: ObservableObject {
             usedGB: 200.0,
             availableGB: 312.0,
             userId: 1,
-            deviceId: "331330ac-5f82-43b0-9d39-84e1f7e7e358",
+            deviceId: "1",
             timestamp: "2025-04-22T15:57:10.390972".toFormattedDate()
         )
         
@@ -35,6 +38,30 @@ class DiskUsageViewModel: ObservableObject {
             type: "Disk",
             percent: CGFloat(usedPercent)
         )
+        
+        fetchDiskUsageInfo(device: device)
+    }
+    
+    func fetchDiskUsageInfo(device: DeviceSpecification) {
+        Task {
+            do {
+                guard let userId = AppSettings.shared.userId else { return }
+                let response = try await networkManager.fetchDiskUsage(for: userId, deviceId: device.id)
+                
+                    DispatchQueue.main.async {
+                        self.diskUsage = response
+                        let usedPercent = (response.usedGB / response.availableGB) * 100
+                        self.chartData = ChartData(
+                            color: .green,
+                            type: "Disk",
+                            percent: CGFloat(usedPercent)
+                        )
+                    }
+                
+            } catch {
+                print("Failed to fetch Disk Usage info: \(error)")
+            }
+        }
     }
 }
 

@@ -9,7 +9,7 @@ import Foundation
 
 struct BatteryInfo: Codable, Identifiable {
     let id: Int
-    let userId: String
+    let userId: Int
     let hasBattery: Bool
     let batteryPercentage: Int
     let powerConsumption: Double

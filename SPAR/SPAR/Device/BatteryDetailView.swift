@@ -69,7 +69,7 @@ struct BatteryDetailView: View {
                         InfoRow(label: StringConstant.deviceName, value: device.deviceName)
                         InfoRow(label: StringConstant.Charging, value: viewModel.batteryInfo.charging ? StringConstant.batYes : StringConstant.batNo)
                         InfoRow(label: StringConstant.power, value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
-                        InfoRow(label: StringConstant.timestamp, value: viewModel.batteryInfo.timestamp)
+                        InfoRow(label: StringConstant.timestamp, value: viewModel.batteryInfo.timestamp.toFormattedDate())
                     }
                 }
                 .padding()
@@ -110,7 +110,7 @@ struct BatteryDetailView: View {
 #Preview {
     BatteryDetailView(device: DeviceSpecification(
         id: 1,
-        userId: "User123",
+        userId: 1,
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",
