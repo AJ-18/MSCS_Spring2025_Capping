@@ -2,6 +2,9 @@ package com.project.spar.constants;
 
 public final class AppConstants {
 
+
+
+
     private AppConstants() {
         // restrict instantiation
     }
@@ -20,5 +23,12 @@ public final class AppConstants {
     public static final String ERROR_UNAUTHORIZED= "Error: Unauthorized";
     public static final String ERROR_USERNAME_ALREADY_TAKEN = "Error: Username is already taken!";
     public static final String ERROR_EMAIL_ALREADY_USED = "Error: Email is already in use!";
+
+    public static final String ERROR_GENERIC = "Generic Error";
+    public static final String ERROR_INVALID_CREDENTIALS = "Invalid Credentials";
+
+    public static final String GENERIC_ERROR = "Generic Error";
+
+    public static final String ERROR_NOT_FOUND = "Not Found";
     public static final String EQUALS_TO = "=";
 }
