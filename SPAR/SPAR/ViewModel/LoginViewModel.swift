@@ -24,7 +24,11 @@ class LoginViewModel: ObservableObject {
     weak var delegate: LoginViewModelDelegate?
     
     func loginWithFaceID() {
-        authenticateWithBiometrics { success in
+        if ProcessInfo.processInfo.arguments.contains("UITestMode") {
+               print("Skipping Face ID for UI Tests")
+               return
+           }
+        authenticateWithFaceIDIfAvailable { success in
             if success {
                 guard let usernameData = KeychainHelper.read(service: "SPAR", account: "username"),
                       let passwordData = KeychainHelper.read(service: "SPAR", account: "password"),
@@ -104,14 +108,17 @@ class LoginViewModel: ObservableObject {
 }
 
 extension LoginViewModel {
-    func authenticateWithBiometrics(completion: @escaping (Bool) -> Void) {
+    func authenticateWithFaceIDIfAvailable(completion: @escaping (Bool) -> Void) {
+        #if targetEnvironment(simulator)
+        // Skip authentication on Simulator
+        print("Skipping Face ID authentication in Simulator.")
+        completion(true) // Treat as successful authentication
+        #else
         let context = LAContext()
         var error: NSError?
 
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            let reason = "Login with Face ID"
-
-            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Log in with Face ID") { success, authenticationError in
                 DispatchQueue.main.async {
                     completion(success)
                 }
@@ -121,7 +128,9 @@ extension LoginViewModel {
                 completion(false)
             }
         }
+        #endif
     }
+
 }
 
 

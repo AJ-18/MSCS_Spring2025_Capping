@@ -12,7 +12,9 @@ final class OnboardingTests: XCTestCase {
     
     override func setUp() {
         continueAfterFailure = false
+        app.launchArguments += ["-UITestMode", "-resetDefaults"]
         app.launch()
+        
     }
 
 
