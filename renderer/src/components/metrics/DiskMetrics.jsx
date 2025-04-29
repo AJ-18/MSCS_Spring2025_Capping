@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MetricGauge from '../MetricGauge';
+import { fetchDiskUsage, fetchDiskIO } from '../../services/systemMetrics';
 
 // Mock data for development
 const MOCK_DISK_INFO = {
@@ -25,46 +26,13 @@ const DiskMetrics = () => {
   useEffect(() => {
     const loadDiskInfo = async () => {
       try {
-        // In development mode, use mock data
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Using mock disk metrics in development mode');
-          setDiskInfo({
-            ...MOCK_DISK_INFO,
-            timestamp: new Date().toISOString()
-          });
-          setError(null);
-          return;
-        }
-
-        // Production mode - real API calls
-        const userId = localStorage.getItem('userId');
-        if (!userId || !deviceId) {
-          throw new Error('Missing user ID or device ID');
-        }
-
-        // Fetch both disk usage and I/O metrics
-        const [usageResponse, ioResponse] = await Promise.all([
-          fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/metrics/disk-usage/${userId}/${deviceId}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-              'Accept': 'application/json'
-            }
-          }),
-          fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/metrics/disk-io/${userId}/${deviceId}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-              'Accept': 'application/json'
-            }
-          })
-        ]);
-
-        if (!usageResponse.ok || !ioResponse.ok) {
-          throw new Error('Failed to fetch disk metrics');
-        }
-
+        // Get user ID from localStorage
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        // Use the service functions to fetch disk metrics
         const [usageData, ioData] = await Promise.all([
-          usageResponse.json(),
-          ioResponse.json()
+          fetchDiskUsage(userId, deviceId),
+          fetchDiskIO(userId, deviceId)
         ]);
 
         setDiskInfo({
@@ -83,18 +51,8 @@ const DiskMetrics = () => {
         setError(null);
       } catch (error) {
         console.error('Error loading disk metrics:', error);
-        if (process.env.NODE_ENV === 'development') {
-          // In development, fall back to mock data on error
-          console.log('Falling back to mock data due to error');
-          setDiskInfo({
-            ...MOCK_DISK_INFO,
-            timestamp: new Date().toISOString()
-          });
-          setError(null);
-        } else {
-          setError(`Failed to load disk information: ${error.message}`);
-          setDiskInfo(null);
-        }
+        setError(`Failed to load disk information: ${error.message}`);
+        setDiskInfo(null);
       }
     };
 

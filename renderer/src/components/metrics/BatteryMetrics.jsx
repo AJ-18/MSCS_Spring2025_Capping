@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { fetchBatteryInfo } from '../../services/systemMetrics';
 
 // Mock data for development
 const MOCK_BATTERY_INFO = {
@@ -18,40 +19,12 @@ const BatteryMetrics = () => {
   useEffect(() => {
     const loadBatteryInfo = async () => {
       try {
-        // In development mode, use mock data
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Using mock battery metrics in development mode');
-          setBatteryInfo({
-            ...MOCK_BATTERY_INFO,
-            timestamp: new Date().toISOString() // Update timestamp
-          });
-          setError(null);
-          return;
-        }
-
-        // Production mode - real API call
-        const userId = localStorage.getItem('userId');
-        if (!userId || !deviceId) {
-          throw new Error('Missing user ID or device ID');
-        }
-
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/metrics/battery-info/${userId}/${deviceId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Accept': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Received non-JSON response from server");
-        }
-
-        const data = await response.json();
+        // Get user ID from localStorage
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        // Use the fetchBatteryInfo service function
+        const data = await fetchBatteryInfo(userId, deviceId);
+        
         setBatteryInfo({
           hasBattery: data.hasBattery ?? true,
           percentage: data.batteryPercentage ?? 80,
@@ -62,18 +35,8 @@ const BatteryMetrics = () => {
         setError(null);
       } catch (error) {
         console.error('Error loading battery metrics:', error);
-        if (process.env.NODE_ENV === 'development') {
-          // In development, fall back to mock data on error
-          console.log('Falling back to mock data due to error');
-          setBatteryInfo({
-            ...MOCK_BATTERY_INFO,
-            timestamp: new Date().toISOString()
-          });
-          setError(null);
-        } else {
-          setError(`Failed to load battery information: ${error.message}`);
-          setBatteryInfo(null);
-        }
+        setError(`Failed to load battery information: ${error.message}`);
+        setBatteryInfo(null);
       }
     };
 
