@@ -13,8 +13,8 @@ class HomeViewModel: ObservableObject {
     @Published var searchText = ""
     @Published var animate: Bool = false
     private let networkManager = NetworkManager()
-    // Accepts list of DeviceSpecification
     @Published var devices: [DeviceSpecification] = []
+    @Published var showDownloadPopup: Bool = false // Add this property to control the popup visibility
     
     init() {
         getDeviceData()
@@ -38,6 +38,8 @@ class HomeViewModel: ObservableObject {
                 print(response)
                 DispatchQueue.main.async {
                     self.devices = response
+                    // Check if the response is empty, and if so, show the download popup
+                    self.showDownloadPopup = response.isEmpty
                 }
 
             } catch {
