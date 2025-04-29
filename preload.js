@@ -7,5 +7,7 @@ contextBridge.exposeInMainWorld('metrics', {
   start: (config) =>
     ipcRenderer.invoke('start-metrics', config),
   stop: () =>
-    ipcRenderer.invoke('stop-metrics')
+    ipcRenderer.invoke('stop-metrics'),
+  getDeviceInfo: () =>
+    ipcRenderer.invoke('get-device-info')
 });

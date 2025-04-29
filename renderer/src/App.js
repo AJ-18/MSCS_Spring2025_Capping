@@ -1,7 +1,7 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import DeviceList from './components/DeviceList';
+import Dashboard from './components/Dashboard';
 import DeviceDetails from './components/DeviceDetails';
 import CpuMetrics from './components/metrics/CpuMetrics';
 import MemoryMetrics from './components/metrics/MemoryMetrics';
@@ -23,7 +23,7 @@ function App() {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Layout>
-              <DeviceList />
+              <Dashboard />
             </Layout>
           </ProtectedRoute>
         } />
