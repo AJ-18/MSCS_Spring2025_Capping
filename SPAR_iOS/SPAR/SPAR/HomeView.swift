@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct HomeView: View {
     @Binding var currentView: AppView
     @StateObject private var viewModel = HomeViewModel()
@@ -19,7 +18,6 @@ struct HomeView: View {
                 BackgroundAnimationView(animate: $viewModel.animate)
 
                 VStack(spacing: 20) {
-                    
                     // SPAR title
                     HStack {
                         Text(StringConstant.appName)
@@ -93,7 +91,48 @@ struct HomeView: View {
                 .navigationBarHidden(true)
                 .onAppear {
                     self.logPageVisit()
-            }
+                }
+
+                // Show download popup when no devices are available
+                if viewModel.showDownloadPopup {
+                    VStack {
+                        Spacer(minLength: 200)
+
+                        // Cool empty state
+                        VStack {
+                            Image(systemName: "desktopcomputer")
+                                .font(.system(size: 70))
+                                .foregroundColor(.blue)
+                                .scaleEffect(1.2)
+                                .opacity(0.8)
+                                .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: viewModel.showDownloadPopup)
+                            
+                            Text("You need to have at least one Desktop APP.")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.primary)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 20)
+                                .opacity(0.9)
+                                .scaleEffect(viewModel.showDownloadPopup ? 1 : 1.05)
+                                .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: viewModel.showDownloadPopup)
+                            
+                            Text("Download SPAR Desktop")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.blue)
+                                .underline()
+                                .onTapGesture {
+                                    // Action to download SPAR Desktop
+                                    // You can trigger URL to download or show info here
+                                }
+                                .padding(.top, 10)
+
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(40)
+                        .transition(.opacity)
+                    }
+                }
             }
         }
     }

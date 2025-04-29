@@ -70,6 +70,7 @@
 		3D98C7F92D4FE04700462EF4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3D98C7F82D4FE04700462EF4 /* Preview Assets.xcassets */; };
 		3DA1AA442DBDB01300678160 /* DiskIOModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B6E2DBACDCA00510486 /* DiskIOModel.swift */; };
 		3DA1AA452DBDB08700678160 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B5C2DBA657B00510486 /* AppSettings.swift */; };
+		3DA1AA472DBF034200678160 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA1AA462DBF034200678160 /* KeychainHelper.swift */; };
 		3DCE45892D68C19200FACBB8 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCE45882D68C19200FACBB8 /* Constant.swift */; };
 		3DCE458B2D68C19F00FACBB8 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCE458A2D68C19F00FACBB8 /* SplashScreenView.swift */; };
 		3DCE458D2D68C1A900FACBB8 /* Logger+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCE458C2D68C1A900FACBB8 /* Logger+Extension.swift */; };
@@ -141,6 +142,7 @@
 		3D98C7F32D4FE04500462EF4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		3D98C7F52D4FE04700462EF4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3D98C7F82D4FE04700462EF4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		3DA1AA462DBF034200678160 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		3DCE45882D68C19200FACBB8 /* Constant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		3DCE458A2D68C19F00FACBB8 /* SplashScreenView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		3DCE458C2D68C1A900FACBB8 /* Logger+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Logger+Extension.swift"; sourceTree = "<group>"; };
@@ -219,6 +221,7 @@
 				3D505B642DBAAE4D00510486 /* DiskUsageViewModel.swift */,
 				3D505B6A2DBAC5EC00510486 /* CpuUsageViewModel.swift */,
 				3D505B702DBACDE500510486 /* DiskIOViewModel.swift */,
+				3DA1AA462DBF034200678160 /* KeychainHelper.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -473,6 +476,7 @@
 				3D5994FA2DB307B400E9215B /* HomeViewModel.swift in Sources */,
 				3DCE458B2D68C19F00FACBB8 /* SplashScreenView.swift in Sources */,
 				3DCE458D2D68C1A900FACBB8 /* Logger+Extension.swift in Sources */,
+				3DA1AA472DBF034200678160 /* KeychainHelper.swift in Sources */,
 				3D505B4D2DB9C1BE00510486 /* DeviceOptions.swift in Sources */,
 				3D505B5B2DB9E3F700510486 /* ProcessViewModel.swift in Sources */,
 				3D505B632DBAAE2C00510486 /* DiskUsage.swift in Sources */,
@@ -697,6 +701,7 @@
 				DEVELOPMENT_TEAM = 2WRH48XVUZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use it to unlock the phone";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -732,6 +737,7 @@
 				DEVELOPMENT_TEAM = 2WRH48XVUZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use it to unlock the phone";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

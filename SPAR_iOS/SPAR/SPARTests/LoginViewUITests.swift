@@ -14,6 +14,7 @@ final class LoginViewUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
+        app.launchArguments += ["-UITestMode", "-resetDefaults"]
         app.launch()
     }
 
@@ -37,7 +38,7 @@ final class LoginViewUITests: XCTestCase {
         XCTAssertTrue(passwordField.exists)
 
         usernameField.tap()
-        usernameField.typeText("testuser")
+        usernameField.typeText("testuse\"r")
 
         passwordField.tap()
         passwordField.typeText("wrongpassword")
@@ -45,7 +46,7 @@ final class LoginViewUITests: XCTestCase {
         app.buttons["Submit"].tap()
 
         // Wait for the error message to appear
-        let errorMessage = app.staticTexts["Incorrect username or password."]
+        let errorMessage = app.staticTexts["Username can only contain letters and numbers."]
         let exists = NSPredicate(format: "exists == 1")
 
         expectation(for: exists, evaluatedWith: errorMessage, handler: nil)

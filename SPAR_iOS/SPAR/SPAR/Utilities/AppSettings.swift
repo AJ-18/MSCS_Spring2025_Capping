@@ -15,6 +15,12 @@ final class AppSettings {
     private let onboardingKey = "hasCompletedOnboarding"
     private let tokenKey = "authToken"
     private let userIdKey = "userId"
+    private let hasLoggedInOnceKey = "hasLoggedInOnce"
+
+    var hasLoggedInOnce: Bool {
+        get { UserDefaults.standard.bool(forKey: hasLoggedInOnceKey) }
+        set { UserDefaults.standard.set(newValue, forKey: hasLoggedInOnceKey) }
+    }
 
     var hasCompletedOnboarding: Bool {
         get { UserDefaults.standard.bool(forKey: onboardingKey) }

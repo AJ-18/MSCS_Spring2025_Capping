@@ -94,6 +94,7 @@ struct LoginView: View {
                 Button(action: {
                     viewModel.submit()
                     viewModel.logger.info("\(LoggerConstant.LoginSubmitTapped)")
+                    AppSettings.shared.hasLoggedInOnce = true // Save after first login
                 }) {
                     Text(StringConstant.submit)
                         .frame(maxWidth: .infinity)
@@ -105,8 +106,26 @@ struct LoginView: View {
                         .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                         .shadow(radius: 10)
                 }
-                .accessibilityElement(children: .ignore) // Ensures only the button's main label is read by screen readers
-                .accessibilityAddTraits(.isButton) 
+                .accessibilityElement(children: .ignore)
+                .accessibilityAddTraits(.isButton)
+
+                // Face ID Button
+                if AppSettings.shared.hasLoggedInOnce {
+                    Button(action: {
+                        viewModel.loginWithFaceID()
+                    }) {
+                        Image(systemName: "faceid")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .padding()
+                            .background(Color.blue.opacity(0.5))
+                            .foregroundColor(.white)
+                            .clipShape(Circle())
+                    }
+                    .padding(.top, 10)
+                    .shadow(radius: 10)
+                }
             }
             .padding(40)
         }
@@ -114,6 +133,13 @@ struct LoginView: View {
             viewModel.delegate = coordinator
             viewModel.animate = true
             self.logPageVisit()
+
+            // If already logged in once, automatically trigger FaceID
+            if AppSettings.shared.hasLoggedInOnce {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    viewModel.loginWithFaceID()
+                }
+            }
         }
     }
 
@@ -130,10 +156,8 @@ struct LoginView: View {
     }
 }
 
-
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView(currentView: .constant(.login))
     }
 }
-
