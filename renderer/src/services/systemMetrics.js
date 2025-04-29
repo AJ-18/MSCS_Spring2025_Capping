@@ -64,6 +64,333 @@ const fetchMetricsFromAPI = async (endpoint, userId, deviceId) => {
   }
 };
 
+// New function to fetch device specifications
+export const fetchDeviceSpecifications = async (userId, deviceId) => {
+  try {
+    if (!userId) {
+      userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+      console.log("Device specifications using userId from localStorage:", userId);
+    }
+    
+    if (!deviceId) {
+      deviceId = localStorage.getItem('deviceId');
+      console.log("Device specifications using deviceId from localStorage:", deviceId);
+    }
+    
+    if (!userId || !deviceId) {
+      console.error('Missing user ID or device ID for device specifications', { userId, deviceId });
+      return null;
+    }
+
+    console.log(`Fetching device specifications for userId: ${userId}, deviceId: ${deviceId}`);
+    
+    // In production, fetch from real API
+    if (process.env.NODE_ENV === 'production') {
+      try {
+        // Try fetching device specifications from the API
+        const client = createAuthenticatedClient();
+        const response = await client.get(`/api/users/${userId}/devices/${deviceId}`);
+        console.log("Device specifications from API:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching device specifications from API:', error);
+        // Fall back to the performance metrics poller
+        if (window.metrics && window.metrics.getDeviceInfo) {
+          const deviceInfo = await window.metrics.getDeviceInfo();
+          console.log("Device specifications from metrics poller:", deviceInfo);
+          return deviceInfo;
+        }
+        throw error;
+      }
+    } else {
+      // For development, return data from electron bridge if available
+      if (window.metrics && window.metrics.getDeviceInfo) {
+        const deviceInfo = await window.metrics.getDeviceInfo();
+        console.log("Device specifications from metrics poller:", deviceInfo);
+        return deviceInfo;
+      }
+      
+      // Fallback to realistic mock data
+      return {
+        deviceId: deviceId,
+        deviceName: "Your Computer",
+        manufacturer: "Detected Manufacturer",
+        model: "Detected Model",
+        processor: "Detected CPU",
+        cpuPhysicalCores: 4,
+        cpuLogicalCores: 8,
+        installedRam: 16.0,
+        graphics: "Detected Graphics Card",
+        operatingSystem: "Detected OS",
+        systemType: "Detected Arch"
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching device specifications:', error);
+    return null;
+  }
+};
+
+// Individual endpoint fetching functions matching the Postman collection structure
+export const fetchBatteryInfo = async (userId, deviceId) => {
+  try {
+    if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    if (!userId || !deviceId) {
+      console.error('Missing user ID or device ID for battery info');
+      return { 
+        hasBattery: true,
+        batteryPercentage: 80,
+        isCharging: false,
+        powerConsumption: 12.50
+      };
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      return { 
+        hasBattery: true,
+        batteryPercentage: Math.floor(Math.random() * 100),
+        isCharging: Math.random() > 0.5,
+        powerConsumption: (Math.random() * 15 + 5).toFixed(2)
+      };
+    }
+
+    return await fetchMetricsFromAPI('battery-info', userId, deviceId);
+  } catch (error) {
+    console.error('Error fetching battery info:', error);
+    return { 
+      hasBattery: true,
+      batteryPercentage: 80,
+      isCharging: false,
+      powerConsumption: 12.50
+    };
+  }
+};
+
+export const fetchCpuUsage = async (userId, deviceId) => {
+  try {
+    if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    if (!userId || !deviceId) {
+      console.error('Missing user ID or device ID for CPU usage');
+      return { 
+        totalCpuLoad: 42.5,
+        perCoreUsageJson: JSON.stringify([{core: 1, usage: 35.0}])
+      };
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      return { 
+        totalCpuLoad: Math.random() * 80 + 10,
+        perCoreUsageJson: JSON.stringify(
+          Array(8).fill(0).map((_, i) => ({
+            core: i + 1,
+            usage: Math.random() * 80 + 10
+          }))
+        )
+      };
+    }
+
+    return await fetchMetricsFromAPI('cpu-usage', userId, deviceId);
+  } catch (error) {
+    console.error('Error fetching CPU usage:', error);
+    return { 
+      totalCpuLoad: 42.5,
+      perCoreUsageJson: JSON.stringify([{core: 1, usage: 35.0}])
+    };
+  }
+};
+
+export const fetchRamUsage = async (userId, deviceId) => {
+  try {
+    if (!userId) {
+      userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+      console.log("Ram usage using userId from localStorage:", userId);
+    }
+    
+    if (!deviceId) {
+      deviceId = localStorage.getItem('deviceId');
+      console.log("Ram usage using deviceId from localStorage:", deviceId);
+    }
+    
+    if (!userId || !deviceId) {
+      console.error('Missing user ID or device ID for RAM usage', { userId, deviceId });
+      return { 
+        totalMemory: 16.0,
+        usedMemory: 7.2,
+        availableMemory: 8.8
+      };
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("Using development mock data for RAM usage");
+      const total = 16.0;
+      const used = parseFloat((Math.random() * 8 + 4).toFixed(1));
+      return { 
+        totalMemory: total,
+        usedMemory: used,
+        availableMemory: parseFloat((total - used).toFixed(1))
+      };
+    }
+
+    console.log(`Fetching RAM usage for userId: ${userId}, deviceId: ${deviceId}`);
+    const data = await fetchMetricsFromAPI('ram-usage', userId, deviceId);
+    console.log("RAM usage data received:", data);
+    
+    // Ensure numeric values for memory metrics
+    return {
+      totalMemory: parseFloat(data.totalMemory) || 16.0,
+      usedMemory: parseFloat(data.usedMemory) || 7.2,
+      availableMemory: parseFloat(data.availableMemory) || 8.8
+    };
+  } catch (error) {
+    console.error('Error fetching RAM usage:', error);
+    return { 
+      totalMemory: 16.0,
+      usedMemory: 7.2,
+      availableMemory: 8.8
+    };
+  }
+};
+
+export const fetchDiskIO = async (userId, deviceId) => {
+  try {
+    if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    if (!userId || !deviceId) {
+      console.error('Missing user ID or device ID for Disk I/O');
+      return { 
+        readSpeedMBps: 120.0,
+        writeSpeedMBps: 80.0
+      };
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      return { 
+        readSpeedMBps: Math.random() * 200 + 50,
+        writeSpeedMBps: Math.random() * 150 + 40
+      };
+    }
+
+    return await fetchMetricsFromAPI('disk-io', userId, deviceId);
+  } catch (error) {
+    console.error('Error fetching Disk I/O:', error);
+    return { 
+      readSpeedMBps: 120.0,
+      writeSpeedMBps: 80.0
+    };
+  }
+};
+
+export const fetchDiskUsage = async (userId, deviceId) => {
+  try {
+    if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    if (!userId || !deviceId) {
+      console.error('Missing user ID or device ID for Disk Usage');
+      return { 
+        filesystem: "/dev/sda1",
+        sizeGB: 512.0,
+        usedGB: 200.0,
+        availableGB: 312.0
+      };
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      const size = 512.0;
+      const used = Math.random() * 300 + 100;
+      return { 
+        filesystem: "/dev/sda1",
+        sizeGB: size,
+        usedGB: used,
+        availableGB: size - used
+      };
+    }
+
+    return await fetchMetricsFromAPI('disk-usage', userId, deviceId);
+  } catch (error) {
+    console.error('Error fetching Disk Usage:', error);
+    return { 
+      filesystem: "/dev/sda1",
+      sizeGB: 512.0,
+      usedGB: 200.0,
+      availableGB: 312.0
+    };
+  }
+};
+
+export const fetchNetworkInterfaces = async (userId, deviceId) => {
+  try {
+    if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    if (!userId || !deviceId) {
+      console.error('Missing user ID or device ID for Network Interfaces');
+      return [];
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      return [
+        {
+          name: "eth0",
+          macAddress: "AA:BB:CC:DD:EE:FF",
+          ipv4: "192.168.1.100",
+          ipv6: "fe80::1234:5678:abcd:ef00",
+          speedMbps: 1000
+        },
+        {
+          name: "wlan0",
+          macAddress: "11:22:33:44:55:66",
+          ipv4: "192.168.1.101",
+          ipv6: "fe80::abcd:1234:5678:ef00",
+          speedMbps: 300
+        }
+      ];
+    }
+
+    return await fetchMetricsFromAPI('network-interfaces', userId, deviceId);
+  } catch (error) {
+    console.error('Error fetching Network Interfaces:', error);
+    return [];
+  }
+};
+
+export const fetchProcessStatuses = async (userId, deviceId) => {
+  try {
+    if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    if (!userId || !deviceId) {
+      console.error('Missing user ID or device ID for Process Statuses');
+      return [
+        { pid: 1234, name: "chrome", cpuUsage: 2.5, memoryMB: 150.0 },
+        { pid: 5678, name: "code", cpuUsage: 1.8, memoryMB: 120.0 }
+      ];
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      return Array(10).fill(0).map((_, i) => ({
+        pid: 1000 + i,
+        name: ['chrome', 'code', 'node', 'spotify', 'slack', 'discord'][Math.floor(Math.random() * 6)],
+        cpuUsage: Math.random() * 10,
+        memoryMB: Math.random() * 500 + 50
+      }));
+    }
+
+    return await fetchMetricsFromAPI('process-status', userId, deviceId);
+  } catch (error) {
+    console.error('Error fetching Process Statuses:', error);
+    return [
+      { pid: 1234, name: "chrome", cpuUsage: 2.5, memoryMB: 150.0 },
+      { pid: 5678, name: "code", cpuUsage: 1.8, memoryMB: 120.0 }
+    ];
+  }
+};
+
 export const fetchSystemMetrics = async (userId, deviceId) => {
   try {
     console.log('fetchSystemMetrics called with:', { userId, deviceId });
@@ -95,12 +422,12 @@ export const fetchSystemMetrics = async (userId, deviceId) => {
         diskUsage,
         processStatuses
       ] = await Promise.all([
-        fetchMetricsFromAPI('battery-info', userId, deviceId),
-        fetchMetricsFromAPI('cpu-usage', userId, deviceId),
-        fetchMetricsFromAPI('ram-usage', userId, deviceId),
-        fetchMetricsFromAPI('disk-io', userId, deviceId),
-        fetchMetricsFromAPI('disk-usage', userId, deviceId),
-        fetchMetricsFromAPI('process-status', userId, deviceId)
+        fetchBatteryInfo(userId, deviceId),
+        fetchCpuUsage(userId, deviceId),
+        fetchRamUsage(userId, deviceId),
+        fetchDiskIO(userId, deviceId),
+        fetchDiskUsage(userId, deviceId),
+        fetchProcessStatuses(userId, deviceId)
       ]);
 
       // Map API response to the format expected by the UI

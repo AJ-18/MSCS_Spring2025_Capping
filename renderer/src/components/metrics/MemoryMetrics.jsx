@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MetricGauge from '../MetricGauge';
+import { fetchRamUsage } from '../../services/systemMetrics';
 
 // Mock data for development
 const MOCK_MEMORY_INFO = {
@@ -14,60 +15,48 @@ const MemoryMetrics = () => {
   const { deviceId } = useParams();
   const [memoryInfo, setMemoryInfo] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadMemoryInfo = async () => {
       try {
-        // In development mode, use mock data
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Using mock memory metrics in development mode');
-          setMemoryInfo({
-            ...MOCK_MEMORY_INFO,
-            timestamp: new Date().toISOString()
-          });
-          setError(null);
+        setLoading(true);
+        // Get user ID from localStorage
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        if (!userId || !deviceId) {
+          console.error('Missing user ID or device ID:', { userId, deviceId });
+          setError('Missing user ID or device ID. Please make sure you are logged in and have a device selected.');
+          setLoading(false);
           return;
         }
-
-        // Production mode - real API call
-        const userId = localStorage.getItem('userId');
-        if (!userId || !deviceId) {
-          throw new Error('Missing user ID or device ID');
+        
+        console.log(`Fetching memory metrics for user ${userId}, device ${deviceId}`);
+        
+        // Use the fetchRamUsage service function
+        const data = await fetchRamUsage(userId, deviceId);
+        console.log('Memory data received:', data);
+        
+        if (!data) {
+          console.error('No memory data received');
+          setError('No memory data received from server');
+          setLoading(false);
+          return;
         }
-
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/metrics/ram-usage/${userId}/${deviceId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Accept': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        
         setMemoryInfo({
-          totalMemory: data.totalMemory,
-          usedMemory: data.usedMemory,
-          availableMemory: data.availableMemory,
+          totalMemory: parseFloat(data.totalMemory) || 0,
+          usedMemory: parseFloat(data.usedMemory) || 0,
+          availableMemory: parseFloat(data.availableMemory) || 0,
           timestamp: new Date().toISOString()
         });
         setError(null);
+        setLoading(false);
       } catch (error) {
         console.error('Error loading memory metrics:', error);
-        if (process.env.NODE_ENV === 'development') {
-          // In development, fall back to mock data on error
-          console.log('Falling back to mock data due to error');
-          setMemoryInfo({
-            ...MOCK_MEMORY_INFO,
-            timestamp: new Date().toISOString()
-          });
-          setError(null);
-        } else {
-          setError(`Failed to load memory information: ${error.message}`);
-          setMemoryInfo(null);
-        }
+        setError(`Failed to load memory information: ${error.message}`);
+        setMemoryInfo(null);
+        setLoading(false);
       }
     };
 
@@ -99,11 +88,29 @@ const MemoryMetrics = () => {
     );
   }
 
-  if (!memoryInfo) {
-    return <div className="p-4">Loading memory information...</div>;
+  if (loading || !memoryInfo) {
+    return (
+      <div className="p-4">
+        <div className="mb-6">
+          <Link
+            to={`/dashboard/device/${deviceId}`}
+            className="text-blue-500 hover:text-blue-600 flex items-center"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Device Overview
+          </Link>
+        </div>
+        <div className="p-4">Loading memory information...</div>
+      </div>
+    );
   }
 
-  const usedPercentage = (memoryInfo.usedMemory / memoryInfo.totalMemory) * 100;
+  // Calculate memory usage percentage
+  const usedPercentage = memoryInfo.totalMemory > 0 
+    ? (memoryInfo.usedMemory / memoryInfo.totalMemory) * 100 
+    : 0;
 
   return (
     <div className="p-4">

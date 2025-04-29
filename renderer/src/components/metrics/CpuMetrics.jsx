@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MetricGauge from '../MetricGauge';
+import { fetchCpuUsage } from '../../services/systemMetrics';
 
 // Mock data for development
 const MOCK_CPU_INFO = {
@@ -22,61 +23,62 @@ const CpuMetrics = () => {
   const { deviceId } = useParams();
   const [cpuInfo, setCpuInfo] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadCpuInfo = async () => {
       try {
-        // In development mode, use mock data
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Using mock CPU metrics in development mode');
-          setCpuInfo({
-            ...MOCK_CPU_INFO,
-            perCoreUsage: JSON.parse(MOCK_CPU_INFO.perCoreUsageJson),
-            timestamp: new Date().toISOString()
-          });
-          setError(null);
+        setLoading(true);
+        // Get user ID from localStorage
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        if (!userId || !deviceId) {
+          console.error('Missing user ID or device ID:', { userId, deviceId });
+          setError('Missing user ID or device ID. Please make sure you are logged in and have a device selected.');
+          setLoading(false);
+          return;
+        }
+        
+        console.log(`Fetching CPU metrics for user ${userId}, device ${deviceId}`);
+        
+        // Use the fetchCpuUsage service function
+        const data = await fetchCpuUsage(userId, deviceId);
+        console.log('CPU data received:', data);
+        
+        if (!data || typeof data.totalCpuLoad !== 'number') {
+          console.error('Invalid CPU data received:', data);
+          setError('Received invalid CPU data from server');
+          setLoading(false);
           return;
         }
 
-        // Production mode - real API call
-        const userId = localStorage.getItem('userId');
-        if (!userId || !deviceId) {
-          throw new Error('Missing user ID or device ID');
-        }
-
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/metrics/cpu-usage/${userId}/${deviceId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Accept': 'application/json'
+        let perCoreUsage = [];
+        try {
+          // Try to parse the per-core usage data
+          perCoreUsage = data.perCoreUsageJson ? JSON.parse(data.perCoreUsageJson) : [];
+          
+          // Validate the per-core data structure
+          if (!Array.isArray(perCoreUsage)) {
+            console.warn('Per-core usage is not an array, resetting to empty array');
+            perCoreUsage = [];
           }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        } catch (parseError) {
+          console.error('Error parsing per-core usage JSON:', parseError);
+          perCoreUsage = [];
         }
-
-        const data = await response.json();
+        
         setCpuInfo({
           totalCpuLoad: data.totalCpuLoad,
-          perCoreUsage: JSON.parse(data.perCoreUsageJson || '[]'),
+          perCoreUsage: perCoreUsage,
           timestamp: new Date().toISOString()
         });
         setError(null);
+        setLoading(false);
       } catch (error) {
         console.error('Error loading CPU metrics:', error);
-        if (process.env.NODE_ENV === 'development') {
-          // In development, fall back to mock data on error
-          console.log('Falling back to mock data due to error');
-          setCpuInfo({
-            ...MOCK_CPU_INFO,
-            perCoreUsage: JSON.parse(MOCK_CPU_INFO.perCoreUsageJson),
-            timestamp: new Date().toISOString()
-          });
-          setError(null);
-        } else {
-          setError(`Failed to load CPU information: ${error.message}`);
-          setCpuInfo(null);
-        }
+        setError(`Failed to load CPU information: ${error.message}`);
+        setCpuInfo(null);
+        setLoading(false);
       }
     };
 
@@ -108,8 +110,23 @@ const CpuMetrics = () => {
     );
   }
 
-  if (!cpuInfo) {
-    return <div className="p-4">Loading CPU information...</div>;
+  if (loading || !cpuInfo) {
+    return (
+      <div className="p-4">
+        <div className="mb-6">
+          <Link
+            to={`/dashboard/device/${deviceId}`}
+            className="text-blue-500 hover:text-blue-600 flex items-center"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Device Overview
+          </Link>
+        </div>
+        <div className="p-4">Loading CPU information...</div>
+      </div>
+    );
   }
 
   return (
@@ -134,7 +151,7 @@ const CpuMetrics = () => {
           <div className="flex justify-center mb-6">
             <MetricGauge
               title="Total CPU Load"
-              value={cpuInfo.totalCpuLoad}
+              value={cpuInfo.totalCpuLoad || 0}
               color={
                 cpuInfo.totalCpuLoad > 90 ? '#EF4444' :  // red-500
                 cpuInfo.totalCpuLoad > 70 ? '#F59E0B' :  // yellow-500
@@ -148,26 +165,32 @@ const CpuMetrics = () => {
         {/* Per Core Usage */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Per Core Usage</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {cpuInfo.perCoreUsage.map((core) => (
-              <div key={core.core} className="bg-gray-50 rounded-lg p-4">
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">Core {core.core}</span>
-                  <span className="font-medium">{core.usage.toFixed(1)}%</span>
+          {cpuInfo.perCoreUsage && cpuInfo.perCoreUsage.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {cpuInfo.perCoreUsage.map((core) => (
+                <div key={core.core} className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-600">Core {core.core}</span>
+                    <span className="font-medium">{typeof core.usage === 'number' ? core.usage.toFixed(1) : '0.0'}%</span>
+                  </div>
+                  <div className="bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ease-in-out ${
+                        core.usage > 90 ? 'bg-red-500' : 
+                        core.usage > 70 ? 'bg-yellow-500' : 
+                        'bg-green-500'
+                      }`}
+                      style={{ width: `${core.usage || 0}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ease-in-out ${
-                      core.usage > 90 ? 'bg-red-500' : 
-                      core.usage > 70 ? 'bg-yellow-500' : 
-                      'bg-green-500'
-                    }`}
-                    style={{ width: `${core.usage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-gray-500 text-center py-4">
+              No per-core data available
+            </div>
+          )}
         </div>
 
         <div className="mt-6 text-sm text-gray-500 text-right">

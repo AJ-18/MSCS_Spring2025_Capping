@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { fetchSystemMetrics } from '../../services/systemMetrics';
+import { 
+  fetchProcessStatuses, 
+  fetchCpuUsage, 
+  fetchRamUsage 
+} from '../../services/systemMetrics';
 import ProcessTable from '../ProcessTable';
 
 // Mock data for development
@@ -30,36 +34,40 @@ const ProcessMetrics = () => {
   useEffect(() => {
     const loadMetrics = async () => {
       try {
-        // In development mode, use mock data
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Using mock process metrics in development mode');
-          setMetrics(MOCK_PROCESS_INFO);
-          return;
-        }
-
-        const data = await fetchSystemMetrics();
+        // Get user ID from localStorage
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        // Use the service functions to fetch metrics
+        const [processData, cpuData, ramData] = await Promise.all([
+          fetchProcessStatuses(userId, deviceId),
+          fetchCpuUsage(userId, deviceId),
+          fetchRamUsage(userId, deviceId)
+        ]);
+        
         setMetrics({
-          processStatuses: data.processStatuses,
-          cpuUsage: data.cpuUsage,
-          ramUsage: data.ramUsage,
+          processStatuses: processData || [],
+          cpuUsage: {
+            totalCpuLoad: cpuData.totalCpuLoad || 0
+          },
+          ramUsage: {
+            totalMemory: ramData.totalMemory || 0,
+            usedMemory: ramData.usedMemory || 0,
+            availableMemory: ramData.availableMemory || 0
+          },
           timestamp: new Date().toISOString()
         });
+        setError(null);
       } catch (error) {
         console.error('Error loading process metrics:', error);
-        if (process.env.NODE_ENV === 'development') {
-          // Fallback to mock data in development
-          setMetrics(MOCK_PROCESS_INFO);
-        } else {
-          setError(error.message);
-        }
+        setError(`Failed to load process information: ${error.message}`);
       }
     };
 
     loadMetrics();
-    const interval = setInterval(loadMetrics, 1000);
+    const interval = setInterval(loadMetrics, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [deviceId]);
 
   if (error) {
     return (
