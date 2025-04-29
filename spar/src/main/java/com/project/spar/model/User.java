@@ -23,19 +23,21 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(nullable = false, unique = true)
+    @NotBlank @Column(nullable = false, unique = true)
     private String username;
 
-    @NotBlank
-    @Column(nullable = false)
+    @NotBlank @Column(nullable = false)
     private String password; // hashed
 
-    @NotBlank
-    @Email
-    @Column(nullable = false, unique = true)
+    @NotBlank @Email @Column(nullable = false, unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,  orphanRemoval = true)
+    /**
+     * the “JWT ID” of the only-currently-valid token
+     */
+    @Column(name="current_jti", length = 36)
+    private String currentJti;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DeviceSpecification> devices = new HashSet<>();
 }

@@ -1,5 +1,7 @@
 package com.project.spar.controller;
 
+
+
 import com.project.spar.constants.AppConstants;
 import com.project.spar.model.User;
 import com.project.spar.repository.UserRepository;
@@ -14,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -65,38 +65,39 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> signin(@Valid @RequestBody LoginRequest req) {
-        logger.info("Signin requested");
         try {
             Authentication auth = authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            req.getUsername(),
-                            req.getPassword()
-                    )
+                    new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
             );
             UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
-            Long userId = userDetails.getId();
 
+            // generate token + extract jti
             String token = jwtUtils.generateToken(userDetails.getUsername());
-            logger.info("Signin successful");
-            return ResponseEntity.ok(new JwtResponse(token, userId));
+            String jti   = jwtUtils.getJtiFromToken(token);
+
+            // persist jti on User
+            User u = userRepo.findByUsername(userDetails.getUsername())
+                    .orElseThrow();
+            u.setCurrentJti(jti);
+            userRepo.save(u);
+
+            return ResponseEntity.ok(new JwtResponse(token, u.getId()));
         } catch (BadCredentialsException e) {
-            logger.warn("Signin failed: invalid credentials");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(AppConstants.ERROR_INVALID_CREDENTIALS);
         } catch (Exception e) {
-            logger.error("Error during signin", e);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(AppConstants.ERROR_GENERIC);
         }
     }
 
     @Data
     static class SignupRequest {
-        @NotBlank private String username;
+        @NotBlank
+        private String username;
         @NotBlank private String password;
-        @NotBlank @Email private String email;
+        @NotBlank @Email
+        private String email;
     }
 
     @Data

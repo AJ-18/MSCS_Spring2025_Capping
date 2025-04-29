@@ -45,23 +45,12 @@ public class WebSecurityConfig {
                 // disable CSRF (JWT only)
                 .csrf(csrf -> csrf.disable())
 
-                // custom unauthorized handler
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
-
-                // stateless session (no HTTP session)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // authorization rules
-                .authorizeHttpRequests(auth -> auth
-                        // allow CORS preflight through
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // public endpoints
+                .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(a -> a
                         .requestMatchers("/api/auth/**").permitAll()
-                        // everything else requires authentication
                         .anyRequest().authenticated()
                 )
-
-                // add our JWT filter
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -79,6 +68,8 @@ public class WebSecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
+
 
     @Bean
     public AuthenticationManager authenticationManager(
