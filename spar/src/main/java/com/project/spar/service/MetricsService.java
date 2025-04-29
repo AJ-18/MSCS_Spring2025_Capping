@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MetricsService {
@@ -46,9 +47,19 @@ public class MetricsService {
         Long userId = deviceSpec.getUser().getId();
         try {
             logger.info("saveDeviceSpecification called for userId={}", userId);
+
+            // generate a random UUID if none provided
+            if (deviceSpec.getDeviceId() == null || deviceSpec.getDeviceId().isBlank()) {
+                String generated = UUID.randomUUID().toString();
+                logger.debug("No deviceId provided, generating new UUID: {}", generated);
+                deviceSpec.setDeviceId(generated);
+            }
+
             DeviceSpecification saved = deviceSpecificationRepository.save(deviceSpec);
-            logger.info("saveDeviceSpecification succeeded for userId={}", userId);
+            logger.info("saveDeviceSpecification succeeded for userId={}, deviceId={}",
+                    userId, saved.getDeviceId());
             return saved;
+
         } catch (Exception e) {
             logger.error("Error in saveDeviceSpecification for userId={}", userId, e);
             throw e;
