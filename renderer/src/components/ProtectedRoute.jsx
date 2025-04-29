@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import authService from '../services/authService';
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -15,16 +14,9 @@ const ProtectedRoute = ({ children }) => {
         return;
       }
 
-      try {
-        await authService.verifyToken(token);
-        setIsValid(true);
-      } catch (error) {
-        console.error('Token verification failed:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      } finally {
-        setIsVerifying(false);
-      }
+      // Just check if token exists
+      setIsValid(!!token);
+      setIsVerifying(false);
     };
 
     verifyToken();
