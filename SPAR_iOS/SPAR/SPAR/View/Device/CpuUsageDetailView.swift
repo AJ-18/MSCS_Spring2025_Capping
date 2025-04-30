@@ -6,26 +6,33 @@
 //
 
 import SwiftUI
-import SwiftUI
 import Charts
 
+// MARK: - CpuUsageDetailView
 struct CpuUsageDetailView: View {
     @StateObject private var viewModel: CpuUsageViewModel
     let device: DeviceSpecification
     @Environment(\.sizeCategory) var sizeCategory
 
+    // MARK: - Init
     init(device: DeviceSpecification) {
-          _viewModel = StateObject(wrappedValue: CpuUsageViewModel(device: device))
-          self.device = device
+        _viewModel = StateObject(wrappedValue: CpuUsageViewModel(device: device))
+        self.device = device
     }
 
+    // MARK: - Body
     var body: some View {
         ZStack {
-            LinearGradient(colors: [.orange.opacity(0.2), .yellow.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                .ignoresSafeArea()
+            // MARK: Background Gradient
+            LinearGradient(colors: [.orange.opacity(0.2), .yellow.opacity(0.2)],
+                           startPoint: .topLeading,
+                           endPoint: .bottomTrailing)
+            .ignoresSafeArea()
 
             ScrollView {
                 VStack(spacing: 20) {
+
+                    // MARK: Header
                     Text(StringConstant.cpuUsage)
                         .font(.largeTitle)
                         .bold()
@@ -34,25 +41,27 @@ struct CpuUsageDetailView: View {
 
                     Spacer(minLength: 20)
 
-                    // Display chart with HalfDonutChart
+                    // MARK: Donut Chart
                     if let chartData = viewModel.chartData {
                         HalfDonutChart(chartDataObj: .constant(chartData))
                             .frame(height: 180)
                             .transition(.scale)
                     }
-                    
+
                     Spacer(minLength: 40)
 
-                    // Display CPU Usage Details
+                    // MARK: CPU Usage Information
                     if let usage = viewModel.cpuUsage {
                         VStack(alignment: .leading, spacing: 16) {
+
+                            // MARK: General Info
                             InfoRow(label: StringConstant.deviceName, value: device.deviceName)
                             InfoRow(label: StringConstant.totalCPULoad, value: String(format: "%.1f%%", usage.totalCpuLoad))
                             InfoRow(label: StringConstant.timestamp, value: usage.timestamp)
 
                             Divider().padding(.vertical, 8)
 
-                            // Display Per-Core Usage List
+                            // MARK: Per Core Usage Section (Consider splitting into its own view)
                             Text(StringConstant.allCore)
                                 .font(.headline)
 
@@ -62,13 +71,14 @@ struct CpuUsageDetailView: View {
 
                             Divider().padding(.vertical, 8)
 
-                            // Display Top 5 Core Usage with Bar Graph
+                            // MARK: Top 5 Core Usage Graph (Consider moving to a ChartSection view)
                             Text(StringConstant.topFive)
                                 .font(.headline)
                                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-                            // Get top 5 cores sorted by usage
-                            let topCores = usage.perCoreUsage.sorted { $0.usage > $1.usage }.prefix(5)
+                            let topCores = usage.perCoreUsage
+                                .sorted { $0.usage > $1.usage }
+                                .prefix(5)
 
                             Chart {
                                 ForEach(topCores, id: \.core) { coreUsage in
@@ -95,13 +105,15 @@ struct CpuUsageDetailView: View {
                 .padding()
                 .animation(.easeInOut, value: viewModel.cpuUsage?.totalCpuLoad)
             }
-        }.onAppear {
+        }
+        .onAppear {
+            // MARK: Log Page Visit
             self.logPageVisit()
-
         }
     }
 }
 
+// MARK: - Preview
 #Preview {
     CpuUsageDetailView(device: DeviceSpecification(
         id: 1,

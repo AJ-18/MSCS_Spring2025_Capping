@@ -7,31 +7,38 @@
 
 import SwiftUI
 
+// MARK: - DiskUsageDetailView
 struct DiskUsageDetailView: View {
     @StateObject private var viewModel: DiskUsageViewModel
     let device: DeviceSpecification
     @Environment(\.sizeCategory) var sizeCategory
 
+    // MARK: - Init
     init(device: DeviceSpecification) {
-          _viewModel = StateObject(wrappedValue: DiskUsageViewModel(device: device))
-          self.device = device
+        _viewModel = StateObject(wrappedValue: DiskUsageViewModel(device: device))
+        self.device = device
     }
 
+    // MARK: - Body
     var body: some View {
         ZStack {
+            // MARK: Background Gradient
             LinearGradient(colors: [.purple.opacity(0.15), .blue.opacity(0.15)], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
 
             VStack(spacing: 30) {
+                
+                // MARK: Header
                 Text(StringConstant.diskUsage)
                     .font(.largeTitle)
                     .bold()
                     .accessibilityAddTraits(.isHeader)
                     .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-                // Disk usage donut chart
+                // MARK: Disk Usage Donut Chart
                 HalfDonutChart(chartDataObj: $viewModel.chartData)
 
+                // MARK: Disk Info Display
                 if let diskInfo = viewModel.diskUsage {
                     VStack(alignment: .leading, spacing: 15) {
                         InfoRow(label: StringConstant.deviceName, value: device.deviceName)
@@ -47,6 +54,7 @@ struct DiskUsageDetailView: View {
                     .cornerRadius(12)
                     .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 4)
                 } else {
+                    // MARK: Error Message
                     Text(viewModel.errorMessage)
                         .foregroundColor(.red)
                         .font(.body)
@@ -57,11 +65,13 @@ struct DiskUsageDetailView: View {
             .padding()
         }
         .onAppear {
+            // MARK: Log Page Visit
             self.logPageVisit()
         }
     }
 }
 
+// MARK: - Preview
 #Preview {
     DiskUsageDetailView(device: DeviceSpecification(
         id: 1,
@@ -79,6 +89,3 @@ struct DiskUsageDetailView: View {
         timestamp: "2025-03-28T16:03:30.041384"
     ))
 }
-
-
-
