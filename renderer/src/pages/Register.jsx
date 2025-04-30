@@ -48,6 +48,7 @@ const Register = () => {
         );
         console.log('Device registered with ID:', deviceId);
         localStorage.setItem('deviceId', deviceId);
+        localStorage.setItem('deviceRegistrationOpted', 'true');
         await window.metrics.start({ 
           baseUrl, 
           jwt: userData.token, 
@@ -59,6 +60,8 @@ const Register = () => {
       }
     } else {
       console.log('User declined device registration');
+      // Store a flag indicating user has explicitly opted out of device registration
+      localStorage.setItem('deviceRegistrationOpted', 'false');
     }
     setShowDevicePrompt(false);
     navigate('/dashboard');
