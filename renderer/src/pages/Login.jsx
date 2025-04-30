@@ -32,20 +32,49 @@ const Login = () => {
     console.log('Device prompt response:', shouldRegister ? 'Yes' : 'No');
     if (shouldRegister) {
       try {
-        console.log('Registering device...');
-        const deviceId = await window.metrics.registerDevice(
-          baseUrl,
-          token,
-          user.id
-        );
-        console.log('Device registered with ID:', deviceId);
-        localStorage.setItem('deviceId', deviceId);
-        await window.metrics.start({ baseUrl, jwt: token, userId: user.id, deviceId });
+        if (!token || !user || !user.id) {
+          console.error('Missing required data for device registration', { 
+            hasToken: !!token, 
+            hasUser: !!user,
+            userId: user?.id
+          });
+          setErrors({ submit: 'User data not found. Please try logging in again.' });
+          setShowDevicePrompt(false);
+          return;
+        }
+        
+        console.log('Registering device for user:', user.id);
+        try {
+          const deviceId = await window.metrics.registerDevice(
+            baseUrl,
+            token,
+            user.id
+          );
+          console.log('Device registered with ID:', deviceId);
+          localStorage.setItem('deviceId', deviceId);
+          localStorage.setItem('deviceRegistrationOpted', 'true');
+          await window.metrics.start({ baseUrl, jwt: token, userId: user.id, deviceId });
+        } catch (apiError) {
+          console.error('Failed to register device:', apiError);
+          if (apiError.response) {
+            console.error('API response error:', {
+              status: apiError.response.status,
+              data: apiError.response.data
+            });
+          }
+          setErrors({ submit: `Device registration failed: ${apiError.message || 'Unknown error'}` });
+          setShowDevicePrompt(false);
+          return;
+        }
       } catch (err) {
-        console.error('Failed to register device:', err);
+        console.error('Error in device registration process:', err);
+        setErrors({ submit: 'An error occurred during device registration.' });
+        setShowDevicePrompt(false);
+        return;
       }
     } else {
       console.log('User declined device registration');
+      localStorage.setItem('deviceRegistrationOpted', 'false');
     }
     setShowDevicePrompt(false);
     navigate('/dashboard');
@@ -79,6 +108,16 @@ const Login = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
+      // Check if user has already made a device registration decision
+      const deviceRegistrationOpted = localStorage.getItem('deviceRegistrationOpted');
+      
+      // If user has previously declined device registration, skip the device registration process
+      if (deviceRegistrationOpted === 'false') {
+        console.log('User previously opted out of device registration, skipping device check');
+        navigate('/dashboard');
+        return;
+      }
+
       // 2. Get current device info
       const currentDeviceInfo = await getCurrentDeviceInfo();
       
@@ -91,9 +130,8 @@ const Login = () => {
       // 3. Check existing devices
       try {
         console.log('Fetching user devices...');
-        const { data: existingDevices } = await axios.post(
-          `${baseUrl}/api/users/${user.id}/devices`,
-          currentDeviceInfo,
+        const { data: existingDevices } = await axios.get(
+          `${baseUrl}/api/users/${user.id}/getdevices`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -135,10 +173,15 @@ const Login = () => {
           const deviceId = matchingDevice.deviceId || matchingDevice.id;
           
           localStorage.setItem('deviceId', deviceId);
-          await window.metrics.start({ baseUrl, jwt: token, userId: user.id, deviceId });
+          
+          // Only start metrics collection if user previously opted in
+          if (deviceRegistrationOpted === 'true') {
+            await window.metrics.start({ baseUrl, jwt: token, userId: user.id, deviceId });
+          }
+          
           navigate('/dashboard');
         } else {
-          // Show prompt to add device
+          // Show prompt to add device only if user hasn't made a decision yet
           console.log('Device not found, showing prompt');
           setShowDevicePrompt(true);
         }

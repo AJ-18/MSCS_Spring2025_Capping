@@ -13,12 +13,22 @@ const Dashboard = () => {
   // Fetch user's devices
   const fetchUserDevices = async () => {
     setLoadingDevices(true);
+    setError(null); // Clear any previous errors
     try {
       const token = localStorage.getItem('token');
-      const user = JSON.parse(localStorage.getItem('user'));
+      let user;
+      
+      try {
+        user = JSON.parse(localStorage.getItem('user') || '{}');
+      } catch (parseError) {
+        console.error('Failed to parse user data:', parseError);
+        user = {};
+      }
       
       if (!token || !user || !user.id) {
-        console.error('User data not found');
+        console.error('User data not found', { hasToken: !!token, user });
+        setError('User data not found. Please try logging in again.');
+        setLoadingDevices(false);
         return;
       }
 
@@ -27,47 +37,55 @@ const Dashboard = () => {
       
       // Fetch devices using the GET endpoint
       console.log('Fetching devices with userId:', user.id);
-      const { data } = await axios.get(
-        `${baseUrl}/api/users/${user.id}/getdevices`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      
-      console.log('User devices response:', data);
-      const deviceList = Array.isArray(data) ? data : [];
-      setDevices(deviceList);
-      
-      // Check if current device exists
-      if (currentDeviceInfo && deviceList.length > 0) {
-        console.log('Checking if current device exists in the list...');
-        const deviceExists = deviceList.some(
-          device => {
-            console.log('Comparing device:', device.deviceName, 'with current:', currentDeviceInfo.deviceName);
-            return device.deviceName === currentDeviceInfo.deviceName && 
-                  device.model === currentDeviceInfo.model;
+      try {
+        const { data } = await axios.get(
+          `${baseUrl}/api/users/${user.id}/getdevices`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
         );
-        console.log('Device exists:', deviceExists);
         
-        if (deviceExists) {
-          // Find the matching device and store its ID
-          const matchingDevice = deviceList.find(
-            device => device.deviceName === currentDeviceInfo.deviceName && 
-                     device.model === currentDeviceInfo.model
+        console.log('User devices response:', data);
+        const deviceList = Array.isArray(data) ? data : [];
+        setDevices(deviceList);
+        
+        // Check if current device exists
+        if (currentDeviceInfo && deviceList.length > 0) {
+          console.log('Checking if current device exists in the list...');
+          const deviceExists = deviceList.some(
+            device => {
+              console.log('Comparing device:', device.deviceName, 'with current:', currentDeviceInfo.deviceName);
+              return device.deviceName === currentDeviceInfo.deviceName && 
+                    device.model === currentDeviceInfo.model;
+            }
           );
-          if (matchingDevice) {
-            const deviceId = matchingDevice.deviceId || matchingDevice.id;
-            localStorage.setItem('deviceId', deviceId);
-            console.log('Set deviceId in localStorage:', deviceId);
+          console.log('Device exists:', deviceExists);
+          
+          if (deviceExists) {
+            // Find the matching device and store its ID
+            const matchingDevice = deviceList.find(
+              device => device.deviceName === currentDeviceInfo.deviceName && 
+                      device.model === currentDeviceInfo.model
+            );
+            if (matchingDevice) {
+              const deviceId = matchingDevice.deviceId || matchingDevice.id;
+              localStorage.setItem('deviceId', deviceId);
+              console.log('Set deviceId in localStorage:', deviceId);
+            }
           }
         }
+      } catch (apiError) {
+        console.error('API error fetching devices:', apiError);
+        if (apiError.response) {
+          console.error('API response:', apiError.response.status, apiError.response.data);
+        }
+        setError('Failed to fetch devices. Please try again later.');
       }
     } catch (err) {
-      console.error('Error fetching devices:', err);
+      console.error('Error in fetchUserDevices:', err);
       setError('Failed to fetch devices. Please try again later.');
     } finally {
       setLoadingDevices(false);
@@ -88,6 +106,11 @@ const Dashboard = () => {
   };
 
   const handleAddDevice = async () => {
+    const deviceInfo = await getCurrentDeviceInfo();
+    if (!deviceInfo) {
+      setError('Failed to get device information. Please try again.');
+      return;
+    }
     setShowDevicePrompt(true);
   };
 
@@ -95,37 +118,60 @@ const Dashboard = () => {
     if (shouldRegister) {
       try {
         const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
+        let user;
+        
+        try {
+          user = JSON.parse(localStorage.getItem('user') || '{}');
+        } catch (parseError) {
+          console.error('Failed to parse user data:', parseError);
+          setError('Invalid user data. Please try logging in again.');
+          setShowDevicePrompt(false);
+          return;
+        }
         
         if (!token || !user || !user.id) {
-          console.error('User data not found');
+          console.error('User data not found', { hasToken: !!token, user });
+          setError('User data not found. Please try logging in again.');
           setShowDevicePrompt(false);
           return;
         }
 
-        console.log('Registering device...');
-        const deviceId = await window.metrics.registerDevice(
-          baseUrl,
-          token,
-          user.id
-        );
-        
-        console.log('Device registered with ID:', deviceId);
-        localStorage.setItem('deviceId', deviceId);
-        
-        // Start metrics collection
-        await window.metrics.start({ 
-          baseUrl, 
-          jwt: token, 
-          userId: user.id, 
-          deviceId 
-        });
-        
-        // Refresh devices list
-        fetchUserDevices();
+        console.log('Registering device for user:', user.id);
+        try {
+          const deviceId = await window.metrics.registerDevice(
+            baseUrl,
+            token,
+            user.id
+          );
+          
+          console.log('Device registered with ID:', deviceId);
+          localStorage.setItem('deviceId', deviceId);
+          localStorage.setItem('deviceRegistrationOpted', 'true');
+          
+          // Start metrics collection
+          await window.metrics.start({ 
+            baseUrl, 
+            jwt: token, 
+            userId: user.id, 
+            deviceId 
+          });
+          
+          // Refresh devices list
+          fetchUserDevices();
+        } catch (apiError) {
+          console.error('Failed to register device:', apiError);
+          if (apiError.response) {
+            console.error('API response:', apiError.response.status, apiError.response.data);
+          }
+          setError(`Failed to register device: ${apiError.message || 'Unknown error'}`);
+        }
       } catch (err) {
-        console.error('Failed to register device:', err);
+        console.error('Error in device registration:', err);
+        setError('Failed to register device. Please try again later.');
       }
+    } else {
+      // User declined to add device
+      localStorage.setItem('deviceRegistrationOpted', 'false');
     }
     setShowDevicePrompt(false);
   };
@@ -161,10 +207,12 @@ const Dashboard = () => {
           </button>
         </div>
         
+        {error && (
+          <p className="text-red-500 mb-4">{error}</p>
+        )}
+        
         {loadingDevices ? (
           <p>Loading devices...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
         ) : devices.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {devices.map((device, index) => (

@@ -73,23 +73,82 @@ class MetricsPoller {
   }
 
   async registerDevice(baseUrl, token, userId) {
-    const info = await this.collectDeviceInfo();
-    const res = await axios.post(
-      `${baseUrl}/api/users/${userId}/devices`,
-      info,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    const devices = Array.isArray(res.data) ? res.data : [];
-    if (!devices.length) throw new Error('No devices returned');
-    const match = devices.find(d =>
-      d.deviceName   === info.deviceName &&
-      d.manufacturer === info.manufacturer &&
-      d.model        === info.model
-    );
-    return (match || devices[devices.length-1]).deviceId;
+    try {
+      if (!baseUrl || !token || !userId) {
+        console.error('Missing required parameters for device registration:', { 
+          hasBaseUrl: !!baseUrl, 
+          hasToken: !!token, 
+          hasUserId: !!userId 
+        });
+        throw new Error('Missing required parameters for device registration');
+      }
+
+      console.log('Registering device for user:', userId);
+      const deviceInfo = await this.collectDeviceInfo();
+
+      // Format payload according to what backend expects
+      // Based on Postman collection, it may expect a user object with the id
+      const payload = {
+        ...deviceInfo,
+        user: { id: userId }
+      };
+
+      console.log('Device registration payload:', payload);
+      
+      // Register the device using the POST endpoint for adding devices
+      console.log('Sending device registration request to:', `${baseUrl}/api/users/${userId}/devices`);
+      const res = await axios.post(
+        `${baseUrl}/api/users/${userId}/devices`,
+        payload,
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Device registration response:', res.data);
+      const devices = Array.isArray(res.data) ? res.data : [res.data];
+      if (!devices.length) {
+        console.error('No devices returned from registration');
+        throw new Error('No devices returned from registration');
+      }
+
+      const match = devices.find(d =>
+        d.deviceName   === deviceInfo.deviceName &&
+        d.manufacturer === deviceInfo.manufacturer &&
+        d.model        === deviceInfo.model
+      );
+
+      const deviceId = match ? (match.deviceId || match.id) : 
+                      (devices[devices.length-1].deviceId || devices[devices.length-1].id);
+                      
+      if (!deviceId) {
+        console.error('No device ID found in response:', devices);
+        throw new Error('Device registered but no device ID returned');
+      }
+      
+      console.log('Device registered successfully with ID:', deviceId);
+      return deviceId;
+    } catch (err) {
+      console.error('Device registration failed:', err.message);
+      if (err.response) {
+        console.error('API response error:', {
+          status: err.response.status,
+          data: err.response.data
+        });
+      }
+      throw err;
+    }
   }
 
   async collectSystemMetrics() {
+    if (!this.config) {
+      console.error('Metrics collection attempted without configuration');
+      return null;
+    }
+
     // WMI memory map
     const wmiMemMap = await getWmiMemoryMap();
 
@@ -163,6 +222,8 @@ class MetricsPoller {
   async sendBatchMetrics() {
     try {
       const payload = await this.collectSystemMetrics();
+      if (!payload) return;
+      
       await axios.post(
         `${this.config.baseUrl}/api/metrics/batch`,
         payload,
@@ -174,19 +235,47 @@ class MetricsPoller {
   }
 
   async start(config) {
-    this.config = config;
-    this.config.deviceId = await this.registerDevice(
-      config.baseUrl, config.jwt, config.userId
-    );
-    this.sendBatchMetrics();
-    this.pollingInterval = setInterval(
-      () => this.sendBatchMetrics(),
-      30000
-    );
+    try {
+      if (!config || !config.baseUrl || !config.jwt || !config.userId) {
+        console.error('Invalid metrics configuration:', config);
+        throw new Error('Invalid metrics configuration');
+      }
+
+      // Stop any existing polling
+      this.stop();
+      
+      this.config = config;
+
+      // Check if we need to register the device or if deviceId is already provided
+      if (!config.deviceId) {
+        this.config.deviceId = await this.registerDevice(
+          config.baseUrl, config.jwt, config.userId
+        );
+      }
+
+      console.log('Starting metrics collection for device:', this.config.deviceId);
+      
+      // Send initial metrics
+      this.sendBatchMetrics();
+      
+      // Setup polling interval
+      this.pollingInterval = setInterval(
+        () => this.sendBatchMetrics(),
+        30000
+      );
+    } catch (err) {
+      console.error('Failed to start metrics collection:', err);
+      this.stop();
+      throw err;
+    }
   }
 
   stop() {
-    clearInterval(this.pollingInterval);
+    if (this.pollingInterval) {
+      console.log('Stopping metrics collection');
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
     this.config = null;
   }
 }
