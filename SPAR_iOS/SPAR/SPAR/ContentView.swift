@@ -12,7 +12,6 @@ enum AppView: Hashable {
     case splash
     case onboarding
     case home
-    case detailPage
     case login
 }
 
@@ -28,8 +27,6 @@ struct ContentView: View {
                 OnboardingView(currentView: $currentView)
             case .home:
                 HomeView(currentView: $currentView)
-            case .detailPage:
-                DeviceDetail(currentView: $currentView)
             case .login:
                 LoginView(currentView: $currentView)
             }

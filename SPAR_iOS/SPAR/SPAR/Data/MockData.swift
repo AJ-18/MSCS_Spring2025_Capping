@@ -102,12 +102,12 @@ struct MockData {
     """.data(using: .utf8)!
     static let sampleCPUUsageData = """
     {
-        "id": 7,
-        "totalCpuLoad": 42.5,
-        "perCoreUsageJson": "[{\"core\":1,\"usage\":35.0}]",
+        "id": 8,
+        "totalCpuLoad": 5.145907157059862,
+        "perCoreUsageJson": "[{\\"core\\":1,\\"usage\\":8.544345751027443},{\\"core\\":2,\\"usage\\":6.293496720055942},{\\"core\\":3,\\"usage\\":16.68324711500199},{\\"core\\":4,\\"usage\\":19.07660579449822},{\\"core\\":5,\\"usage\\":1.1985844017094018},{\\"core\\":6,\\"usage\\":1.0950489099589356},{\\"core\\":7,\\"usage\\":1.8733957798593288},{\\"core\\":8,\\"usage\\":2.554001268654225},{\\"core\\":9,\\"usage\\":0.8346409374687009},{\\"core\\":10,\\"usage\\":1.2519614062030515},{\\"core\\":11,\\"usage\\":1.0449704537108135},{\\"core\\":12,\\"usage\\":1.1484275889697537}]",
         "userId": 1,
-        "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
-        "timestamp": "2025-04-22T15:57:10.351457"
+        "deviceId": "47af4ef0-2c9f-4962-95f1-6b206ec305e6",
+        "timestamp": "2025-04-29T18:02:05.970927"
     }
     """.data(using: .utf8)!
     static let sampleDiskIOUsageData = """

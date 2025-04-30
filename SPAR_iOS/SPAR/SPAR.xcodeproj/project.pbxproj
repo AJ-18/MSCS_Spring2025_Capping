@@ -39,7 +39,6 @@
 		3D505B792DBB170700510486 /* InfoRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D505B782DBB170700510486 /* InfoRow.swift */; };
 		3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F22DB2B79400E9215B /* LoginView.swift */; };
 		3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */; };
-		3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F72DB2C08500E9215B /* DeviceDetail.swift */; };
 		3D5994FA2DB307B400E9215B /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994F92DB307B400E9215B /* HomeViewModel.swift */; };
 		3D5994FC2DB30B0100E9215B /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994FB2DB30B0100E9215B /* LoginViewModel.swift */; };
 		3D5994FF2DB3FFBE00E9215B /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5994FE2DB3FFBE00E9215B /* NetworkService.swift */; };
@@ -120,7 +119,6 @@
 		3D505B782DBB170700510486 /* InfoRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoRow.swift; sourceTree = "<group>"; };
 		3D5994F22DB2B79400E9215B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		3D5994F42DB2BA1200E9215B /* BackgroundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAnimationView.swift; sourceTree = "<group>"; };
-		3D5994F72DB2C08500E9215B /* DeviceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetail.swift; sourceTree = "<group>"; };
 		3D5994F92DB307B400E9215B /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		3D5994FB2DB30B0100E9215B /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		3D5994FE2DB3FFBE00E9215B /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
@@ -267,14 +265,6 @@
 			path = Login;
 			sourceTree = "<group>";
 		};
-		3D5994F62DB2C05E00E9215B /* Device detail Page */ = {
-			isa = PBXGroup;
-			children = (
-				3D5994F72DB2C08500E9215B /* DeviceDetail.swift */,
-			);
-			path = "Device detail Page";
-			sourceTree = "<group>";
-		};
 		3D5994FD2DB3FF0700E9215B /* NetworkService */ = {
 			isa = PBXGroup;
 			children = (
@@ -283,6 +273,19 @@
 				3D5995082DB4114200E9215B /* NetworkManager.swift */,
 			);
 			path = NetworkService;
+			sourceTree = "<group>";
+		};
+		3D63FB062DC1B4FA006F53DE /* View */ = {
+			isa = PBXGroup;
+			children = (
+				3DF9BA502D67762C00D0CC62 /* HomeView.swift */,
+				3DCE458A2D68C19F00FACBB8 /* SplashScreenView.swift */,
+				3D07B5322D851C490085B32C /* Onboarding */,
+				3D07B5342D85C3740085B32C /* ChartUI */,
+				3D5994F12DB2ACB300E9215B /* Login */,
+				3D505B4B2DB9C19000510486 /* Device */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		3D8423A52DB14F86009CF847 /* SPARTests */ = {
@@ -318,20 +321,14 @@
 		3D98C7F02D4FE04500462EF4 /* SPAR */ = {
 			isa = PBXGroup;
 			children = (
-				3D505B4B2DB9C19000510486 /* Device */,
+				3D63FB062DC1B4FA006F53DE /* View */,
 				3D5994FD2DB3FF0700E9215B /* NetworkService */,
-				3D5994F62DB2C05E00E9215B /* Device detail Page */,
-				3D5994F12DB2ACB300E9215B /* Login */,
 				3D07B5362D85C3910085B32C /* Data */,
 				3D07B5352D85C3860085B32C /* ViewModel */,
-				3D07B5342D85C3740085B32C /* ChartUI */,
 				3D07B5332D851C640085B32C /* Utilities */,
-				3D07B5322D851C490085B32C /* Onboarding */,
 				3D07B5312D851C1D0085B32C /* Extensions */,
 				3D98C7F12D4FE04500462EF4 /* SPARApp.swift */,
 				3D98C7F32D4FE04500462EF4 /* ContentView.swift */,
-				3DCE458A2D68C19F00FACBB8 /* SplashScreenView.swift */,
-				3DF9BA502D67762C00D0CC62 /* HomeView.swift */,
 				3D98C7F52D4FE04700462EF4 /* Assets.xcassets */,
 				3D98C7F72D4FE04700462EF4 /* Preview Content */,
 			);
@@ -480,7 +477,6 @@
 				3D505B4D2DB9C1BE00510486 /* DeviceOptions.swift in Sources */,
 				3D505B5B2DB9E3F700510486 /* ProcessViewModel.swift in Sources */,
 				3D505B632DBAAE2C00510486 /* DiskUsage.swift in Sources */,
-				3D5994F82DB2C08500E9215B /* DeviceDetail.swift in Sources */,
 				3DCE45912D68C7E700FACBB8 /* View+Extension.swift in Sources */,
 				3D505B592DB9E14700510486 /* MemoryUsageViewModel.swift in Sources */,
 				3D505B552DB9DD5500510486 /* ProcessDetailPage.swift in Sources */,
