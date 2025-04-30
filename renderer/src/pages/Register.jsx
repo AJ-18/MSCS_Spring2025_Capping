@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import authService from '../services/authService';
 import validators from '../utils/validators';
 
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showDevicePrompt, setShowDevicePrompt] = useState(false);
+  const baseUrl = 'http://localhost:8080';
+  const [userData, setUserData] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,21 +36,47 @@ const Register = () => {
     }
   };
 
-  const startMetricsPolling = (token, user, deviceId) => {
-    try {
-      if (window.metrics && typeof window.metrics.start === 'function') {
-        window.metrics.start({
-          baseUrl: 'http://localhost:8080',
-          jwt: token,
-          userId: user.id,
-          deviceId: deviceId
+  const handleDevicePromptResponse = async (shouldRegister) => {
+    console.log('Device prompt response:', shouldRegister ? 'Yes' : 'No');
+    if (shouldRegister && userData) {
+      try {
+        console.log('Registering device...');
+        const deviceId = await window.metrics.registerDevice(
+          baseUrl,
+          userData.token,
+          userData.user.id
+        );
+        console.log('Device registered with ID:', deviceId);
+        localStorage.setItem('deviceId', deviceId);
+        localStorage.setItem('deviceRegistrationOpted', 'true');
+        await window.metrics.start({ 
+          baseUrl, 
+          jwt: userData.token, 
+          userId: userData.user.id, 
+          deviceId 
         });
-      } else {
-        console.log('Metrics polling not available in development mode');
+      } catch (err) {
+        console.error('Failed to register device:', err);
       }
-    } catch (error) {
-      console.warn('Failed to start metrics polling:', error);
+    } else {
+      console.log('User declined device registration');
+      // Store a flag indicating user has explicitly opted out of device registration
+      localStorage.setItem('deviceRegistrationOpted', 'false');
     }
+    setShowDevicePrompt(false);
+    navigate('/dashboard');
+  };
+
+  const getCurrentDeviceInfo = async () => {
+    console.log('getCurrentDeviceInfo() called, window.metrics =', window.metrics);
+    // This should be implemented in the preload script to get device info via Node.js
+    if (window.metrics?.getDeviceInfo) {
+      const deviceInfo = await window.metrics.getDeviceInfo();
+      console.log('Device info:', deviceInfo);
+      return deviceInfo;
+    }
+    console.error('getDeviceInfo method not available');
+    return null;
   };
 
   const handleSubmit = async (e) => {
@@ -63,36 +93,47 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // Use mock auth service instead of axios
+      // Call the signup API with the correct payload format
       const response = await authService.register({
-        name: formData.name,
+        username: formData.username,
         email: formData.email,
         password: formData.password
       });
 
+      console.log('Registration successful:', response);
       const { token, user } = response;
 
       // Store the token and user info
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
+      
+      // Save user data for device registration
+      setUserData({ token, user });
 
-      // Generate and store device ID
-      const deviceId = crypto.randomUUID();
-      localStorage.setItem('deviceId', deviceId);
+      // Get current device info
+      const currentDeviceInfo = await getCurrentDeviceInfo();
+      
+      if (!currentDeviceInfo) {
+        console.error('Could not get device information');
+        navigate('/dashboard');
+        return;
+      }
 
-      // Try to start metrics polling, but don't block if it fails
-      startMetricsPolling(token, user, deviceId);
-
-      // Navigate to dashboard
-      navigate('/dashboard');
+      // Show the device registration prompt
+      setShowDevicePrompt(true);
     } catch (err) {
+      console.error('Registration error:', err);
       setErrors({
         submit: err.message || 'Registration failed. Please try again.'
       });
-    } finally {
       setLoading(false);
     }
   };
+
+  // This effect will log when showDevicePrompt changes
+  React.useEffect(() => {
+    console.log('showDevicePrompt state changed:', showDevicePrompt);
+  }, [showDevicePrompt]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -110,21 +151,21 @@ const Register = () => {
           )}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="name" className="sr-only">Full Name</label>
+              <label htmlFor="username" className="sr-only">Username</label>
               <input
-                id="name"
-                name="name"
+                id="username"
+                name="username"
                 type="text"
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                  errors.name ? 'border-red-300' : 'border-gray-300'
+                  errors.username ? 'border-red-300' : 'border-gray-300'
                 } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                placeholder="Full Name"
-                value={formData.name}
+                placeholder="Username"
+                value={formData.username}
                 onChange={handleChange}
               />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              {errors.username && (
+                <p className="mt-1 text-sm text-red-600">{errors.username}</p>
               )}
             </div>
             <div>
@@ -204,6 +245,30 @@ const Register = () => {
             </button>
           </p>
         </div>
+
+        {/* Device Registration Prompt */}
+        {showDevicePrompt && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+            <div className="relative bg-white rounded-lg p-8 m-4 max-w-xl w-full">
+              <h3 className="text-lg font-medium mb-4">Add Device</h3>
+              <p className="mb-4">Would you like to add this device for metrics collection?</p>
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={() => handleDevicePromptResponse(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDevicePromptResponse(true)}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

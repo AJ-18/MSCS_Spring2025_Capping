@@ -1,120 +1,267 @@
 import React, { useState, useEffect } from 'react';
-import MetricGauge from './MetricGauge';
-import ProcessTable from './ProcessTable';
-import { fetchSystemMetrics } from '../services/systemMetrics';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-  const [metrics, setMetrics] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [devices, setDevices] = useState([]);
+  const [showDevicePrompt, setShowDevicePrompt] = useState(false);
+  const [loadingDevices, setLoadingDevices] = useState(true);
+  const baseUrl = 'http://localhost:8080';
   const navigate = useNavigate();
 
-  // Define gauge colors
-  const gaugeColors = {
-    cpu: '#FF6B6B',     // Red
-    memory: '#4ECDC4',  // Teal
-    disk: '#45B7D1'     // Blue
+  // Fetch user's devices
+  const fetchUserDevices = async () => {
+    setLoadingDevices(true);
+    setError(null); // Clear any previous errors
+    try {
+      const token = localStorage.getItem('token');
+      let user;
+      
+      try {
+        user = JSON.parse(localStorage.getItem('user') || '{}');
+      } catch (parseError) {
+        console.error('Failed to parse user data:', parseError);
+        user = {};
+      }
+      
+      if (!token || !user || !user.id) {
+        console.error('User data not found', { hasToken: !!token, user });
+        setError('User data not found. Please try logging in again.');
+        setLoadingDevices(false);
+        return;
+      }
+
+      // Get current device info
+      const currentDeviceInfo = await getCurrentDeviceInfo();
+      
+      // Fetch devices using the GET endpoint
+      console.log('Fetching devices with userId:', user.id);
+      try {
+        const { data } = await axios.get(
+          `${baseUrl}/api/users/${user.id}/getdevices`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        console.log('User devices response:', data);
+        const deviceList = Array.isArray(data) ? data : [];
+        setDevices(deviceList);
+        
+        // Check if current device exists
+        if (currentDeviceInfo && deviceList.length > 0) {
+          console.log('Checking if current device exists in the list...');
+          const deviceExists = deviceList.some(
+            device => {
+              console.log('Comparing device:', device.deviceName, 'with current:', currentDeviceInfo.deviceName);
+              return device.deviceName === currentDeviceInfo.deviceName && 
+                    device.model === currentDeviceInfo.model;
+            }
+          );
+          console.log('Device exists:', deviceExists);
+          
+          if (deviceExists) {
+            // Find the matching device and store its ID
+            const matchingDevice = deviceList.find(
+              device => device.deviceName === currentDeviceInfo.deviceName && 
+                      device.model === currentDeviceInfo.model
+            );
+            if (matchingDevice) {
+              const deviceId = matchingDevice.deviceId || matchingDevice.id;
+              localStorage.setItem('deviceId', deviceId);
+              console.log('Set deviceId in localStorage:', deviceId);
+            }
+          }
+        }
+      } catch (apiError) {
+        console.error('API error fetching devices:', apiError);
+        if (apiError.response) {
+          console.error('API response:', apiError.response.status, apiError.response.data);
+        }
+        setError('Failed to fetch devices. Please try again later.');
+      }
+    } catch (err) {
+      console.error('Error in fetchUserDevices:', err);
+      setError('Failed to fetch devices. Please try again later.');
+    } finally {
+      setLoadingDevices(false);
+    }
   };
 
-  const handleLogout = () => {
-    // Clear all stored authentication data
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('deviceId');
-    
-    // The metrics polling will automatically stop when the token is removed
-    // Navigate to login page
-    navigate('/login');
+  const getCurrentDeviceInfo = async () => {
+    if (window.metrics?.getDeviceInfo) {
+      try {
+        const deviceInfo = await window.metrics.getDeviceInfo();
+        console.log('Current device info:', deviceInfo);
+        return deviceInfo;
+      } catch (err) {
+        console.error('Error getting device info:', err);
+      }
+    }
+    return null;
+  };
+
+  const handleAddDevice = async () => {
+    const deviceInfo = await getCurrentDeviceInfo();
+    if (!deviceInfo) {
+      setError('Failed to get device information. Please try again.');
+      return;
+    }
+    setShowDevicePrompt(true);
+  };
+
+  const handleDevicePromptResponse = async (shouldRegister) => {
+    if (shouldRegister) {
+      try {
+        const token = localStorage.getItem('token');
+        let user;
+        
+        try {
+          user = JSON.parse(localStorage.getItem('user') || '{}');
+        } catch (parseError) {
+          console.error('Failed to parse user data:', parseError);
+          setError('Invalid user data. Please try logging in again.');
+          setShowDevicePrompt(false);
+          return;
+        }
+        
+        if (!token || !user || !user.id) {
+          console.error('User data not found', { hasToken: !!token, user });
+          setError('User data not found. Please try logging in again.');
+          setShowDevicePrompt(false);
+          return;
+        }
+
+        console.log('Registering device for user:', user.id);
+        try {
+          const deviceId = await window.metrics.registerDevice(
+            baseUrl,
+            token,
+            user.id
+          );
+          
+          console.log('Device registered with ID:', deviceId);
+          localStorage.setItem('deviceId', deviceId);
+          localStorage.setItem('deviceRegistrationOpted', 'true');
+          
+          // Start metrics collection
+          await window.metrics.start({ 
+            baseUrl, 
+            jwt: token, 
+            userId: user.id, 
+            deviceId 
+          });
+          
+          // Refresh devices list
+          fetchUserDevices();
+        } catch (apiError) {
+          console.error('Failed to register device:', apiError);
+          if (apiError.response) {
+            console.error('API response:', apiError.response.status, apiError.response.data);
+          }
+          setError(`Failed to register device: ${apiError.message || 'Unknown error'}`);
+        }
+      } catch (err) {
+        console.error('Error in device registration:', err);
+        setError('Failed to register device. Please try again later.');
+      }
+    } else {
+      // User declined to add device
+      localStorage.setItem('deviceRegistrationOpted', 'false');
+    }
+    setShowDevicePrompt(false);
+  };
+
+  const handleDeviceSelect = (deviceId) => {
+    localStorage.setItem('selectedDeviceId', deviceId);
+    localStorage.setItem('deviceId', deviceId); // Also set the current deviceId
+    navigate(`/dashboard/device/${deviceId}`);
   };
 
   useEffect(() => {
-    let mounted = true;
-    let intervalId;
-
-    const loadMetrics = async () => {
-      try {
-        const data = await fetchSystemMetrics();
-        if (mounted) {
-          setMetrics(data);
-          setError(null);
-        }
-      } catch (err) {
-        if (mounted) {
-          console.error('Error loading metrics:', err);
-          setError('Error loading system metrics');
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    // Load metrics immediately
-    loadMetrics();
-
-    // Then update every 5 seconds
-    intervalId = setInterval(loadMetrics, 5000);
+    // Fetch devices
+    fetchUserDevices();
 
     return () => {
-      mounted = false;
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      // Cleanup if needed
     };
   }, []);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-  if (!metrics) return null;
+  if (loadingDevices) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-[#F5F2F0] p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-serif">S.P.A.R</h1>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-            >
-              Logout
-            </button>
-            <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
+    <div className="p-4">
+      {/* Devices Section */}
+      <div className="bg-white rounded-lg p-6 mb-8 shadow">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-medium">Your Devices</h2>
+          <button
+            onClick={handleAddDevice}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+          >
+            Add Current Device
+          </button>
+        </div>
+        
+        {error && (
+          <p className="text-red-500 mb-4">{error}</p>
+        )}
+        
+        {loadingDevices ? (
+          <p>Loading devices...</p>
+        ) : devices.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {devices.map((device, index) => (
+              <div 
+                key={device.deviceId || index} 
+                className="border rounded-lg p-4 bg-gray-50 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleDeviceSelect(device.deviceId || `device-${index}`)}
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="font-medium text-lg mb-2">{device.deviceName}</h3>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Online
+                  </span>
+                </div>
+                <p className="text-gray-600 text-sm mb-1">Type: {device.systemType?.includes('64') ? 'Desktop' : 'Mobile'}</p>
+                <p className="text-gray-600 text-sm mb-1">Manufacturer: {device.manufacturer}</p>
+                <p className="text-gray-600 text-sm mb-1">Model: {device.model}</p>
+                <p className="text-gray-600 text-sm mb-1">Last Seen: {new Date().toLocaleString()}</p>
+              </div>
+            ))}
           </div>
-        </header>
-
-        <div className="grid grid-cols-3 gap-6 mb-8">
-          <MetricGauge 
-            title="CPU" 
-            value={metrics.cpu.usage} 
-            color={gaugeColors.cpu}
-            suffix="%" 
-          />
-          <MetricGauge 
-            title="Memory" 
-            value={(metrics.memory.used / metrics.memory.total) * 100} 
-            color={gaugeColors.memory}
-            subtitle={`${Math.round(metrics.memory.used/1024)}/${Math.round(metrics.memory.total/1024)} GB`} 
-          />
-          <MetricGauge 
-            title="Disk" 
-            value={(metrics.disk.used / metrics.disk.total) * 100} 
-            color={gaugeColors.disk}
-            subtitle={`${Math.round(metrics.disk.used/1024)}/${Math.round(metrics.disk.total/1024)} GB`} 
-          />
-        </div>
-
-        <div className="bg-white rounded-lg p-6">
-          <h2 className="text-xl font-medium mb-4">System Info</h2>
-          <ProcessTable processes={[
-            { pid: 1, name: 'System', cpu: Math.random() * 10, memory: 0.5, time: '1:30:00' },
-            { pid: 2, name: 'User', cpu: Math.random() * 20, memory: 1.2, time: '0:45:30' },
-            { pid: 3, name: 'Browser', cpu: Math.random() * 30, memory: 2.1, time: '2:15:45' },
-          ]} />
-        </div>
+        ) : (
+          <p>No devices found. Add a device to start collecting metrics.</p>
+        )}
       </div>
+
+      {/* Device Registration Prompt */}
+      {showDevicePrompt && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+          <div className="relative bg-white rounded-lg p-8 m-4 max-w-xl w-full">
+            <h3 className="text-lg font-medium mb-4">Add Device</h3>
+            <p className="mb-4">Would you like to add this device for metrics collection?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => handleDevicePromptResponse(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                No
+              </button>
+              <button
+                onClick={() => handleDevicePromptResponse(true)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

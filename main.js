@@ -32,6 +32,16 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow();
 
+  // 0) get-device-info → calls metricsPoller.collectDeviceInfo()
+  ipcMain.handle('get-device-info', async () => {
+    try {
+      return await metricsPoller.collectDeviceInfo();
+    } catch (err) {
+      console.error('get-device-info error:', err);
+      throw err;
+    }
+  });
+
   // 1) register-device → calls metricsPoller.registerDevice(...)
   ipcMain.handle('register-device', async (_, baseUrl, token, userId) => {
     try {
