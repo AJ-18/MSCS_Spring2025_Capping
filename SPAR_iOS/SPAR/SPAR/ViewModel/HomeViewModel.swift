@@ -30,6 +30,14 @@ class HomeViewModel: ObservableObject {
         }
     }
     
+    func signOut(currentView: Binding<AppView>) {
+        AppSettings.shared.clearUserSession()
+        DispatchQueue.main.async {
+            currentView.wrappedValue = .login // Redirect to login screen
+        }
+    }
+
+    
     func getDeviceData() {
         Task {
             do {
@@ -77,5 +85,5 @@ class HomeViewModel: ObservableObject {
 //    graphics: "NVIDIA GTX 1650",
 //    operatingSystem: "Windows 10 x64",
 //    systemType: "x64-based processor",
-//    timestamp: "2025-03-28T16:03:30.041384"
+//    registeredAt: "2025-03-28T16:03:30.041384"
 //)

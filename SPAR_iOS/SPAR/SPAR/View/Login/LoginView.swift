@@ -194,7 +194,7 @@ struct FaceIDButton: View {
             Button(action: {
                 viewModel.loginWithFaceID()
             }) {
-                Image(systemName: "faceid")
+                Image(systemName: ImageConstant.faceid)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 50, height: 50)

@@ -16,6 +16,12 @@ final class AppSettings {
     private let tokenKey = "authToken"
     private let userIdKey = "userId"
     private let hasLoggedInOnceKey = "hasLoggedInOnce"
+    
+    func clearUserSession() {
+        self.authToken = nil
+        userId = nil
+        // clear any saved credentials or tokens
+    }
 
     var hasLoggedInOnce: Bool {
         get { UserDefaults.standard.bool(forKey: hasLoggedInOnceKey) }

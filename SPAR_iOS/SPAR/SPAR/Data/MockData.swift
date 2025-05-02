@@ -12,7 +12,7 @@ struct MockData {
     [
         {
             "userId": 1,
-            "deviceId": 5,
+            "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
             "deviceName": "MyComputer",
             "manufacturer": "Dell",
             "model": "Inspiron 15",
@@ -23,11 +23,11 @@ struct MockData {
             "graphics": "NVIDIA GTX 1650",
             "operatingSystem": "Windows 10 x64",
             "systemType": "x64 operating system, x64-based processor",
-            "timestamp": "2025-03-28T16:03:30.041384"
+            "registeredAt": "2025-03-28T16:03:30.041384"
         },
         {
             "userId": 1,
-            "deviceId": 13,
+             "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
             "deviceName": "Home",
             "manufacturer": "Dell",
             "model": "Inspiron 15",
@@ -38,7 +38,7 @@ struct MockData {
             "graphics": "NVIDIA GTX 1650",
             "operatingSystem": "Windows 10 x64",
             "systemType": "x64 operating system, x64-based processor",
-            "timestamp": "2025-04-13T15:28:39.97323"
+            "registeredAt": "2025-04-13T15:28:39.97323"
         }
     ]
     """.data(using: .utf8)!
@@ -52,6 +52,7 @@ struct MockData {
             "name": "chrome.exe",
             "cpuUsage": 12.5,
             "memoryMB": 200.0,
+              "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
             "timestamp": "2025-04-13T15:29:00.236114"
         },
         {
@@ -61,6 +62,7 @@ struct MockData {
             "name": "node.exe",
             "cpuUsage": 5.0,
             "memoryMB": 150.0,
+              "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
             "timestamp": "2025-04-13T15:29:00.236114"
         }
     ]
@@ -74,6 +76,7 @@ struct MockData {
             "batteryPercentage": 85,
             "powerConsumption": 5.0,
             "timestamp": "2025-04-13T15:29:10.549936",
+              "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
             "charging": false
         }
     """.data(using: .utf8)!
@@ -85,6 +88,7 @@ struct MockData {
             "totalMemory": 16.0,
             "usedMemory": 8.5,
             "availableMemory": 7.5,
+              "deviceId": "331330ac-5f82-43b0-9d39-84e1f7e7e358",
             "timestamp": "2025-04-13T15:28:49.261218"
         }
     """.data(using: .utf8)!

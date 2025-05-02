@@ -21,61 +21,64 @@ struct DiskUsageDetailView: View {
 
     // MARK: - Body
     var body: some View {
-        ZStack {
-            // MARK: Background Gradient
-            LinearGradient(colors: [.purple.opacity(0.15), .blue.opacity(0.15)], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
+        LoadingView(isLoading: viewModel.isLoading) {
+            ZStack {
+                // Background Gradient
+                LinearGradient(colors: [.purple.opacity(0.15), .blue.opacity(0.15)], startPoint: .top, endPoint: .bottom)
+                    .ignoresSafeArea()
 
-            VStack(spacing: 30) {
-                
-                // MARK: Header
-                Text(StringConstant.diskUsage)
-                    .font(.largeTitle)
-                    .bold()
-                    .accessibilityAddTraits(.isHeader)
-                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                ScrollView {
+                    VStack(spacing: 30) {
+                        // Header
+                        Text(StringConstant.diskUsage)
+                            .font(.largeTitle)
+                            .bold()
+                            .accessibilityAddTraits(.isHeader)
+                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-                // MARK: Disk Usage Donut Chart
-                HalfDonutChart(chartDataObj: $viewModel.chartData)
+                        // Disk Usage Donut Chart
+                        HalfDonutChart(chartDataObj: $viewModel.chartData)
 
-                // MARK: Disk Info Display
-                if let diskInfo = viewModel.diskUsage {
-                    VStack(alignment: .leading, spacing: 15) {
-                        InfoRow(label: StringConstant.deviceName, value: device.deviceName)
-                        InfoRow(label: StringConstant.filesystem, value: diskInfo.filesystem)
-                        InfoRow(label: StringConstant.size, value: String(format: "%.2f GB", diskInfo.sizeGB))
-                        InfoRow(label: StringConstant.usedSpace, value: String(format: "%.2f GB", diskInfo.usedGB))
-                        InfoRow(label: StringConstant.availableSpace, value: String(format: "%.2f GB", diskInfo.availableGB))
-                        InfoRow(label: StringConstant.timestamp, value: diskInfo.timestamp)
+                        // Disk Info Display
+                        if let diskInfo = viewModel.diskUsage {
+                            VStack(alignment: .leading, spacing: 15) {
+                                InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                                InfoRow(label: StringConstant.filesystem, value: diskInfo.filesystem)
+                                InfoRow(label: StringConstant.size, value: String(format: "%.2f GB", diskInfo.sizeGB))
+                                InfoRow(label: StringConstant.usedSpace, value: String(format: "%.2f GB", diskInfo.usedGB))
+                                InfoRow(label: StringConstant.availableSpace, value: String(format: "%.2f GB", diskInfo.availableGB))
+                                InfoRow(label: StringConstant.registeredAt, value: diskInfo.timestamp.toFormattedDate())
+                            }
+                            .padding()
+                            .frame(maxWidth: 320)
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 4)
+                        } else {
+                            // Error Message
+                            Text(viewModel.errorMessage)
+                                .foregroundColor(.red)
+                                .font(.body)
+                        }
+
+                        Spacer(minLength: 20)
                     }
                     .padding()
-                    .frame(maxWidth: 320)
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 4)
-                } else {
-                    // MARK: Error Message
-                    Text(viewModel.errorMessage)
-                        .foregroundColor(.red)
-                        .font(.body)
                 }
-
-                Spacer()
             }
-            .padding()
-        }
-        .onAppear {
-            // MARK: Log Page Visit
-            self.logPageVisit()
+            .onAppear {
+                self.logPageVisit()
+            }
         }
     }
+
 }
 
 // MARK: - Preview
 #Preview {
     DiskUsageDetailView(device: DeviceSpecification(
         id: 1,
-        userId: 1,
+        deviceId: "ff",
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",
@@ -86,6 +89,6 @@ struct DiskUsageDetailView: View {
         graphics: "NVIDIA GTX 1650",
         operatingSystem: "Windows 10 x64",
         systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        registeredAt: "2025-03-28T16:03:30.041384"
     ))
 }

@@ -19,33 +19,35 @@ struct MemoryUsageDetailView: View {
     }
 
     var body: some View {
-        ZStack {
-            // MARK: Background
-            LinearGradient(colors: [.mint.opacity(0.2), .cyan.opacity(0.2)],
-                           startPoint: .top,
-                           endPoint: .bottom)
-                .ignoresSafeArea()
+        LoadingView(isLoading: viewModel.isLoading) {
+            ZStack {
+                // MARK: Background
+                LinearGradient(colors: [.mint.opacity(0.2), .cyan.opacity(0.2)],
+                               startPoint: .top,
+                               endPoint: .bottom)
+                    .ignoresSafeArea()
 
-            VStack(spacing: 30) {
-                // MARK: Title
-                Text("Memory Usage")
-                    .font(.largeTitle)
-                    .bold()
-                    .accessibilityAddTraits(.isHeader)
-                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                VStack(spacing: 30) {
+                    // MARK: Title
+                    Text(StringConstant.memoryUsage)
+                        .font(.largeTitle)
+                        .bold()
+                        .accessibilityAddTraits(.isHeader)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-                // MARK: Memory Usage Chart
-                HalfDonutChart(chartDataObj: $viewModel.chartData)
+                    // MARK: Memory Usage Chart
+                    HalfDonutChart(chartDataObj: $viewModel.chartData)
 
-                // MARK: Info Section
-                MemoryInfoCard(device: device, viewModel: viewModel)
+                    // MARK: Info Section
+                    MemoryInfoCard(device: device, viewModel: viewModel)
 
-                Spacer()
+                    Spacer()
+                }
+                .padding()
             }
-            .padding()
+            .onAppear {
+                self.logPageVisit()
         }
-        .onAppear {
-            self.logPageVisit()
         }
     }
 }
@@ -64,7 +66,7 @@ struct MemoryInfoCard: View {
                     value: String(format: "%.2f GB", viewModel.memoryInfo.usedMemory))
             InfoRow(label: StringConstant.availableMemory,
                     value: String(format: "%.2f GB", viewModel.memoryInfo.availableMemory))
-            InfoRow(label: StringConstant.timestamp,
+            InfoRow(label: StringConstant.registeredAt,
                     value: viewModel.memoryInfo.timestamp.toFormattedDate())
         }
         .padding()
@@ -79,17 +81,17 @@ struct MemoryInfoCard: View {
 #Preview {
     MemoryUsageDetailView(device: DeviceSpecification(
         id: 1,
-        userId: 1,
-        deviceName: "MyComputer",
-        manufacturer: "Dell",
-        model: "Inspiron 15",
-        processor: "Intel Core i7 2.8 GHz",
+        deviceId: "",
+        deviceName: "",
+        manufacturer: "",
+        model: "",
+        processor: "",
         cpuPhysicalCores: 4,
         cpuLogicalCores: 8,
         installedRam: 16.0,
         graphics: "NVIDIA GTX 1650",
         operatingSystem: "Windows 10 x64",
         systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        registeredAt: "2025-03-28T16:03:30.041384"
     ))
 }

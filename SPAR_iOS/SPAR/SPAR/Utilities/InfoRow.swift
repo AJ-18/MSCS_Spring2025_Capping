@@ -21,6 +21,7 @@ struct InfoRow: View {
                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
             Spacer()
             Text(value)
+                .multilineTextAlignment(.trailing)
                 .foregroundColor(.black)
                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
         }

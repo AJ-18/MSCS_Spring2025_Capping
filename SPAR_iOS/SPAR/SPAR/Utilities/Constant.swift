@@ -30,6 +30,8 @@ enum StringConstant {
     static let searchIcon  = "It's icon for searching device."
     static let searchText = "Search devices..."
     static let sdearchText = "Search devices..."
+    static let emptyscreenmsg = "You need to have at least one Desktop APP."
+    static let downloadApp = "Download SPAR Desktop"
     
     // device detail
     static let deviceInfo = "Device Info"
@@ -43,10 +45,10 @@ enum StringConstant {
     static let graphics = "Graphics"
     static let OS = "OS"
     static let systemType = "System Type"
-    static let timestamp = "Timestamp"
+    static let registeredAt = "Time Stamp"
     static let batteryInfo = "Battery Info"
     static let cpu = "CPU"
-    static let memoryUsage = "Memory Usage"
+    static let memoryUsage = "Ram Usage"
     static let diskUsage = "Disk Usage"
     static let diskIO = "Disk IO"
     static let processlist = "Running Processes"
@@ -100,8 +102,13 @@ enum ImageConstant {
     static let magnifyingGlass =  "magnifyingglass"
     static let xmarkCircleFill =  "xmark.circle.fill"
     static let chevronRight =  "chevron.right"
-      static let eye = "eye"
-      static let eyeSlash =  "eye.slash"
+    static let eye = "eye"
+    static let eyeSlash =  "eye.slash"
+    static let logout = "rectangle.portrait.and.arrow.right"
+    static let emptyScreenlogo = "desktopcomputer"
+    static let faceid = "faceid"
+    static let cpu = "cpu"
+    static let memorychip = "memorychip"
     
 }
 
@@ -109,6 +116,14 @@ enum LoggerConstant {
     static let pageName = "❕Page visited: %@"
     static let getStartedTapped = "❕Get Started button was tapped"
     static let LoginSubmitTapped = "❕Submit button was tapped"
+}
+
+enum AccessibilityConstant {
+    static let signOut = "Sign Out"
+    static let metricPicker = "Metric Picker"
+    static let processtip1 = "Double tap to view more process details"
+    static let top5 = "Top five CPU cores by usage"
+    static let barChart = "Bar chart showing the five CPU cores with highest utilization"
 }
 
 enum AccessibilityIdentifier: String {

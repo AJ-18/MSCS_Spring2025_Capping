@@ -13,6 +13,8 @@ class DiskUsageViewModel: ObservableObject {
     @Published var diskUsage: DiskUsage?
     @Published var errorMessage: String = ""
     @Published var chartData: ChartData = ChartData(color: .gray, type: "Disk", percent: 0)
+    @Published var isLoading: Bool = false
+
     private let networkManager = NetworkManager()
 
 
@@ -21,13 +23,13 @@ class DiskUsageViewModel: ObservableObject {
     init(device: DeviceSpecification) {
         let diskInfo = DiskUsage(
             id: 1,
-            filesystem: "/dev/sda1",
-            sizeGB: 512.0,
-            usedGB: 200.0,
-            availableGB: 312.0,
+            filesystem: "",
+            sizeGB: 1,
+            usedGB: 0,
+            availableGB: 0,
             userId: 1,
             deviceId: "1",
-            timestamp: "2025-04-22T15:57:10.390972".toFormattedDate()
+            timestamp: "".toFormattedDate()
         )
         
         self.diskUsage = diskInfo
@@ -44,25 +46,40 @@ class DiskUsageViewModel: ObservableObject {
     
     func fetchDiskUsageInfo(device: DeviceSpecification) {
         Task {
+            await MainActor.run {
+                self.isLoading = true
+            }
+            
             do {
-                guard let userId = AppSettings.shared.userId else { return }
-                let response = try await networkManager.fetchDiskUsage(for: userId, deviceId: device.id)
-                
-                    DispatchQueue.main.async {
-                        self.diskUsage = response
-                        let usedPercent = (response.usedGB / response.availableGB) * 100
-                        self.chartData = ChartData(
-                            color: .green,
-                            type: "Disk",
-                            percent: CGFloat(usedPercent)
-                        )
+                guard let userId = AppSettings.shared.userId else {
+                    await MainActor.run {
+                        self.isLoading = false
                     }
+                    return
+                }
                 
+                let response = try await networkManager.fetchDiskUsage(for: userId, deviceId: device.deviceId)
+                
+                await MainActor.run {
+                    self.diskUsage = response
+                    let usedPercent = (response.usedGB / response.sizeGB) * 100
+                    self.chartData = ChartData(
+                        color: .green,
+                        type: "Disk",
+                        percent: CGFloat(usedPercent)
+                    )
+                    self.isLoading = false
+                }
             } catch {
-                print("Failed to fetch Disk Usage info: \(error)")
+                await MainActor.run {
+                    self.errorMessage = "Failed to load disk usage"
+                    self.isLoading = false
+                }
+                logger.error("Failed to fetch Disk Usage info: \(error.localizedDescription)")
             }
         }
     }
+
 }
 
 

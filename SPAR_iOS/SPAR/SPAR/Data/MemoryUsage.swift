@@ -10,6 +10,7 @@ import Foundation
 struct MemoryUsage: Codable, Identifiable {
     let id: Int
     let userId: Int
+    let deviceId:String
     let totalMemory: Double
     let usedMemory: Double
     let availableMemory: Double

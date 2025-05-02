@@ -22,93 +22,102 @@ struct CpuUsageDetailView: View {
 
     // MARK: - Body
     var body: some View {
-        ZStack {
-            // MARK: Background Gradient
-            LinearGradient(colors: [.orange.opacity(0.2), .yellow.opacity(0.2)],
-                           startPoint: .topLeading,
-                           endPoint: .bottomTrailing)
-            .ignoresSafeArea()
+        LoadingView(isLoading: viewModel.isLoading) {
+            ZStack {
+                // MARK: Background Gradient
+                LinearGradient(colors: [.orange.opacity(0.2), .yellow.opacity(0.2)],
+                               startPoint: .topLeading,
+                               endPoint: .bottomTrailing)
+                .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 20) {
+                ScrollView {
+                    VStack(spacing: 20) {
 
-                    // MARK: Header
-                    Text(StringConstant.cpuUsage)
-                        .font(.largeTitle)
-                        .bold()
-                        .accessibilityAddTraits(.isHeader)
-                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                        // MARK: Header
+                        Text(StringConstant.cpuUsage)
+                            .font(.largeTitle)
+                            .bold()
+                            .accessibilityAddTraits(.isHeader)
+                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-                    Spacer(minLength: 20)
+                        Spacer(minLength: 20)
 
-                    // MARK: Donut Chart
-                    if let chartData = viewModel.chartData {
-                        HalfDonutChart(chartDataObj: .constant(chartData))
-                            .frame(height: 180)
-                            .transition(.scale)
-                    }
-
-                    Spacer(minLength: 40)
-
-                    // MARK: CPU Usage Information
-                    if let usage = viewModel.cpuUsage {
-                        VStack(alignment: .leading, spacing: 16) {
-
-                            // MARK: General Info
-                            InfoRow(label: StringConstant.deviceName, value: device.deviceName)
-                            InfoRow(label: StringConstant.totalCPULoad, value: String(format: "%.1f%%", usage.totalCpuLoad))
-                            InfoRow(label: StringConstant.timestamp, value: usage.timestamp)
-
-                            Divider().padding(.vertical, 8)
-
-                            // MARK: Per Core Usage Section (Consider splitting into its own view)
-                            Text(StringConstant.allCore)
-                                .font(.headline)
-
-                            ForEach(usage.perCoreUsage, id: \.core) { coreUsage in
-                                InfoRow(label: "Core \(coreUsage.core)", value: String(format: "%.1f%%", coreUsage.usage))
-                            }
-
-                            Divider().padding(.vertical, 8)
-
-                            // MARK: Top 5 Core Usage Graph (Consider moving to a ChartSection view)
-                            Text(StringConstant.topFive)
-                                .font(.headline)
-                                .minimumScaleFactor(sizeCategory.customMinScaleFactor)
-
-                            let topCores = usage.perCoreUsage
-                                .sorted { $0.usage > $1.usage }
-                                .prefix(5)
-
-                            Chart {
-                                ForEach(topCores, id: \.core) { coreUsage in
-                                    BarMark(
-                                        x: .value("Core", "Core \(coreUsage.core)"),
-                                        y: .value("Usage", coreUsage.usage)
-                                    )
-                                    .foregroundStyle(.blue.gradient)
-                                }
-                            }
-                            .frame(height: 200)
-                            .cornerRadius(10)
-                            .padding(.top, 8)
+                        // MARK: Donut Chart
+                        if let chartData = viewModel.chartData {
+                            HalfDonutChart(chartDataObj: .constant(chartData))
+                                .frame(height: 180)
+                                .transition(.scale)
                         }
-                        .padding()
-                        .frame(maxWidth: 360)
-                        .background(Color.white)
-                        .cornerRadius(16)
-                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 5)
-                    }
 
-                    Spacer()
+                        Spacer(minLength: 40)
+
+                        // MARK: CPU Usage Information
+                        if let usage = viewModel.cpuUsage {
+                            VStack(alignment: .leading, spacing: 16) {
+
+                                // MARK: General Info
+                                InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+                                InfoRow(label: StringConstant.totalCPULoad, value: String(format: "%.1f%%", usage.totalCpuLoad))
+                                InfoRow(label: StringConstant.registeredAt, value: usage.timestamp.toFormattedDate())
+
+                                Divider().padding(.vertical, 8)
+
+                                // MARK: Per Core Usage Section (Consider splitting into its own view)
+                                Text(StringConstant.allCore)
+                                    .font(.headline)
+
+                                ForEach(usage.perCoreUsage, id: \.core) { coreUsage in
+                                    InfoRow(label: "Core \(coreUsage.core)", value: String(format: "%.1f%%", coreUsage.usage))
+                                }
+
+                                Divider().padding(.vertical, 8)
+
+                                // MARK: Top 5 Core Usage Graph (Consider moving to a ChartSection view)
+                                Text(StringConstant.topFive)
+                                    .font(.headline)
+                                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+
+                                let topCores = usage.perCoreUsage
+                                    .sorted { $0.usage > $1.usage }
+                                    .prefix(5)
+
+                                Chart {
+                                    ForEach(topCores, id: \.core) { coreUsage in
+                                        BarMark(
+                                            x: .value("Core", "Core \(coreUsage.core)"),
+                                            y: .value("Usage", coreUsage.usage)
+                                        )
+                                        .foregroundStyle(.blue.gradient)
+                                        .accessibilityLabel("Core \(coreUsage.core)")
+                                        .accessibilityValue("\(String(format: "%.1f", coreUsage.usage)) percent usage")
+                                        .accessibilityHidden(false)
+                                    }
+                                }
+                                .accessibilityElement(children: .contain)
+                                .accessibilityLabel(AccessibilityConstant.top5)
+                                .accessibilityHint(AccessibilityConstant.barChart)
+                                .frame(height: 200)
+                                .cornerRadius(10)
+                                .padding(.top, 8)
+
+                            }
+                            .padding()
+                            .frame(maxWidth: 360)
+                            .background(Color.white)
+                            .cornerRadius(16)
+                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 5)
+                        }
+
+                        Spacer()
+                    }
+                    .padding()
+                    .animation(.easeInOut, value: viewModel.cpuUsage?.totalCpuLoad)
                 }
-                .padding()
-                .animation(.easeInOut, value: viewModel.cpuUsage?.totalCpuLoad)
             }
+            .onAppear {
+                // MARK: Log Page Visit
+                self.logPageVisit()
         }
-        .onAppear {
-            // MARK: Log Page Visit
-            self.logPageVisit()
         }
     }
 }
@@ -117,7 +126,7 @@ struct CpuUsageDetailView: View {
 #Preview {
     CpuUsageDetailView(device: DeviceSpecification(
         id: 1,
-        userId: 1,
+        deviceId: "dd",
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",
@@ -128,6 +137,6 @@ struct CpuUsageDetailView: View {
         graphics: "NVIDIA GTX 1650",
         operatingSystem: "Windows 10 x64",
         systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        registeredAt: "2025-03-28T16:03:30.041384"
     ))
 }

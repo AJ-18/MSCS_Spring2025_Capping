@@ -13,7 +13,7 @@ class CpuUsageViewModel: ObservableObject {
     @Published var cpuUsage: CpuUsage?
     @Published var errorMessage: String = ""
     @Published var chartData: ChartData?
-
+    @Published var isLoading: Bool = false
     private let logger = Logger.fileLocation
     private let networkManager = NetworkManager()
 
@@ -23,11 +23,11 @@ class CpuUsageViewModel: ObservableObject {
          
          let sampleUsage = CpuUsage(
              id: 7,
-             totalCpuLoad: 32.1,
+             totalCpuLoad: 0,
              perCoreUsage: sampleCoreData,
              userId: 1,
              deviceId: "1",
-             timestamp: "2025-04-22T15:57:10.351457"
+             timestamp: "1"
          )
          
          self.cpuUsage = sampleUsage
@@ -43,23 +43,27 @@ class CpuUsageViewModel: ObservableObject {
     }
     
     func fetchCPUInfo(device: DeviceSpecification) {
-        // Print to ensure this function is being called
         print("Fetching CPU info for device: \(device.id)")
-        
+
         Task {
+            await MainActor.run {
+                self.isLoading = true
+            }
+
             do {
                 guard let userId = AppSettings.shared.userId else {
                     print("User ID is nil. Aborting fetch.")
+                    await MainActor.run {
+                        self.isLoading = false
+                    }
                     return
                 }
+
                 print("User ID: \(userId)")
-                
-                let response = try await networkManager.fetchCPUUsageInfo(for: userId, deviceId: device.id)
-                
-                print("response",response)
-                
-                // Update on main thread
-                DispatchQueue.main.async {
+                let response = try await networkManager.fetchCPUUsageInfo(for: userId, deviceId: device.deviceId)
+                print("response", response)
+
+                await MainActor.run {
                     print("Received CPU usage data: \(response)")
                     self.cpuUsage = response
                     self.chartData = ChartData(
@@ -67,14 +71,18 @@ class CpuUsageViewModel: ObservableObject {
                         type: "CPU",
                         percent: CGFloat(response.totalCpuLoad)
                     )
+                    self.isLoading = false
                 }
-                
+
             } catch {
                 print("Failed to fetch CPU info: \(error)")
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.errorMessage = "Failed to fetch CPU info: \(error.localizedDescription)"
+                    self.isLoading = false
                 }
             }
         }
     }
+
+
 }

@@ -9,7 +9,7 @@ import Foundation
 
 struct DeviceSpecification: Codable, Identifiable {
     let id: Int
-    let userId: Int
+    let deviceId: String
     let deviceName: String
     let manufacturer: String
     let model: String
@@ -20,12 +20,12 @@ struct DeviceSpecification: Codable, Identifiable {
     let graphics: String
     let operatingSystem: String
     let systemType: String
-    let timestamp: String
+    let registeredAt: String
     
     enum CodingKeys: String, CodingKey {
-        case id = "deviceId"
-        case userId, deviceName, manufacturer, model, processor
+        case id
+        case deviceId,deviceName, manufacturer, model, processor
         case cpuPhysicalCores, cpuLogicalCores, installedRam
-        case graphics, operatingSystem, systemType, timestamp
+        case graphics, operatingSystem, systemType, registeredAt
     }
 }
