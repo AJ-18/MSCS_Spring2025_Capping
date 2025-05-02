@@ -13,7 +13,7 @@ class CpuUsageViewModel: ObservableObject {
     @Published var cpuUsage: CpuUsage?
     @Published var errorMessage: String = ""
     @Published var chartData: ChartData?
-
+    @Published var isLoading: Bool = false
     private let logger = Logger.fileLocation
     private let networkManager = NetworkManager()
 
@@ -43,23 +43,27 @@ class CpuUsageViewModel: ObservableObject {
     }
     
     func fetchCPUInfo(device: DeviceSpecification) {
-        // Print to ensure this function is being called
         print("Fetching CPU info for device: \(device.id)")
-        
+
         Task {
+            await MainActor.run {
+                self.isLoading = true
+            }
+
             do {
                 guard let userId = AppSettings.shared.userId else {
                     print("User ID is nil. Aborting fetch.")
+                    await MainActor.run {
+                        self.isLoading = false
+                    }
                     return
                 }
+
                 print("User ID: \(userId)")
-                
                 let response = try await networkManager.fetchCPUUsageInfo(for: userId, deviceId: device.deviceId)
-                
-                print("response",response)
-                
-                // Update on main thread
-                DispatchQueue.main.async {
+                print("response", response)
+
+                await MainActor.run {
                     print("Received CPU usage data: \(response)")
                     self.cpuUsage = response
                     self.chartData = ChartData(
@@ -67,14 +71,18 @@ class CpuUsageViewModel: ObservableObject {
                         type: "CPU",
                         percent: CGFloat(response.totalCpuLoad)
                     )
+                    self.isLoading = false
                 }
-                
+
             } catch {
                 print("Failed to fetch CPU info: \(error)")
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.errorMessage = "Failed to fetch CPU info: \(error.localizedDescription)"
+                    self.isLoading = false
                 }
             }
         }
     }
+
+
 }

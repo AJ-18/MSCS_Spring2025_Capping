@@ -11,6 +11,7 @@ import OSLog
 class DiskIOViewModel: ObservableObject {
     @Published var diskIO: DiskIO?
     @Published var errorMessage: String = ""
+    @Published var isLoading: Bool = false  // ✅ Add isLoading
     private let networkManager = NetworkManager()
 
     private let logger = Logger.fileLocation
@@ -32,16 +33,32 @@ class DiskIOViewModel: ObservableObject {
     // Fetch Disk I/O Data from the API
     func fetchDiskIOInfo(device: DeviceSpecification) {
         Task {
+            await MainActor.run {
+                self.isLoading = true  // ✅ Start loading
+            }
+            
             do {
-                guard let userId = AppSettings.shared.userId else { return }
+                guard let userId = AppSettings.shared.userId else {
+                    await MainActor.run {
+                        self.isLoading = false
+                        self.errorMessage = "User ID not found"
+                    }
+                    return
+                }
+
                 let response = try await networkManager.fetchDiskIO(for: userId, deviceId: device.deviceId)
                 
-                    DispatchQueue.main.async {
-                        self.diskIO = response
-                    }
+                await MainActor.run {
+                    self.diskIO = response
+                    self.isLoading = false  // ✅ Stop loading
+                }
                 
             } catch {
-                print("Failed to fetch Disk io info: \(error)")
+                print("Failed to fetch Disk IO info: \(error)")
+                await MainActor.run {
+                    self.errorMessage = "Failed to load Disk IO info"
+                    self.isLoading = false  // ✅ Stop loading on error
+                }
             }
         }
     }

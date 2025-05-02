@@ -19,23 +19,25 @@ struct BatteryDetailView: View {
     }
 
     var body: some View {
-        ZStack {
-            // MARK: Background Gradient
-            LinearGradient(colors: [.blue.opacity(0.15), .purple.opacity(0.2)], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
+        LoadingView(isLoading: viewModel.isLoading) {
+            ZStack {
+                // MARK: Background Gradient
+                LinearGradient(colors: [.blue.opacity(0.15), .purple.opacity(0.2)], startPoint: .top, endPoint: .bottom)
+                    .ignoresSafeArea()
 
-            VStack {
-                Spacer()
+                VStack {
+                    Spacer()
 
-                // MARK: Card Content
-                BatteryCardView(viewModel: viewModel, device: device)
+                    // MARK: Card Content
+                    BatteryCardView(viewModel: viewModel, device: device)
 
-                Spacer()
+                    Spacer()
+                }
+                .padding()
             }
-            .padding()
+            .onAppear {
+                self.logPageVisit()
         }
-        .onAppear {
-            self.logPageVisit()
         }
     }
 }

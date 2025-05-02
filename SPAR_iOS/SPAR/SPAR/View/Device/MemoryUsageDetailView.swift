@@ -19,33 +19,35 @@ struct MemoryUsageDetailView: View {
     }
 
     var body: some View {
-        ZStack {
-            // MARK: Background
-            LinearGradient(colors: [.mint.opacity(0.2), .cyan.opacity(0.2)],
-                           startPoint: .top,
-                           endPoint: .bottom)
-                .ignoresSafeArea()
+        LoadingView(isLoading: viewModel.isLoading) {
+            ZStack {
+                // MARK: Background
+                LinearGradient(colors: [.mint.opacity(0.2), .cyan.opacity(0.2)],
+                               startPoint: .top,
+                               endPoint: .bottom)
+                    .ignoresSafeArea()
 
-            VStack(spacing: 30) {
-                // MARK: Title
-                Text("Ram Usage")
-                    .font(.largeTitle)
-                    .bold()
-                    .accessibilityAddTraits(.isHeader)
-                    .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                VStack(spacing: 30) {
+                    // MARK: Title
+                    Text("Ram Usage")
+                        .font(.largeTitle)
+                        .bold()
+                        .accessibilityAddTraits(.isHeader)
+                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-                // MARK: Memory Usage Chart
-                HalfDonutChart(chartDataObj: $viewModel.chartData)
+                    // MARK: Memory Usage Chart
+                    HalfDonutChart(chartDataObj: $viewModel.chartData)
 
-                // MARK: Info Section
-                MemoryInfoCard(device: device, viewModel: viewModel)
+                    // MARK: Info Section
+                    MemoryInfoCard(device: device, viewModel: viewModel)
 
-                Spacer()
+                    Spacer()
+                }
+                .padding()
             }
-            .padding()
+            .onAppear {
+                self.logPageVisit()
         }
-        .onAppear {
-            self.logPageVisit()
         }
     }
 }

@@ -22,37 +22,39 @@ struct DiskIODetailView: View {
 
     // MARK: - Body
     var body: some View {
-        ZStack {
-            // MARK: Background Gradient
-            LinearGradient(colors: [.blue.opacity(0.2), .purple.opacity(0.2)],
-                           startPoint: .topLeading,
-                           endPoint: .bottomTrailing)
-            .ignoresSafeArea()
+        LoadingView(isLoading: viewModel.isLoading) {
+            ZStack {
+                // MARK: Background Gradient
+                LinearGradient(colors: [.blue.opacity(0.2), .purple.opacity(0.2)],
+                               startPoint: .topLeading,
+                               endPoint: .bottomTrailing)
+                .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 20) {
-                    // MARK: Header
-                    Text(StringConstant.diskIOUssage)
-                        .font(.largeTitle)
-                        .bold()
-                        .accessibilityAddTraits(.isHeader)
-                        .minimumScaleFactor(sizeCategory.customMinScaleFactor)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // MARK: Header
+                        Text(StringConstant.diskIOUssage)
+                            .font(.largeTitle)
+                            .bold()
+                            .accessibilityAddTraits(.isHeader)
+                            .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-                    Spacer(minLength: 20)
+                        Spacer(minLength: 20)
 
-                    // MARK: Disk IO Information Section
-                    if let diskIO = viewModel.diskIO {
-                        DiskIOInfoSection(diskIO: diskIO)
+                        // MARK: Disk IO Information Section
+                        if let diskIO = viewModel.diskIO {
+                            DiskIOInfoSection(diskIO: diskIO)
+                        }
+
+                        Spacer()
                     }
-
-                    Spacer()
+                    .padding()
                 }
-                .padding()
             }
+            .onAppear {
+                // MARK: Log Page Visit
+                self.logPageVisit()
         }
-        .onAppear {
-            // MARK: Log Page Visit
-            self.logPageVisit()
         }
     }
 }

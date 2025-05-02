@@ -13,6 +13,8 @@ class DiskUsageViewModel: ObservableObject {
     @Published var diskUsage: DiskUsage?
     @Published var errorMessage: String = ""
     @Published var chartData: ChartData = ChartData(color: .gray, type: "Disk", percent: 0)
+    @Published var isLoading: Bool = false
+
     private let networkManager = NetworkManager()
 
 
@@ -44,25 +46,40 @@ class DiskUsageViewModel: ObservableObject {
     
     func fetchDiskUsageInfo(device: DeviceSpecification) {
         Task {
+            await MainActor.run {
+                self.isLoading = true
+            }
+            
             do {
-                guard let userId = AppSettings.shared.userId else { return }
+                guard let userId = AppSettings.shared.userId else {
+                    await MainActor.run {
+                        self.isLoading = false
+                    }
+                    return
+                }
+                
                 let response = try await networkManager.fetchDiskUsage(for: userId, deviceId: device.deviceId)
                 
-                    DispatchQueue.main.async {
-                        self.diskUsage = response
-                        let usedPercent = (response.usedGB / response.availableGB) * 100
-                        self.chartData = ChartData(
-                            color: .green,
-                            type: "Disk",
-                            percent: CGFloat(usedPercent)
-                        )
-                    }
-                
+                await MainActor.run {
+                    self.diskUsage = response
+                    let usedPercent = (response.usedGB / response.sizeGB) * 100
+                    self.chartData = ChartData(
+                        color: .green,
+                        type: "Disk",
+                        percent: CGFloat(usedPercent)
+                    )
+                    self.isLoading = false
+                }
             } catch {
-                print("Failed to fetch Disk Usage info: \(error)")
+                await MainActor.run {
+                    self.errorMessage = "Failed to load disk usage"
+                    self.isLoading = false
+                }
+                logger.error("Failed to fetch Disk Usage info: \(error.localizedDescription)")
             }
         }
     }
+
 }
 
 
