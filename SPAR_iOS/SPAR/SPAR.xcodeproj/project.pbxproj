@@ -197,6 +197,7 @@
 				3DCE45882D68C19200FACBB8 /* Constant.swift */,
 				3D505B782DBB170700510486 /* InfoRow.swift */,
 				3D63FB092DC4F4F2006F53DE /* LoadingView.swift */,
+				3DA1AA462DBF034200678160 /* KeychainHelper.swift */,
 				3D505B4E2DB9C6AD00510486 /* NavigationButton.swift */,
 			);
 			path = Utilities;
@@ -219,7 +220,6 @@
 				3D505B702DBACDE500510486 /* DiskIOViewModel.swift */,
 				3D505B642DBAAE4D00510486 /* DiskUsageViewModel.swift */,
 				3D5994F92DB307B400E9215B /* HomeViewModel.swift */,
-				3DA1AA462DBF034200678160 /* KeychainHelper.swift */,
 				3D5994FB2DB30B0100E9215B /* LoginViewModel.swift */,
 				3D505B582DB9E14700510486 /* MemoryUsageViewModel.swift */,
 				3D505B5A2DB9E3F700510486 /* ProcessViewModel.swift */,
