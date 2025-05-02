@@ -26,6 +26,16 @@ struct HomeView: View {
                             .padding(.horizontal, 15)
                             .minimumScaleFactor(sizeCategory.customMinScaleFactor)
                         Spacer()
+                        // 🚪 Sign Out Button
+                          Button(action: {
+                              viewModel.signOut(currentView: $currentView)
+                          }) {
+                              Image(systemName: "rectangle.portrait.and.arrow.right")
+                                  .font(.title2)
+                                  .foregroundColor(.red)
+                                  .padding(.trailing, 10)
+                                  .accessibilityLabel("Sign Out")
+                          }
                     }
 
                     // Custom Navigation Bar

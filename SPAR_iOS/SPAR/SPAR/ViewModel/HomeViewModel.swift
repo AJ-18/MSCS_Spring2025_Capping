@@ -30,6 +30,14 @@ class HomeViewModel: ObservableObject {
         }
     }
     
+    func signOut(currentView: Binding<AppView>) {
+        AppSettings.shared.clearUserSession()
+        DispatchQueue.main.async {
+            currentView.wrappedValue = .login // Redirect to login screen
+        }
+    }
+
+    
     func getDeviceData() {
         Task {
             do {

@@ -128,6 +128,7 @@ struct DeviceInfoRow: View {
                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
             Spacer()
             Text(value)
+                .multilineTextAlignment(.trailing)
                 .foregroundColor(.cyan)
                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
         }

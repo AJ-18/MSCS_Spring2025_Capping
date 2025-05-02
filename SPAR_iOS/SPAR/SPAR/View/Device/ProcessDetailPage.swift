@@ -79,7 +79,7 @@ struct ProcessDetailPage: View {
                             .font(.subheadline)
                             .foregroundColor(.gray)
 
-                            Text("Registered at: \(formattedDate(process.timestamp))")
+                            Text("Timestamp:  \(process.timestamp.toFormattedDate())")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)

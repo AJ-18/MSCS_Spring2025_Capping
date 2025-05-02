@@ -76,13 +76,6 @@ class LoginViewModel: ObservableObject {
             return
         }
         
-//        if username.lowercased() == "user" && password == "Password" {
-//            errorMessage = ""
-//            self.delegate?.didLoginSuccessfully()
-//            print("Login successful!")
-//        } else {
-//            errorMessage = StringConstant.incorrectCredentials
-//        }
 
         Task {
             do {
