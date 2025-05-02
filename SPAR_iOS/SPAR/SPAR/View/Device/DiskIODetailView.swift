@@ -43,7 +43,7 @@ struct DiskIODetailView: View {
 
                         // MARK: Disk IO Information Section
                         if let diskIO = viewModel.diskIO {
-                            DiskIOInfoSection(diskIO: diskIO)
+                            DiskIOInfoSection(diskIO: diskIO, device: device)
                         }
 
                         Spacer()
@@ -62,11 +62,12 @@ struct DiskIODetailView: View {
 // MARK: - DiskIOInfoSection
 struct DiskIOInfoSection: View {
     let diskIO: DiskIO
+    let device: DeviceSpecification
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // MARK: Basic Info
-            InfoRow(label: StringConstant.deviceName, value: "MyComputer") // Update with device value
+            InfoRow(label: StringConstant.deviceName, value: device.deviceName) // Update with device value
             InfoRow(label: StringConstant.RS, value: String(format: "%.1f MBps", diskIO.readSpeedMBps))
             InfoRow(label: StringConstant.WS, value: String(format: "%.1f MBps", diskIO.writeSpeedMBps))
             InfoRow(label: StringConstant.registeredAt, value: diskIO.timestamp.toFormattedDate())

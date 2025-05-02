@@ -39,7 +39,7 @@ struct ProcessDetailPage: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
-                    .accessibilityLabel("Metric Picker")
+                    .accessibilityLabel(AccessibilityConstant.metricPicker)
 
                     Chart {
                         ForEach(viewModel.processList) { process in
@@ -58,7 +58,7 @@ struct ProcessDetailPage: View {
                                                 ? String(format: "%.1f percent CPU usage", process.cpuUsage)
                                                 : String(format: "%.1f megabytes memory usage", process.memoryMB)
                                             )
-                                            .accessibilityHint("Double tap to view more process details")
+                                            .accessibilityHint(AccessibilityConstant.processtip1)
                             }
                         }
                     }
@@ -78,9 +78,9 @@ struct ProcessDetailPage: View {
                             }
 
                             HStack {
-                                Label(String(format: "%.1f%% CPU", process.cpuUsage), systemImage: "cpu")
+                                Label(String(format: "%.1f%% CPU", process.cpuUsage), systemImage: ImageConstant.cpu)
                                 Spacer()
-                                Label(String(format: "%.1f MB", process.memoryMB), systemImage: "memorychip")
+                                Label(String(format: "%.1f MB", process.memoryMB), systemImage: ImageConstant.memorychip)
                             }
                             .font(.subheadline)
                             .foregroundColor(.gray)
@@ -107,16 +107,7 @@ struct ProcessDetailPage: View {
         }
     }
 
-    private func formattedDate(_ isoString: String) -> String {
-        let isoFormatter = ISO8601DateFormatter()
-        if let date = isoFormatter.date(from: isoString) {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .short
-            return formatter.string(from: date)
-        }
-        return isoString
-    }
+ 
 }
 
 #Preview {

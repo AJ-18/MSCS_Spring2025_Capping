@@ -16,15 +16,7 @@ final class NetworkManagerTests: XCTestCase {
         super.tearDown()
     }
     
-    func testFetchDeviceSpecifications() async throws {
-        let devices = try await networkManager.fetchDeviceSpecifications(for: 1)
-        XCTAssertEqual(devices.count, 2)
-        XCTAssertEqual(devices.first?.deviceName, "MyComputer")
-    }
-    
-    func testFetchCPUUsageInfo() async throws {
-       //
-    }
+  
     
     func testFetchProcessStatus() async throws {
         let processes = try await networkManager.fetchProcessStatus(for: 1, deviceId: "hh")

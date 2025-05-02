@@ -94,8 +94,8 @@ struct CpuUsageDetailView: View {
                                     }
                                 }
                                 .accessibilityElement(children: .contain)
-                                .accessibilityLabel("Top five CPU cores by usage")
-                                .accessibilityHint("Bar chart showing the five CPU cores with highest utilization")
+                                .accessibilityLabel(AccessibilityConstant.top5)
+                                .accessibilityHint(AccessibilityConstant.barChart)
                                 .frame(height: 200)
                                 .cornerRadius(10)
                                 .padding(.top, 8)

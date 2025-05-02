@@ -30,11 +30,11 @@ struct HomeView: View {
                           Button(action: {
                               viewModel.signOut(currentView: $currentView)
                           }) {
-                              Image(systemName: "rectangle.portrait.and.arrow.right")
+                              Image(systemName: ImageConstant.logout)
                                   .font(.title2)
                                   .foregroundColor(.red)
                                   .padding(.trailing, 10)
-                                  .accessibilityLabel("Sign Out")
+                                  .accessibilityLabel(AccessibilityConstant.signOut)
                           }
                     }
 
@@ -111,14 +111,14 @@ struct HomeView: View {
 
                         // Cool empty state
                         VStack {
-                            Image(systemName: "desktopcomputer")
+                            Image(systemName: ImageConstant.emptyScreenlogo)
                                 .font(.system(size: 70))
                                 .foregroundColor(.blue)
                                 .scaleEffect(1.2)
                                 .opacity(0.8)
                                 .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: viewModel.showDownloadPopup)
                             
-                            Text("You need to have at least one Desktop APP.")
+                            Text(StringConstant.emptyscreenmsg)
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.primary)
                                 .multilineTextAlignment(.center)
@@ -127,7 +127,7 @@ struct HomeView: View {
                                 .scaleEffect(viewModel.showDownloadPopup ? 1 : 1.05)
                                 .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: viewModel.showDownloadPopup)
                             
-                            Text("Download SPAR Desktop")
+                            Text(StringConstant.downloadApp)
                                 .font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.blue)
                                 .underline()

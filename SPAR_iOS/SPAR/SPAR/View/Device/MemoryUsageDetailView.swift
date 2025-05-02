@@ -29,7 +29,7 @@ struct MemoryUsageDetailView: View {
 
                 VStack(spacing: 30) {
                     // MARK: Title
-                    Text("Ram Usage")
+                    Text(StringConstant.memoryUsage)
                         .font(.largeTitle)
                         .bold()
                         .accessibilityAddTraits(.isHeader)
