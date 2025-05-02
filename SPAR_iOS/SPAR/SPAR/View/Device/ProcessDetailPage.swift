@@ -52,7 +52,13 @@ struct ProcessDetailPage: View {
                                 Text(String(format: "%.1f", showCPU ? process.cpuUsage : process.memoryMB))
                                     .font(.caption)
                                     .foregroundColor(.gray)
-                                    .accessibilityLabel(showCPU ? "\(process.cpuUsage)% CPU" : "\(process.memoryMB) MB")
+                                    .accessibilityElement(children: .ignore) // Control VoiceOver reading
+                                            .accessibilityLabel("\(process.name), process id \(process.pid)")
+                                            .accessibilityValue(showCPU
+                                                ? String(format: "%.1f percent CPU usage", process.cpuUsage)
+                                                : String(format: "%.1f megabytes memory usage", process.memoryMB)
+                                            )
+                                            .accessibilityHint("Double tap to view more process details")
                             }
                         }
                     }

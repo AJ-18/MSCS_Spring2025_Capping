@@ -88,11 +88,18 @@ struct CpuUsageDetailView: View {
                                             y: .value("Usage", coreUsage.usage)
                                         )
                                         .foregroundStyle(.blue.gradient)
+                                        .accessibilityLabel("Core \(coreUsage.core)")
+                                        .accessibilityValue("\(String(format: "%.1f", coreUsage.usage)) percent usage")
+                                        .accessibilityHidden(false)
                                     }
                                 }
+                                .accessibilityElement(children: .contain)
+                                .accessibilityLabel("Top five CPU cores by usage")
+                                .accessibilityHint("Bar chart showing the five CPU cores with highest utilization")
                                 .frame(height: 200)
                                 .cornerRadius(10)
                                 .padding(.top, 8)
+
                             }
                             .padding()
                             .frame(maxWidth: 360)
