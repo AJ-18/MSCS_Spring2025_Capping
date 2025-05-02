@@ -25,7 +25,12 @@ class NetworkService: NetworkServicing {
         
         if let token = token {
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+
         }
+        print("request",request)
+        print("Request Headers:", request.allHTTPHeaderFields ?? [:])
+        print("Request URL:", request.url?.absoluteString ?? "nil")
         
         return try await perform(request: request)
     }

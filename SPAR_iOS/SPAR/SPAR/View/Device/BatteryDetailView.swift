@@ -63,7 +63,7 @@ struct BatteryCardView: View {
                 InfoRow(label: StringConstant.deviceName, value: device.deviceName)
                 InfoRow(label: StringConstant.Charging, value: viewModel.batteryInfo.charging ? StringConstant.batYes : StringConstant.batNo)
                 InfoRow(label: StringConstant.power, value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
-                InfoRow(label: StringConstant.timestamp, value: viewModel.batteryInfo.timestamp.toFormattedDate())
+                InfoRow(label: StringConstant.registeredAt, value: viewModel.batteryInfo.timestamp.toFormattedDate())
             }
         }
         .padding()
@@ -125,7 +125,7 @@ struct BatteryGaugeView: View {
 #Preview {
     BatteryDetailView(device: DeviceSpecification(
         id: 1,
-        userId: 1,
+        deviceId: "ff",
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",
@@ -136,6 +136,6 @@ struct BatteryGaugeView: View {
         graphics: "NVIDIA GTX 1650",
         operatingSystem: "Windows 10 x64",
         systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        registeredAt: "2025-03-28T16:03:30.041384"
     ))
 }

@@ -21,13 +21,13 @@ class DiskUsageViewModel: ObservableObject {
     init(device: DeviceSpecification) {
         let diskInfo = DiskUsage(
             id: 1,
-            filesystem: "/dev/sda1",
-            sizeGB: 512.0,
-            usedGB: 200.0,
-            availableGB: 312.0,
+            filesystem: "",
+            sizeGB: 1,
+            usedGB: 0,
+            availableGB: 0,
             userId: 1,
             deviceId: "1",
-            timestamp: "2025-04-22T15:57:10.390972".toFormattedDate()
+            timestamp: "".toFormattedDate()
         )
         
         self.diskUsage = diskInfo
@@ -46,7 +46,7 @@ class DiskUsageViewModel: ObservableObject {
         Task {
             do {
                 guard let userId = AppSettings.shared.userId else { return }
-                let response = try await networkManager.fetchDiskUsage(for: userId, deviceId: device.id)
+                let response = try await networkManager.fetchDiskUsage(for: userId, deviceId: device.deviceId)
                 
                     DispatchQueue.main.async {
                         self.diskUsage = response

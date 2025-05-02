@@ -58,6 +58,7 @@
 		3D5995152DB4167A00E9215B /* MemoryUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D5995062DB4112100E9215B /* MemoryUsage.swift */; };
 		3D5995162DB41E0D00E9215B /* MockNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D59950A2DB4137E00E9215B /* MockNetworkService.swift */; };
 		3D5995172DB41E1500E9215B /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D59950D2DB413C100E9215B /* MockData.swift */; };
+		3D63FB0A2DC4F4F2006F53DE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D63FB092DC4F4F2006F53DE /* LoadingView.swift */; };
 		3D78BB2A2DB550E5000E5C2F /* LoginViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D78BB292DB550E5000E5C2F /* LoginViewUITests.swift */; };
 		3D8423A72DB14F86009CF847 /* SPARTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423A62DB14F86009CF847 /* SPARTests.swift */; };
 		3D8423B02DB15044009CF847 /* LaunchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8423AF2DB15044009CF847 /* LaunchTest.swift */; };
@@ -130,6 +131,7 @@
 		3D59950A2DB4137E00E9215B /* MockNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkService.swift; sourceTree = "<group>"; };
 		3D59950D2DB413C100E9215B /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		3D59950F2DB413E300E9215B /* NetworkManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerTests.swift; sourceTree = "<group>"; };
+		3D63FB092DC4F4F2006F53DE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		3D78BB292DB550E5000E5C2F /* LoginViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewUITests.swift; sourceTree = "<group>"; };
 		3D8423A42DB14F86009CF847 /* SPARTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SPARTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8423A62DB14F86009CF847 /* SPARTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SPARTests.swift; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 				3D505B4E2DB9C6AD00510486 /* NavigationButton.swift */,
 				3D505B5C2DBA657B00510486 /* AppSettings.swift */,
 				3D505B782DBB170700510486 /* InfoRow.swift */,
+				3D63FB092DC4F4F2006F53DE /* LoadingView.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -513,6 +516,7 @@
 				3D07B53A2D85C3EC0085B32C /* ChartDataContainer.swift in Sources */,
 				3D07B5402D88881D0085B32C /* Onboarding.swift in Sources */,
 				3D5994F52DB2BA1200E9215B /* BackgroundAnimationView.swift in Sources */,
+				3D63FB0A2DC4F4F2006F53DE /* LoadingView.swift in Sources */,
 				3D505B572DB9DF3F00510486 /* BatteryViewModel.swift in Sources */,
 				3DCE45892D68C19200FACBB8 /* Constant.swift in Sources */,
 				3D5994F32DB2B79400E9215B /* LoginView.swift in Sources */,

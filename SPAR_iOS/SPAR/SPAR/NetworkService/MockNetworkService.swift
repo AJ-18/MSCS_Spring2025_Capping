@@ -44,7 +44,7 @@ final class MockNetworkService: NetworkServicing {
                     perCoreUsage: coreUsages,
                     userId: temp.userId,
                     deviceId: temp.deviceId,
-                    timestamp: temp.timestamp
+                    timestamp: temp.registeredAt
                 )
                 
                 // Encode the fixed object if T is CpuUsage
@@ -141,5 +141,5 @@ struct TempCPUUsage: Codable {
     var perCoreUsageJson: String
     var userId: Int
     var deviceId: String
-    var timestamp: String
+    var registeredAt: String
 }

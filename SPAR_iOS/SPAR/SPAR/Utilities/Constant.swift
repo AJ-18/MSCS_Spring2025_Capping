@@ -43,7 +43,7 @@ enum StringConstant {
     static let graphics = "Graphics"
     static let OS = "OS"
     static let systemType = "System Type"
-    static let timestamp = "Timestamp"
+    static let registeredAt = "Time Stamp"
     static let batteryInfo = "Battery Info"
     static let cpu = "CPU"
     static let memoryUsage = "Memory Usage"

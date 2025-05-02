@@ -15,11 +15,11 @@ class BatteryViewModel: ObservableObject {
         // 1. Set a placeholder batteryInfo first
         self.batteryInfo = BatteryInfo(
             id: 0,
-            userId: device.userId,
+            userId: 1,
             hasBattery: true,
-            batteryPercentage: 0,
+            batteryPercentage: 0, deviceId: "",
             powerConsumption: 0,
-            timestamp: "bb",
+            timestamp: "",
             charging: false
         )
         
@@ -31,7 +31,7 @@ class BatteryViewModel: ObservableObject {
         Task {
             do {
                 guard let userId = AppSettings.shared.userId else { return }
-                let response = try await networkManager.fetchBatteryInfo(for: userId, deviceId: device.id)
+                let response = try await networkManager.fetchBatteryInfo(for: userId, deviceId: device.deviceId)
                 
              
                     DispatchQueue.main.async {

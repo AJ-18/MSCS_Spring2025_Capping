@@ -19,11 +19,11 @@ class DiskIOViewModel: ObservableObject {
         // Sample static data for testing purposes
         let sampleDiskIO = DiskIO(
             id: 5,
-            readSpeedMBps: 120.0,
-            writeSpeedMBps: 80.0,
+            readSpeedMBps: 0,
+            writeSpeedMBps: 0,
             userId: 1,
             deviceId: "1",
-            timestamp: "2025-04-22T15:57:10.377292".toFormattedDate()
+            timestamp: "".toFormattedDate()
         )
         self.diskIO = sampleDiskIO
         fetchDiskIOInfo(device: device)
@@ -34,7 +34,7 @@ class DiskIOViewModel: ObservableObject {
         Task {
             do {
                 guard let userId = AppSettings.shared.userId else { return }
-                let response = try await networkManager.fetchDiskIO(for: userId, deviceId: device.id)
+                let response = try await networkManager.fetchDiskIO(for: userId, deviceId: device.deviceId)
                 
                     DispatchQueue.main.async {
                         self.diskIO = response

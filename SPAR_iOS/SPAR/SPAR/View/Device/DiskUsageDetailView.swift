@@ -46,7 +46,7 @@ struct DiskUsageDetailView: View {
                         InfoRow(label: StringConstant.size, value: String(format: "%.2f GB", diskInfo.sizeGB))
                         InfoRow(label: StringConstant.usedSpace, value: String(format: "%.2f GB", diskInfo.usedGB))
                         InfoRow(label: StringConstant.availableSpace, value: String(format: "%.2f GB", diskInfo.availableGB))
-                        InfoRow(label: StringConstant.timestamp, value: diskInfo.timestamp)
+                        InfoRow(label: StringConstant.registeredAt, value: diskInfo.timestamp.toFormattedDate())
                     }
                     .padding()
                     .frame(maxWidth: 320)
@@ -75,7 +75,7 @@ struct DiskUsageDetailView: View {
 #Preview {
     DiskUsageDetailView(device: DeviceSpecification(
         id: 1,
-        userId: 1,
+        deviceId: "ff",
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",
@@ -86,6 +86,6 @@ struct DiskUsageDetailView: View {
         graphics: "NVIDIA GTX 1650",
         operatingSystem: "Windows 10 x64",
         systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        registeredAt: "2025-03-28T16:03:30.041384"
     ))
 }

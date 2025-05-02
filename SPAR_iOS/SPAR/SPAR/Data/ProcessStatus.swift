@@ -9,10 +9,11 @@ import Foundation
 
 struct ProcessStatus: Codable, Identifiable {
     let id: Int
-    let userId: Int
     let pid: Int
     let name: String
     let cpuUsage: Double
     let memoryMB: Double
+    let userId: Int
+    let deviceId: String
     let timestamp: String
 }

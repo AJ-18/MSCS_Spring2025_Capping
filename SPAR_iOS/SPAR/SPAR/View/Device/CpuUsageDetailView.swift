@@ -57,7 +57,7 @@ struct CpuUsageDetailView: View {
                             // MARK: General Info
                             InfoRow(label: StringConstant.deviceName, value: device.deviceName)
                             InfoRow(label: StringConstant.totalCPULoad, value: String(format: "%.1f%%", usage.totalCpuLoad))
-                            InfoRow(label: StringConstant.timestamp, value: usage.timestamp)
+                            InfoRow(label: StringConstant.registeredAt, value: usage.timestamp.toFormattedDate())
 
                             Divider().padding(.vertical, 8)
 
@@ -117,7 +117,7 @@ struct CpuUsageDetailView: View {
 #Preview {
     CpuUsageDetailView(device: DeviceSpecification(
         id: 1,
-        userId: 1,
+        deviceId: "dd",
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",
@@ -128,6 +128,6 @@ struct CpuUsageDetailView: View {
         graphics: "NVIDIA GTX 1650",
         operatingSystem: "Windows 10 x64",
         systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        registeredAt: "2025-03-28T16:03:30.041384"
     ))
 }

@@ -28,7 +28,7 @@ struct MemoryUsageDetailView: View {
 
             VStack(spacing: 30) {
                 // MARK: Title
-                Text("Memory Usage")
+                Text("Ram Usage")
                     .font(.largeTitle)
                     .bold()
                     .accessibilityAddTraits(.isHeader)
@@ -64,7 +64,7 @@ struct MemoryInfoCard: View {
                     value: String(format: "%.2f GB", viewModel.memoryInfo.usedMemory))
             InfoRow(label: StringConstant.availableMemory,
                     value: String(format: "%.2f GB", viewModel.memoryInfo.availableMemory))
-            InfoRow(label: StringConstant.timestamp,
+            InfoRow(label: StringConstant.registeredAt,
                     value: viewModel.memoryInfo.timestamp.toFormattedDate())
         }
         .padding()
@@ -79,17 +79,17 @@ struct MemoryInfoCard: View {
 #Preview {
     MemoryUsageDetailView(device: DeviceSpecification(
         id: 1,
-        userId: 1,
-        deviceName: "MyComputer",
-        manufacturer: "Dell",
-        model: "Inspiron 15",
-        processor: "Intel Core i7 2.8 GHz",
+        deviceId: "",
+        deviceName: "",
+        manufacturer: "",
+        model: "",
+        processor: "",
         cpuPhysicalCores: 4,
         cpuLogicalCores: 8,
         installedRam: 16.0,
         graphics: "NVIDIA GTX 1650",
         operatingSystem: "Windows 10 x64",
         systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        registeredAt: "2025-03-28T16:03:30.041384"
     ))
 }

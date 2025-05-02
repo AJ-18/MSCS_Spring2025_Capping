@@ -12,6 +12,7 @@ struct BatteryInfo: Codable, Identifiable {
     let userId: Int
     let hasBattery: Bool
     let batteryPercentage: Int
+    let deviceId:String
     let powerConsumption: Double
     let timestamp: String
     let charging: Bool

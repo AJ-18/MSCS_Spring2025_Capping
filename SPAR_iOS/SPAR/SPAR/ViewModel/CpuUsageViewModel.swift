@@ -23,11 +23,11 @@ class CpuUsageViewModel: ObservableObject {
          
          let sampleUsage = CpuUsage(
              id: 7,
-             totalCpuLoad: 32.1,
+             totalCpuLoad: 0,
              perCoreUsage: sampleCoreData,
              userId: 1,
              deviceId: "1",
-             timestamp: "2025-04-22T15:57:10.351457"
+             timestamp: "1"
          )
          
          self.cpuUsage = sampleUsage
@@ -54,7 +54,7 @@ class CpuUsageViewModel: ObservableObject {
                 }
                 print("User ID: \(userId)")
                 
-                let response = try await networkManager.fetchCPUUsageInfo(for: userId, deviceId: device.id)
+                let response = try await networkManager.fetchCPUUsageInfo(for: userId, deviceId: device.deviceId)
                 
                 print("response",response)
                 

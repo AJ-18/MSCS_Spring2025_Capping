@@ -21,7 +21,7 @@ class ProcessViewModel: ObservableObject {
         Task {
             do {
                 guard let userId = AppSettings.shared.userId else { return }
-                let response = try await networkManager.fetchProcessStatus(for: userId, deviceId: device.id)
+                let response = try await networkManager.fetchProcessStatus(for: userId, deviceId: device.deviceId)
                 
                     DispatchQueue.main.async {
                         self.processList = response

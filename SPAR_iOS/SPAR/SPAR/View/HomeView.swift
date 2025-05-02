@@ -91,6 +91,7 @@ struct HomeView: View {
                 .navigationBarHidden(true)
                 .onAppear {
                     self.logPageVisit()
+                    viewModel.getDeviceData()
                 }
 
                 // Show download popup when no devices are available

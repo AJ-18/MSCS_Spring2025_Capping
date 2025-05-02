@@ -67,7 +67,7 @@ struct DiskIOInfoSection: View {
             InfoRow(label: StringConstant.deviceName, value: "MyComputer") // Update with device value
             InfoRow(label: StringConstant.RS, value: String(format: "%.1f MBps", diskIO.readSpeedMBps))
             InfoRow(label: StringConstant.WS, value: String(format: "%.1f MBps", diskIO.writeSpeedMBps))
-            InfoRow(label: StringConstant.timestamp, value: diskIO.timestamp)
+            InfoRow(label: StringConstant.registeredAt, value: diskIO.timestamp.toFormattedDate())
 
             Divider().padding(.vertical, 8)
 
@@ -116,7 +116,7 @@ struct DiskIOChart: View {
 #Preview {
     DiskIODetailView(device: DeviceSpecification(
         id: 1,
-        userId: 1,
+        deviceId: "ff",
         deviceName: "MyComputer",
         manufacturer: "Dell",
         model: "Inspiron 15",
@@ -127,6 +127,6 @@ struct DiskIOChart: View {
         graphics: "NVIDIA GTX 1650",
         operatingSystem: "Windows 10 x64",
         systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        registeredAt: "2025-03-28T16:03:30.041384"
     ))
 }

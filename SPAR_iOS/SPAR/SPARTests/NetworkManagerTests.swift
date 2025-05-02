@@ -27,30 +27,30 @@ final class NetworkManagerTests: XCTestCase {
     }
     
     func testFetchProcessStatus() async throws {
-        let processes = try await networkManager.fetchProcessStatus(for: 1, deviceId: 5)
+        let processes = try await networkManager.fetchProcessStatus(for: 1, deviceId: "hh")
         XCTAssertEqual(processes.count, 2)
         XCTAssertEqual(processes.first?.name, "chrome.exe")
     }
     
     func testFetchBatteryInfo() async throws {
-        let batteryInfo = try await networkManager.fetchBatteryInfo(for: 1, deviceId: 5)
+        let batteryInfo = try await networkManager.fetchBatteryInfo(for: 1, deviceId: "5")
         XCTAssertTrue(batteryInfo.hasBattery)
         XCTAssertEqual(batteryInfo.batteryPercentage, 85)
     }
     
     func testFetchMemoryUsage() async throws {
-        let memoryUsage = try await networkManager.fetchMemoryUsage(for: 1, deviceId: 5)
+        let memoryUsage = try await networkManager.fetchMemoryUsage(for: 1, deviceId: "5")
         XCTAssertEqual(memoryUsage.totalMemory, 16.0)
         XCTAssertEqual(memoryUsage.usedMemory, 8.5)
     }
     
     func testFetchDiskUsage() async throws {
-        let diskUsage = try await networkManager.fetchDiskUsage(for: 1, deviceId: 5)
+        let diskUsage = try await networkManager.fetchDiskUsage(for: 1, deviceId: "5")
         XCTAssertEqual(diskUsage.sizeGB, 512.0)
     }
     
     func testFetchDiskIO() async throws {
-        let diskIO = try await networkManager.fetchDiskIO(for: 1, deviceId: 5)
+        let diskIO = try await networkManager.fetchDiskIO(for: 1, deviceId: "5")
         XCTAssertEqual(diskIO.readSpeedMBps, 120.0)
         XCTAssertEqual(diskIO.writeSpeedMBps, 80.0)
     }

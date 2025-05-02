@@ -9,13 +9,14 @@ import SwiftUI
 import Charts
 
 struct ProcessDetailPage: View {
-    @StateObject private var viewModel: ProcessViewModel
+    @ObservedObject private var viewModel: ProcessViewModel
     let device: DeviceSpecification
     @Environment(\.sizeCategory) var sizeCategory
 
     init(device: DeviceSpecification) {
-          _viewModel = StateObject(wrappedValue: ProcessViewModel(device: device))
-          self.device = device
+        let viewModel = ProcessViewModel(device: device)
+        self.viewModel = viewModel
+        self.device = device
     }
 
     @State private var showCPU = true // Toggle between CPU and Memory
@@ -37,9 +38,10 @@ struct ProcessDetailPage: View {
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
+                .accessibilityLabel("Metric Picker")
 
                 Chart {
-                    ForEach(viewModel.processList, id: \.id) { process in
+                    ForEach(viewModel.processList) { process in
                         BarMark(
                             x: .value(StringConstant.process, "\(process.name) (\(process.pid))"),
                             y: .value(showCPU ? StringConstant.cpu : StringConstant.memory, showCPU ? process.cpuUsage : process.memoryMB)
@@ -49,13 +51,14 @@ struct ProcessDetailPage: View {
                             Text(String(format: "%.1f", showCPU ? process.cpuUsage : process.memoryMB))
                                 .font(.caption)
                                 .foregroundColor(.gray)
+                                .accessibilityLabel(showCPU ? "\(process.cpuUsage)% CPU" : "\(process.memoryMB) MB")
                         }
                     }
                 }
                 .frame(height: 300)
                 .padding(.horizontal)
 
-                ForEach(viewModel.processList, id: \.id) { process in
+                ForEach(viewModel.processList) { process in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Text("PID: \(process.pid)")
@@ -75,7 +78,7 @@ struct ProcessDetailPage: View {
                         .font(.subheadline)
                         .foregroundColor(.gray)
 
-                        Text("Timestamp: \(formattedDate(process.timestamp))")
+                        Text("Registered at: \(formattedDate(process.timestamp))")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .minimumScaleFactor(sizeCategory.customMinScaleFactor)
@@ -86,7 +89,7 @@ struct ProcessDetailPage: View {
                     .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 4)
                     .padding(.horizontal)
                 }
-                
+
                 Spacer(minLength: 40)
             }
         }
@@ -108,22 +111,20 @@ struct ProcessDetailPage: View {
     }
 }
 
-
-
 #Preview {
-    ProcessDetailPage( device: DeviceSpecification(
+    ProcessDetailPage(device: DeviceSpecification(
         id: 1,
-        userId: 1,
-        deviceName: "MyComputer",
-        manufacturer: "Dell",
-        model: "Inspiron 15",
-        processor: "Intel Core i7 2.8 GHz",
+        deviceId: "preview",
+        deviceName: "Preview Device",
+        manufacturer: "Preview Inc.",
+        model: "Model X",
+        processor: "Apple M1",
         cpuPhysicalCores: 4,
         cpuLogicalCores: 8,
         installedRam: 16.0,
-        graphics: "NVIDIA GTX 1650",
-        operatingSystem: "Windows 10 x64",
-        systemType: "x64-based processor",
-        timestamp: "2025-03-28T16:03:30.041384"
+        graphics: "Integrated",
+        operatingSystem: "macOS",
+        systemType: "ARM64",
+        registeredAt: "2025-04-01T12:00:00Z"
     ))
 }

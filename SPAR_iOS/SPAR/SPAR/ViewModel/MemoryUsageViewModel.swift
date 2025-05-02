@@ -17,11 +17,11 @@ class MemoryUsageViewModel: ObservableObject {
         // Initializing with some default data or fetching from an API or database.
         let memoryInfo = MemoryUsage(
             id: 1,
-            userId: 1,
-            totalMemory: 16.0,
-            usedMemory: 8.5,
-            availableMemory: 7.5,
-            timestamp: "2025-04-19".toFormattedDate()
+            userId: 1, deviceId: "",
+            totalMemory: 1,
+            usedMemory: 0.0,
+            availableMemory: 0.0,
+            timestamp: "".toFormattedDate()
         )
         self.memoryInfo = memoryInfo
         
@@ -38,7 +38,7 @@ class MemoryUsageViewModel: ObservableObject {
         Task {
             do {
                 guard let userId = AppSettings.shared.userId else { return }
-                let response = try await networkManager.fetchMemoryUsage(for: userId, deviceId: device.id)
+                let response = try await networkManager.fetchMemoryUsage(for: userId, deviceId: device.deviceId)
                 
                     DispatchQueue.main.async {
                         self.memoryInfo = response

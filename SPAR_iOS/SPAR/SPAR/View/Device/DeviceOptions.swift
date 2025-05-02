@@ -63,7 +63,7 @@ struct DeviceInfoCard: View {
                 DeviceInfoRow(label: StringConstant.graphics, value: device.graphics)
                 DeviceInfoRow(label: StringConstant.OS, value: device.operatingSystem)
                 DeviceInfoRow(label: StringConstant.systemType, value: device.systemType)
-                DeviceInfoRow(label: StringConstant.timestamp, value: device.timestamp.toFormattedDate())
+                DeviceInfoRow(label: StringConstant.registeredAt, value: device.registeredAt.toFormattedDate())
             }
         }
         .padding()
@@ -140,7 +140,7 @@ struct DeviceInfoRow: View {
     NavigationStack {
         DeviceOptions(currentView: .constant(.home), device: DeviceSpecification(
             id: 1,
-            userId: 1,
+            deviceId: "fff",
             deviceName: "MyComputer",
             manufacturer: "Dell",
             model: "Inspiron 15",
@@ -151,7 +151,7 @@ struct DeviceInfoRow: View {
             graphics: "NVIDIA GTX 1650",
             operatingSystem: "Windows 10 x64",
             systemType: "x64-based processor",
-            timestamp: "2025-03-28T16:03:30.041384"
+            registeredAt: "2025-03-28T16:03:30.041384"
         ))
     }
 }
