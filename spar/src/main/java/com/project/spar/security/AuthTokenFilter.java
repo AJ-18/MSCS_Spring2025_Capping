@@ -1,20 +1,19 @@
 // src/main/java/com/project/spar/security/AuthTokenFilter.java
 package com.project.spar.security;
 
-import com.project.spar.model.User;
-import com.project.spar.repository.UserRepository;
+import com.project.spar.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -22,30 +21,28 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
-    private final JwtUtils           jwtUtils;
+    private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
-    private final UserRepository        userRepo;
+    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
                                     FilterChain chain)
             throws ServletException, IOException {
+
         String header = req.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
+        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             if (jwtUtils.validateToken(token)) {
-                String username = jwtUtils.getUsernameFromToken(token);
-                String jti      = jwtUtils.getJtiFromToken(token);
-
-                // verify the jti matches the one we last saved for this user
-                User u = userRepo.findByUsername(username)
-                        .orElseThrow();
-                if (!jti.equals(u.getCurrentJti())) {
-                    res.sendError(HttpStatus.UNAUTHORIZED.value(), "Token revoked");
+                String jti = jwtUtils.getJtiFromToken(token);
+                // if the JTI has been deleted, the token is revoked
+                if (!tokenService.isJtiValid(jti)) {
+                    res.sendError(HttpStatus.UNAUTHORIZED.value(), "Token revoked or expired");
                     return;
                 }
 
+                String username = jwtUtils.getUsernameFromToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
@@ -54,6 +51,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
+
         chain.doFilter(req, res);
     }
 }

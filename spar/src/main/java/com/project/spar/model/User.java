@@ -32,11 +32,6 @@ public class User {
     @NotBlank @Email @Column(nullable = false, unique = true)
     private String email;
 
-    /**
-     * the “JWT ID” of the only-currently-valid token
-     */
-    @Column(name="current_jti", length = 36)
-    private String currentJti;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DeviceSpecification> devices = new HashSet<>();
