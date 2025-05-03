@@ -1,21 +1,35 @@
-// metrics-poller.js
+/**
+ * Metrics Poller Module
+ * 
+ * Collects and sends system metrics to the backend API.
+ * Handles device registration, metrics collection, and periodic reporting.
+ * Uses systeminformation, perfmon, and other libraries to gather detailed system data.
+ */
 
-const si       = require('systeminformation');
-const psList   = require('@trufflesuite/ps-list');
-const perfmon  = require('perfmon');
-const { exec } = require('child_process');
-const { promisify } = require('util');
-const axios    = require('axios');
+// Import required libraries for system metrics collection
+const si       = require('systeminformation');  // Main system information library
+const psList   = require('@trufflesuite/ps-list');  // Process list utility
+const perfmon  = require('perfmon');  // Windows performance monitor interface
+const { exec } = require('child_process');  // For executing shell commands
+const { promisify } = require('util');  // Utility to convert callbacks to promises
+const axios    = require('axios');  // HTTP client for API calls
 
+// Convert exec to return a promise instead of using callbacks
 const execAsync = promisify(exec);
 
-// ---- PerfMon counters for Disk I/O ----
+/**
+ * Perfmon counter configuration for disk I/O monitoring
+ * These counters track disk read and write speeds on Windows
+ */
 const diskCounters = [
   '\\PhysicalDisk(_Total)\\Disk Read Bytes/sec',
   '\\PhysicalDisk(_Total)\\Disk Write Bytes/sec'
 ];
 
-// start perfmon stream immediately
+/**
+ * Initialize perfmon stream for real-time disk I/O monitoring
+ * Sets up data collection that will continuously update in the background
+ */
 const diskIOStream = perfmon(diskCounters);
 let latestDiskIO = { 
   [diskCounters[0]]: 0, 
@@ -24,7 +38,12 @@ let latestDiskIO = {
 diskIOStream.on('data', stat => { latestDiskIO = stat.counters; });
 diskIOStream.on('error', err => { console.error('perfmon error:', err); });
 
-// ---- Helper: WMI map of pid → WorkingSetSize ----
+/**
+ * Retrieves process memory usage from Windows Management Instrumentation (WMI)
+ * Creates a mapping of process IDs to their memory usage
+ * 
+ * @returns {Promise<Object>} Map of PIDs to memory usage in bytes
+ */
 async function getWmiMemoryMap() {
   try {
     const { stdout } = await execAsync(
@@ -47,12 +66,26 @@ async function getWmiMemoryMap() {
   }
 }
 
+/**
+ * MetricsPoller Class
+ * Handles device registration, metrics collection, and reporting to the backend
+ */
 class MetricsPoller {
+  /**
+   * Constructor
+   * Initializes the poller with no active interval or configuration
+   */
   constructor() {
     this.pollingInterval = null;
     this.config          = null;
   }
 
+  /**
+   * Collects basic device information
+   * Gathers hardware and OS details for device identification
+   * 
+   * @returns {Promise<Object>} Device specifications and identifiers
+   */
   async collectDeviceInfo() {
     const [ system, cpu, graphics, os, mem ] = await Promise.all([
       si.system(), si.cpu(), si.graphics(), si.osInfo(), si.mem()
@@ -72,6 +105,16 @@ class MetricsPoller {
     };
   }
 
+  /**
+   * Registers the current device with the backend API
+   * Collects device info and sends it to the server to create a device record
+   * 
+   * @param {string} baseUrl - Base URL of the API
+   * @param {string} token - Authentication token
+   * @param {string} userId - User ID to associate with the device
+   * @returns {Promise<string>} Device ID returned from the server
+   * @throws {Error} If registration fails
+   */
   async registerDevice(baseUrl, token, userId) {
     try {
       if (!baseUrl || !token || !userId) {
@@ -115,12 +158,14 @@ class MetricsPoller {
         throw new Error('No devices returned from registration');
       }
 
+      // Find the matching device from the response
       const match = devices.find(d =>
         d.deviceName   === deviceInfo.deviceName &&
         d.manufacturer === deviceInfo.manufacturer &&
         d.model        === deviceInfo.model
       );
 
+      // Get the device ID from either the matching device or the last device in the list
       const deviceId = match ? (match.deviceId || match.id) : 
                       (devices[devices.length-1].deviceId || devices[devices.length-1].id);
                       
@@ -143,6 +188,12 @@ class MetricsPoller {
     }
   }
 
+  /**
+   * Collects comprehensive system metrics
+   * Gathers data about CPU, memory, disk, battery, and running processes
+   * 
+   * @returns {Promise<Object|null>} Collected metrics or null if no configuration
+   */
   async collectSystemMetrics() {
     if (!this.config) {
       console.error('Metrics collection attempted without configuration');
@@ -219,6 +270,10 @@ class MetricsPoller {
     };
   }
 
+  /**
+   * Sends collected metrics to the backend API
+   * Handles errors to prevent polling interruption
+   */
   async sendBatchMetrics() {
     try {
       const payload = await this.collectSystemMetrics();
@@ -234,6 +289,17 @@ class MetricsPoller {
     }
   }
 
+  /**
+   * Starts metrics collection and periodic reporting
+   * Sets up a polling interval to collect and send metrics
+   * 
+   * @param {Object} config - Configuration object for metrics collection
+   * @param {string} config.baseUrl - API base URL
+   * @param {string} config.jwt - Authentication token
+   * @param {string} config.userId - User ID
+   * @param {string} [config.deviceId] - Device ID (optional, will be registered if not provided)
+   * @throws {Error} If configuration is invalid or starting fails
+   */
   async start(config) {
     try {
       if (!config || !config.baseUrl || !config.jwt || !config.userId) {
@@ -270,6 +336,10 @@ class MetricsPoller {
     }
   }
 
+  /**
+   * Stops metrics collection
+   * Clears the polling interval and resets configuration
+   */
   stop() {
     if (this.pollingInterval) {
       console.log('Stopping metrics collection');
@@ -280,4 +350,5 @@ class MetricsPoller {
   }
 }
 
+// Export a singleton instance of the MetricsPoller
 module.exports = new MetricsPoller();
