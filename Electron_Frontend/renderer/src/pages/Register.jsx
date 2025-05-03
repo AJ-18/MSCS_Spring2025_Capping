@@ -4,20 +4,42 @@ import axios from 'axios';
 import authService from '../services/authService';
 import validators from '../utils/validators';
 
+/**
+ * Register Component
+ * Handles user registration functionality and device registration prompt
+ */
 const Register = () => {
+  // React Router hook for navigation
   const navigate = useNavigate();
+  
+  // State for form data management
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
+  
+  // State for validation errors
   const [errors, setErrors] = useState({});
+  
+  // Loading state for submission feedback
   const [loading, setLoading] = useState(false);
+  
+  // State to control device registration prompt visibility
   const [showDevicePrompt, setShowDevicePrompt] = useState(false);
+  
+  // API base URL
   const baseUrl = 'http://localhost:8080';
+  
+  // State to store user data for device registration
   const [userData, setUserData] = useState(null);
 
+  /**
+   * Handles form input changes
+   * Sanitizes user input and clears related errors
+   * @param {Object} e - Event object
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     // Sanitize input before setting it
@@ -36,6 +58,11 @@ const Register = () => {
     }
   };
 
+  /**
+   * Handles the user's response to device registration prompt
+   * Registers device if user agrees, stores preference either way
+   * @param {boolean} shouldRegister - Whether user agreed to register device
+   */
   const handleDevicePromptResponse = async (shouldRegister) => {
     console.log('Device prompt response:', shouldRegister ? 'Yes' : 'No');
     if (shouldRegister && userData) {
@@ -67,6 +94,11 @@ const Register = () => {
     navigate('/dashboard');
   };
 
+  /**
+   * Gets current device information through metrics API
+   * Uses the preload script bridge to access node.js capabilities
+   * @returns {Object|null} Device information or null if unavailable
+   */
   const getCurrentDeviceInfo = async () => {
     console.log('getCurrentDeviceInfo() called, window.metrics =', window.metrics);
     // This should be implemented in the preload script to get device info via Node.js
@@ -79,6 +111,11 @@ const Register = () => {
     return null;
   };
 
+  /**
+   * Handles form submission for user registration
+   * Validates form, submits to API, and handles device registration prompt
+   * @param {Object} e - Event object
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -130,16 +167,22 @@ const Register = () => {
     }
   };
 
-  // This effect will log when showDevicePrompt changes
+  // Effect to log when showDevicePrompt changes
   React.useEffect(() => {
     console.log('showDevicePrompt state changed:', showDevicePrompt);
   }, [showDevicePrompt]);
 
+  // Component render
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <div className="flex flex-col items-center">
+          <img
+            src="/SPAR.png"
+            alt="SPAR Logo"
+            className="w-64 h-auto mb-6"
+          />
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
             Create your S.P.A.R account
           </h2>
         </div>

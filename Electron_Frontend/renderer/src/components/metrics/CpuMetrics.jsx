@@ -3,7 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import MetricGauge from '../MetricGauge';
 import { fetchCpuUsage } from '../../services/systemMetrics';
 
-// Mock data for development
+// Mock data for development/testing purposes when real data isn't available
+// This provides a consistent data structure for development
 const MOCK_CPU_INFO = {
   totalCpuLoad: 55.5,
   perCoreUsageJson: JSON.stringify([
@@ -19,19 +20,34 @@ const MOCK_CPU_INFO = {
   timestamp: new Date().toISOString()
 };
 
+/**
+ * CpuMetrics Component
+ * 
+ * Displays detailed CPU usage metrics for a specific device.
+ * Shows overall CPU load and individual core usage percentages.
+ * Uses MetricGauge component to visualize the total CPU load.
+ * Implements error handling and loading states.
+ */
 const CpuMetrics = () => {
+  // Extract deviceId from URL parameters
   const { deviceId } = useParams();
+  // State to store CPU information
   const [cpuInfo, setCpuInfo] = useState(null);
+  // State to track and display any errors
   const [error, setError] = useState(null);
+  // State to track loading status
   const [loading, setLoading] = useState(true);
 
+  // Effect hook to fetch CPU metrics data
   useEffect(() => {
+    // Function to load CPU information from the API
     const loadCpuInfo = async () => {
       try {
         setLoading(true);
-        // Get user ID from localStorage
+        // Get user ID from localStorage (stored during login)
         const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
         
+        // Validate required parameters before making API call
         if (!userId || !deviceId) {
           console.error('Missing user ID or device ID:', { userId, deviceId });
           setError('Missing user ID or device ID. Please make sure you are logged in and have a device selected.');
@@ -41,10 +57,11 @@ const CpuMetrics = () => {
         
         console.log(`Fetching CPU metrics for user ${userId}, device ${deviceId}`);
         
-        // Use the fetchCpuUsage service function
+        // Use the fetchCpuUsage service function to get CPU data
         const data = await fetchCpuUsage(userId, deviceId);
         console.log('CPU data received:', data);
         
+        // Validate the returned data has the expected format
         if (!data || typeof data.totalCpuLoad !== 'number') {
           console.error('Invalid CPU data received:', data);
           setError('Received invalid CPU data from server');
@@ -52,6 +69,7 @@ const CpuMetrics = () => {
           return;
         }
 
+        // Parse and validate the per-core usage data
         let perCoreUsage = [];
         try {
           // Try to parse the per-core usage data
@@ -67,27 +85,38 @@ const CpuMetrics = () => {
           perCoreUsage = [];
         }
         
+        // Update state with the formatted CPU data
         setCpuInfo({
           totalCpuLoad: data.totalCpuLoad,
           perCoreUsage: perCoreUsage,
           timestamp: new Date().toISOString()
         });
+        // Clear any previous errors
         setError(null);
+        // Set loading to false as data is now available
         setLoading(false);
       } catch (error) {
+        // Log error to console for debugging
         console.error('Error loading CPU metrics:', error);
+        // Set user-friendly error message
         setError(`Failed to load CPU information: ${error.message}`);
+        // Clear CPU info when error occurs
         setCpuInfo(null);
+        // Set loading to false as the operation has completed (with error)
         setLoading(false);
       }
     };
 
+    // Call the function to load data
     loadCpuInfo();
+    // Set up interval to refresh data every 5 seconds
     const interval = setInterval(loadCpuInfo, 5000);
 
+    // Clean up interval when component unmounts
     return () => clearInterval(interval);
-  }, [deviceId]);
+  }, [deviceId]); // Re-run effect when deviceId changes
 
+  // Render error state if there's an error
   if (error) {
     return (
       <div className="p-4">
@@ -110,6 +139,7 @@ const CpuMetrics = () => {
     );
   }
 
+  // Render loading state while fetching data
   if (loading || !cpuInfo) {
     return (
       <div className="p-4">
@@ -129,6 +159,7 @@ const CpuMetrics = () => {
     );
   }
 
+  // Main component render with CPU metrics display
   return (
     <div className="p-4">
       <div className="mb-6">
@@ -146,27 +177,29 @@ const CpuMetrics = () => {
       <div className="bg-white rounded-xl shadow-sm p-8 max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold mb-8">CPU Metrics</h2>
 
-        {/* Total CPU Load with Gauge */}
+        {/* Total CPU Load with Gauge - Visualizes overall CPU usage with a gauge component */}
         <div className="mb-8">
           <div className="flex justify-center mb-6">
             <MetricGauge
               title="Total CPU Load"
               value={cpuInfo.totalCpuLoad || 0}
               color={
-                cpuInfo.totalCpuLoad > 90 ? '#EF4444' :  // red-500
-                cpuInfo.totalCpuLoad > 70 ? '#F59E0B' :  // yellow-500
-                '#10B981'  // green-500
+                cpuInfo.totalCpuLoad > 90 ? '#EF4444' :  // Red for critical usage (>90%)
+                cpuInfo.totalCpuLoad > 70 ? '#F59E0B' :  // Yellow for warning (>70%)
+                '#10B981'  // Green for normal usage
               }
               suffix="%"
             />
           </div>
         </div>
 
-        {/* Per Core Usage */}
+        {/* Per Core Usage - Displays individual CPU core usage percentages */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Per Core Usage</h3>
+          {/* Conditional rendering based on whether per-core data is available */}
           {cpuInfo.perCoreUsage && cpuInfo.perCoreUsage.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Map through each core and display its usage */}
               {cpuInfo.perCoreUsage.map((core) => (
                 <div key={core.core} className="bg-gray-50 rounded-lg p-4">
                   <div className="flex justify-between mb-2">
@@ -187,12 +220,14 @@ const CpuMetrics = () => {
               ))}
             </div>
           ) : (
+            // Display message when no per-core data is available
             <div className="text-gray-500 text-center py-4">
               No per-core data available
             </div>
           )}
         </div>
 
+        {/* Timestamp showing when the data was last updated */}
         <div className="mt-6 text-sm text-gray-500 text-right">
           Last updated: {new Date(cpuInfo.timestamp).toLocaleString()}
         </div>

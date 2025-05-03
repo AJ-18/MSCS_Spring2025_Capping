@@ -2,7 +2,11 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
-// Mock metrics for development that match our API structure
+/**
+ * Generate mock metrics data for development and testing purposes
+ * Creates realistic looking system performance data
+ * @returns {Object} Mock metrics data object
+ */
 const getMockMetrics = () => ({
   cpu: {
     usage: Math.random() * 80 + 10,
@@ -39,7 +43,11 @@ const getMockMetrics = () => ({
   }))
 });
 
-// Create authenticated axios instance
+/**
+ * Creates an axios instance with authentication headers
+ * Uses token from localStorage for authorization
+ * @returns {Object} Configured axios instance
+ */
 const createAuthenticatedClient = () => {
   const token = localStorage.getItem('token');
   return axios.create({
@@ -51,7 +59,16 @@ const createAuthenticatedClient = () => {
   });
 };
 
-// Fetch metrics from the API
+/**
+ * Base function to fetch metrics from the API
+ * Generic function used by specific metric fetchers
+ * 
+ * @param {string} endpoint - API endpoint to fetch from
+ * @param {string} userId - User ID
+ * @param {string} deviceId - Device ID
+ * @returns {Promise<Object>} Metrics data
+ * @throws {Error} If fetching fails
+ */
 const fetchMetricsFromAPI = async (endpoint, userId, deviceId) => {
   try {
     const client = createAuthenticatedClient();
@@ -64,7 +81,14 @@ const fetchMetricsFromAPI = async (endpoint, userId, deviceId) => {
   }
 };
 
-// New function to fetch device specifications
+/**
+ * Fetches device specifications from the API or metrics poller
+ * Gets detailed hardware/software information about the device
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Object|null>} Device specifications or null if unavailable
+ */
 export const fetchDeviceSpecifications = async (userId, deviceId) => {
   try {
     if (!userId) {
@@ -131,7 +155,14 @@ export const fetchDeviceSpecifications = async (userId, deviceId) => {
   }
 };
 
-// Individual endpoint fetching functions matching the Postman collection structure
+/**
+ * Fetches battery information
+ * Gets battery status, charge percentage, and power consumption
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Object>} Battery information or fallback data if unavailable
+ */
 export const fetchBatteryInfo = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
@@ -168,6 +199,14 @@ export const fetchBatteryInfo = async (userId, deviceId) => {
   }
 };
 
+/**
+ * Fetches CPU usage information
+ * Gets total CPU load and per-core usage statistics
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Object>} CPU usage data or fallback data if unavailable
+ */
 export const fetchCpuUsage = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
@@ -203,6 +242,14 @@ export const fetchCpuUsage = async (userId, deviceId) => {
   }
 };
 
+/**
+ * Fetches RAM usage information
+ * Gets memory statistics including total, used, and available RAM
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Object>} RAM usage data or fallback data if unavailable
+ */
 export const fetchRamUsage = async (userId, deviceId) => {
   try {
     if (!userId) {
@@ -255,6 +302,14 @@ export const fetchRamUsage = async (userId, deviceId) => {
   }
 };
 
+/**
+ * Fetches disk I/O performance information
+ * Gets disk read and write speeds
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Object>} Disk I/O data or fallback data if unavailable
+ */
 export const fetchDiskIO = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
@@ -285,6 +340,14 @@ export const fetchDiskIO = async (userId, deviceId) => {
   }
 };
 
+/**
+ * Fetches disk usage information
+ * Gets storage capacity, used space, and available space
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Object>} Disk usage data or fallback data if unavailable
+ */
 export const fetchDiskUsage = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
@@ -323,6 +386,14 @@ export const fetchDiskUsage = async (userId, deviceId) => {
   }
 };
 
+/**
+ * Fetches network interface information
+ * Gets network adapter details including IPs and connection speeds
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Array>} Network interfaces data or empty array if unavailable
+ */
 export const fetchNetworkInterfaces = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
@@ -359,6 +430,14 @@ export const fetchNetworkInterfaces = async (userId, deviceId) => {
   }
 };
 
+/**
+ * Fetches process information
+ * Gets running processes with their resource usage statistics
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Array>} Process status data or fallback data if unavailable
+ */
 export const fetchProcessStatuses = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
@@ -391,6 +470,14 @@ export const fetchProcessStatuses = async (userId, deviceId) => {
   }
 };
 
+/**
+ * Main function to fetch all system metrics
+ * Aggregates data from individual metric fetchers
+ * 
+ * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
+ * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
+ * @returns {Promise<Object>} Combined system metrics or mock data if unavailable
+ */
 export const fetchSystemMetrics = async (userId, deviceId) => {
   try {
     console.log('fetchSystemMetrics called with:', { userId, deviceId });

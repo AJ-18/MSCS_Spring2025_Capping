@@ -1,5 +1,19 @@
 import React from 'react';
 
+/**
+ * MetricGauge Component
+ * 
+ * Circular gauge visualization for displaying numerical metrics
+ * Uses SVG to create a visually appealing radial progress indicator
+ * Supports custom colors based on threshold values (passed from parent)
+ * Can display additional information as a subtitle
+ * 
+ * @param {string} title - The title of the metric being displayed
+ * @param {number} value - The value to display (0-100)
+ * @param {string} color - The color of the progress arc (hex or named color)
+ * @param {string} subtitle - Optional additional text to display below the gauge
+ * @param {string} suffix - Optional suffix for the value (e.g., '%', 'GB')
+ */
 const MetricGauge = ({ title, value, color, subtitle, suffix = '' }) => {
   // Calculate circle properties for SVG
   const circumference = 2 * Math.PI * 45; // Circle circumference with radius 45

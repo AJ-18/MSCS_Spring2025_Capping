@@ -7,7 +7,8 @@ import {
 } from '../../services/systemMetrics';
 import ProcessTable from '../ProcessTable';
 
-// Mock data for development
+// Mock data for development/testing purposes when real data isn't available
+// This provides a consistent data structure for development
 const MOCK_PROCESS_INFO = {
   processStatuses: Array(20).fill(0).map((_, i) => ({
     pid: 1000 + i,
@@ -26,24 +27,38 @@ const MOCK_PROCESS_INFO = {
   timestamp: new Date().toISOString()
 };
 
+/**
+ * ProcessMetrics Component
+ * 
+ * Displays running processes and system resource information for a specific device.
+ * Shows a list of processes with their CPU and memory usage.
+ * Provides summary statistics for system CPU and memory usage.
+ * Uses ProcessTable component to display the list of processes.
+ */
 const ProcessMetrics = () => {
+  // Extract deviceId from URL parameters
   const { deviceId } = useParams();
+  // State to store combined metrics data (processes, CPU, RAM)
   const [metrics, setMetrics] = useState(null);
+  // State to track and display any errors
   const [error, setError] = useState(null);
 
+  // Effect hook to fetch process and system metrics data
   useEffect(() => {
+    // Function to load all metrics from the API
     const loadMetrics = async () => {
       try {
-        // Get user ID from localStorage
+        // Get user ID from localStorage (stored during login)
         const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
         
-        // Use the service functions to fetch metrics
+        // Fetch multiple metrics in parallel using Promise.all for efficiency
         const [processData, cpuData, ramData] = await Promise.all([
           fetchProcessStatuses(userId, deviceId),
           fetchCpuUsage(userId, deviceId),
           fetchRamUsage(userId, deviceId)
         ]);
         
+        // Combine all metrics into a single state object with defaults for missing data
         setMetrics({
           processStatuses: processData || [],
           cpuUsage: {
@@ -56,19 +71,26 @@ const ProcessMetrics = () => {
           },
           timestamp: new Date().toISOString()
         });
+        // Clear any previous errors
         setError(null);
       } catch (error) {
+        // Log error to console for debugging
         console.error('Error loading process metrics:', error);
+        // Set user-friendly error message
         setError(`Failed to load process information: ${error.message}`);
       }
     };
 
+    // Call the function to load data
     loadMetrics();
+    // Set up interval to refresh data every 5 seconds
     const interval = setInterval(loadMetrics, 5000);
 
+    // Clean up interval when component unmounts
     return () => clearInterval(interval);
-  }, [deviceId]);
+  }, [deviceId]); // Re-run effect when deviceId changes
 
+  // Render error state if there's an error
   if (error) {
     return (
       <div className="p-4">
@@ -91,10 +113,12 @@ const ProcessMetrics = () => {
     );
   }
 
+  // Render loading state while fetching data
   if (!metrics) {
     return <div className="p-4">Loading process information...</div>;
   }
 
+  // Main component render with process list and system resource summary
   return (
     <div className="p-4">
       <div className="mb-6">
@@ -112,7 +136,7 @@ const ProcessMetrics = () => {
       <div className="bg-white rounded-xl shadow-sm p-8 max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold mb-8">Process Monitor</h2>
 
-        {/* Process Table */}
+        {/* Process Table - Displays a list of running processes with resource usage */}
         <div className="mb-8">
           <ProcessTable processes={metrics.processStatuses.map(p => ({
             pid: p.pid,
@@ -122,8 +146,9 @@ const ProcessMetrics = () => {
           }))} />
         </div>
 
-        {/* System Resource Summary */}
+        {/* System Resource Summary - Shows overall CPU and memory stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* CPU Load Summary */}
           <div className="bg-gray-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">System Load</h3>
             <div className="space-y-2">
@@ -134,6 +159,7 @@ const ProcessMetrics = () => {
             </div>
           </div>
 
+          {/* Process Count Statistics */}
           <div className="bg-gray-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">Process Statistics</h3>
             <div className="space-y-2">
@@ -150,6 +176,7 @@ const ProcessMetrics = () => {
             </div>
           </div>
 
+          {/* Memory Usage Summary */}
           <div className="bg-gray-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">Memory Usage</h3>
             <div className="space-y-2">
@@ -169,6 +196,7 @@ const ProcessMetrics = () => {
           </div>
         </div>
 
+        {/* Timestamp showing when the data was last updated */}
         <div className="mt-6 text-sm text-gray-500 text-right">
           Last updated: {new Date(metrics.timestamp).toLocaleString()}
         </div>

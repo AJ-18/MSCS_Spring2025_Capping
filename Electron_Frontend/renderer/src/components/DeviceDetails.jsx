@@ -11,6 +11,13 @@ import {
   fetchDeviceSpecifications
 } from '../services/systemMetrics';
 
+/**
+ * MetricCard Component
+ * 
+ * Reusable component to display a single metric with a consistent UI
+ * Shows a title, icon, value, and unit with hover effects for interaction
+ * Used for CPU, memory, disk, battery, and process metrics
+ */
 const MetricCard = ({ title, icon, value, unit, onClick }) => (
   <div
     onClick={onClick}
@@ -27,10 +34,22 @@ const MetricCard = ({ title, icon, value, unit, onClick }) => (
   </div>
 );
 
+/**
+ * DeviceDetails Component
+ * 
+ * Main component for displaying detailed information about a specific device
+ * Shows device specifications and system metrics (CPU, memory, disk, battery, processes)
+ * Handles data fetching, error states, and loading states
+ * Provides navigation to more detailed metric-specific views
+ */
 const DeviceDetails = () => {
+  // Get device ID from URL parameters
   const { deviceId } = useParams();
+  // Navigation hook for programmatic routing
   const navigate = useNavigate();
+  // State for device specifications and hardware info
   const [deviceInfo, setDeviceInfo] = useState(null);
+  // State for system metrics with default values
   const [metrics, setMetrics] = useState({
     cpu: { usage: 0 },
     memory: { total: 0, used: 0, free: 0 },
@@ -38,16 +57,20 @@ const DeviceDetails = () => {
     battery: { percentage: 0, charging: false },
     processes: []
   });
+  // Loading state for UI indicators
   const [loading, setLoading] = useState(true);
+  // Error state for handling and displaying errors
   const [error, setError] = useState(null);
 
+  // Effect hook to load device specifications
   useEffect(() => {
+    // Function to load device information from the API
     const loadDeviceInfo = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // Get user ID from localStorage
+        // Get user ID from localStorage (stored during login)
         const user = localStorage.getItem('user');
         if (!user) {
           setError("User information not found. Please log in again.");
@@ -55,6 +78,7 @@ const DeviceDetails = () => {
           return;
         }
         
+        // Parse user data with error handling
         let userId;
         try {
           userId = JSON.parse(user).id;
@@ -65,6 +89,7 @@ const DeviceDetails = () => {
           return;
         }
         
+        // Validate required parameters before making API calls
         if (!userId || !deviceId) {
           console.error('Missing user ID or device ID for device info', { userId, deviceId });
           setError(`Missing ${!userId ? 'user ID' : 'device ID'}. Please make sure you are logged in and have selected a device.`);
@@ -106,7 +131,7 @@ const DeviceDetails = () => {
           }
         }
         
-        // If we still don't have data, use a minimal fallback
+        // If we still don't have data, use a minimal fallback with browser data
         if (!deviceData) {
           console.warn('No device data available, using fallback data');
           deviceData = {
@@ -131,6 +156,7 @@ const DeviceDetails = () => {
           ramValue = parseFloat(deviceData.installedRam) || 0;
         }
         
+        // Format and store device information in state
         setDeviceInfo({
           deviceName: deviceData.deviceName || 'Unknown Device',
           manufacturer: deviceData.manufacturer || 'Unknown Manufacturer',
@@ -147,19 +173,25 @@ const DeviceDetails = () => {
         
         setLoading(false);
       } catch (error) {
+        // Handle any unexpected errors
         console.error('Error loading device info:', error);
         setError(`Failed to load device information: ${error.message}`);
         setLoading(false);
       }
     };
 
+    // Call the function to load device info
     loadDeviceInfo();
+    // Set up interval to refresh device info every 30 seconds
     const interval = setInterval(loadDeviceInfo, 30000); // Update every 30 seconds
 
+    // Clean up interval when component unmounts
     return () => clearInterval(interval);
-  }, [deviceId]);
+  }, [deviceId]); // Re-run effect when deviceId changes
 
+  // Effect hook to load system metrics
   useEffect(() => {
+    // Function to load system metrics from the API
     const loadMetrics = async () => {
       if (!deviceId) {
         console.error("Missing deviceId");
@@ -168,12 +200,13 @@ const DeviceDetails = () => {
       
       try {
         setLoading(true);
-        // Get user ID from localStorage
+        // Get user ID from localStorage (stored during login)
         const user = localStorage.getItem('user');
         if (!user) {
           return;
         }
         
+        // Parse user data with error handling
         let userId;
         try {
           userId = JSON.parse(user).id;
@@ -189,7 +222,7 @@ const DeviceDetails = () => {
         
         console.log(`Loading metrics for user ${userId}, device ${deviceId}`);
         
-        // Fetch all metrics in parallel using specific API endpoints
+        // Fetch all metrics in parallel using Promise.all for efficiency
         const [cpuData, ramData, diskData, batteryData, processData] = await Promise.all([
           fetchCpuUsage(userId, deviceId),
           fetchRamUsage(userId, deviceId),
@@ -200,7 +233,7 @@ const DeviceDetails = () => {
         
         console.log("API Responses:", { cpuData, ramData, diskData, batteryData, processData });
         
-        // Format the data for the UI
+        // Format and store all metrics data in state with fallbacks for missing data
         setMetrics({
           cpu: {
             usage: cpuData?.totalCpuLoad || 0,
@@ -225,18 +258,22 @@ const DeviceDetails = () => {
         
         setLoading(false);
       } catch (error) {
+        // Handle any unexpected errors
         console.error('Error loading metrics:', error);
         setLoading(false);
       }
     };
 
+    // Only load metrics if we have a deviceId
     if (deviceId) {
       loadMetrics();
+      // Set up interval to refresh metrics every 5 seconds
       const interval = setInterval(loadMetrics, 5000);
       return () => clearInterval(interval);
     }
-  }, [deviceId]);
+  }, [deviceId]); // Re-run effect when deviceId changes
 
+  // Configuration for metric cards with display values and navigation paths
   const metricCards = [
     {
       title: 'CPU Usage',
@@ -277,6 +314,7 @@ const DeviceDetails = () => {
     }
   ];
 
+  // Render error state if there's an error
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
@@ -307,6 +345,7 @@ const DeviceDetails = () => {
     );
   }
 
+  // Main component render with device info and metric cards
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -317,10 +356,12 @@ const DeviceDetails = () => {
           <h1 className="text-2xl font-bold text-gray-900 mt-2">Device Overview</h1>
         </div>
 
+        {/* Device specifications card */}
         <div className="mb-8">
           <DeviceInfoCard deviceInfo={deviceInfo} />
         </div>
 
+        {/* Grid of metric cards for system metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {metricCards.map((card) => (
             <MetricCard

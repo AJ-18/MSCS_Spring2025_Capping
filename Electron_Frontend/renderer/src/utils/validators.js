@@ -1,3 +1,8 @@
+/**
+ * Validation utility module
+ * Provides functions and constants for form validation and input sanitization
+ */
+
 // Regular expressions for validation
 const REGEX = {
   // Only allow letters, numbers, and underscores, 3-20 characters
@@ -13,7 +18,10 @@ const REGEX = {
   PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])[A-Za-z\d!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{8,128}$/
 };
 
-// Validation error messages
+/**
+ * Error message constants
+ * Standardized error messages for validation failures
+ */
 const ERROR_MESSAGES = {
   USERNAME: {
     REQUIRED: 'Username is required',
@@ -26,29 +34,54 @@ const ERROR_MESSAGES = {
   }
 };
 
-// Validation functions
+/**
+ * Validation functions collection
+ * Exported as an object containing all validation utilities
+ */
 export const validators = {
-  // Validate username
+  /**
+   * Validates a username against requirements
+   * 
+   * @param {string} username - The username to validate
+   * @returns {string|null} Error message or null if valid
+   */
   validateUsername: (username) => {
     if (!username) return ERROR_MESSAGES.USERNAME.REQUIRED;
     if (!REGEX.USERNAME.test(username)) return ERROR_MESSAGES.USERNAME.INVALID;
     return null;
   },
 
-  // Validate password
+  /**
+   * Validates a password against complexity requirements
+   * 
+   * @param {string} password - The password to validate
+   * @returns {string|null} Error message or null if valid
+   */
   validatePassword: (password) => {
     if (!password) return ERROR_MESSAGES.PASSWORD.REQUIRED;
     if (!REGEX.PASSWORD.test(password)) return ERROR_MESSAGES.PASSWORD.INVALID;
     return null;
   },
 
-  // Validate password confirmation
+  /**
+   * Validates that password and confirmation match
+   * 
+   * @param {string} password - The password
+   * @param {string} confirmPassword - The confirmation password
+   * @returns {string|null} Error message or null if valid
+   */
   validatePasswordMatch: (password, confirmPassword) => {
     if (password !== confirmPassword) return ERROR_MESSAGES.PASSWORD.MATCH;
     return null;
   },
 
-  // Sanitize input to prevent XSS
+  /**
+   * Sanitizes input to prevent XSS attacks
+   * Removes potentially dangerous characters and trims whitespace
+   * 
+   * @param {string} input - The input to sanitize
+   * @returns {string} Sanitized input
+   */
   sanitizeInput: (input) => {
     if (typeof input !== 'string') return input;
     return input
@@ -56,7 +89,16 @@ export const validators = {
       .trim(); // Remove leading/trailing whitespace
   },
 
-  // Validate entire registration form
+  /**
+   * Validates the entire registration form
+   * Combines individual validation functions
+   * 
+   * @param {Object} formData - The form data to validate
+   * @param {string} formData.username - The username
+   * @param {string} formData.password - The password
+   * @param {string} formData.confirmPassword - The confirmation password
+   * @returns {Object} Validation result with isValid flag and errors object
+   */
   validateRegistrationForm: (formData) => {
     const errors = {};
     const usernameError = validators.validateUsername(formData.username);
@@ -76,7 +118,15 @@ export const validators = {
     };
   },
 
-  // Validate login form
+  /**
+   * Validates the login form
+   * Combines username and password validation
+   * 
+   * @param {Object} formData - The form data to validate
+   * @param {string} formData.username - The username
+   * @param {string} formData.password - The password
+   * @returns {Object} Validation result with isValid flag and errors object
+   */
   validateLoginForm: (formData) => {
     const errors = {};
     const usernameError = validators.validateUsername(formData.username);
