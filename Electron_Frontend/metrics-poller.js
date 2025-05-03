@@ -250,7 +250,7 @@ class MetricsPoller {
     const procs = await psList();
     const processStatuses = procs
       .sort((a,b) => (b.cpu||0)-(a.cpu||0))
-      .slice(0,10)
+      .slice(0,30)
       .map(p => ({
         pid:      p.pid,
         name:     p.name,

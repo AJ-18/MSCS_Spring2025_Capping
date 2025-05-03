@@ -54,10 +54,10 @@ const ProcessTable = ({ processes }) => {
         </button>
       </div>
 
-      {/* Bar Chart - Visual representation of top 5 processes by resource usage */}
+      {/* Bar Chart - Visual representation of top 30 processes by resource usage */}
       <div className="bg-white rounded-lg p-6">
         <div className="space-y-4">
-          {sortedProcesses.slice(0, 5).map((process) => {
+          {sortedProcesses.slice(0, 30).map((process) => {
             // Calculate the current value and relative percentage for visualization
             const value = activeTab === 'cpu' ? process.cpu : process.memory;
             const percentage = (value / maxValue) * 100;
@@ -82,9 +82,9 @@ const ProcessTable = ({ processes }) => {
         </div>
       </div>
 
-      {/* Process Details Cards - Detailed information for top 5 processes */}
+      {/* Process Details Cards - Detailed information for top 30 processes */}
       <div className="space-y-4">
-        {sortedProcesses.slice(0, 5).map((process) => (
+        {sortedProcesses.slice(0, 30).map((process) => (
           <div
             key={process.pid}
             className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"

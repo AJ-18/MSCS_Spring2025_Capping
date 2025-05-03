@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MetricGauge from '../MetricGauge';
+import LoadingScreen from '../LoadingScreen';
 import { fetchDiskUsage, fetchDiskIO } from '../../services/systemMetrics';
 
 // Mock data for development/testing purposes when real data isn't available
@@ -33,14 +34,32 @@ const DiskMetrics = () => {
   const [diskInfo, setDiskInfo] = useState(null);
   // State to track and display any errors
   const [error, setError] = useState(null);
+  // State to track loading status
+  const [loading, setLoading] = useState(true);
+  // State to track if initial data has been loaded
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   // Effect hook to fetch disk metrics data
   useEffect(() => {
     // Function to load disk information from the API
     const loadDiskInfo = async () => {
       try {
+        // Only show loading indicator on initial load
+        if (!initialLoadComplete) {
+          setLoading(true);
+        }
+        
         // Get user ID from localStorage (stored during login)
         const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        // Validate required parameters
+        if (!userId || !deviceId) {
+          console.error('Missing user ID or device ID:', { userId, deviceId });
+          setError('Missing user ID or device ID. Please make sure you are logged in and have a device selected.');
+          setLoading(false);
+          setInitialLoadComplete(true);
+          return;
+        }
         
         // Fetch both disk usage and I/O metrics in parallel using Promise.all
         const [usageData, ioData] = await Promise.all([
@@ -62,8 +81,13 @@ const DiskMetrics = () => {
           },
           timestamp: new Date().toISOString()
         });
+        
         // Clear any previous errors
         setError(null);
+        
+        // Set loading to false and mark initial load as complete
+        setLoading(false);
+        setInitialLoadComplete(true);
       } catch (error) {
         // Log error to console for debugging
         console.error('Error loading disk metrics:', error);
@@ -71,6 +95,9 @@ const DiskMetrics = () => {
         setError(`Failed to load disk information: ${error.message}`);
         // Clear disk info when error occurs
         setDiskInfo(null);
+        // Set loading to false and mark initial load as complete
+        setLoading(false);
+        setInitialLoadComplete(true);
       }
     };
 
@@ -81,7 +108,7 @@ const DiskMetrics = () => {
 
     // Clean up interval when component unmounts
     return () => clearInterval(interval);
-  }, [deviceId]); // Re-run effect when deviceId changes
+  }, [deviceId, initialLoadComplete]); // Re-run effect when deviceId changes or initialLoadComplete changes
 
   // Render error state if there's an error
   if (error) {
@@ -106,13 +133,28 @@ const DiskMetrics = () => {
     );
   }
 
-  // Render loading state while fetching data
-  if (!diskInfo) {
-    return <div className="p-4">Loading disk information...</div>;
+  // Render loading state only during initial data loading
+  if (loading && !initialLoadComplete) {
+    return <LoadingScreen message="Loading disk metrics..." />;
   }
 
+  // Show main content if we have disk data, or after initial load
+  const displayDiskInfo = diskInfo || {
+    usage: {
+      filesystem: '',
+      sizeGB: 0,
+      usedGB: 0,
+      availableGB: 0
+    },
+    io: {
+      readSpeedMBps: 0,
+      writeSpeedMBps: 0
+    },
+    timestamp: new Date().toISOString()
+  };
+
   // Calculate disk usage percentage for display
-  const usedPercentage = (diskInfo.usage.usedGB / diskInfo.usage.sizeGB) * 100;
+  const usedPercentage = (displayDiskInfo.usage.usedGB / displayDiskInfo.usage.sizeGB) * 100 || 0;
 
   // Main component render with disk metrics display
   return (
@@ -144,7 +186,7 @@ const DiskMetrics = () => {
                 '#22C55E'  // Green for normal usage
               }
               suffix="%"
-              subtitle={`${diskInfo.usage.usedGB.toFixed(1)}/${diskInfo.usage.sizeGB.toFixed(1)} GB`}
+              subtitle={`${displayDiskInfo.usage.usedGB.toFixed(1)}/${displayDiskInfo.usage.sizeGB.toFixed(1)} GB`}
             />
           </div>
         </div>
@@ -153,7 +195,7 @@ const DiskMetrics = () => {
         <div className="mb-12">
           <h3 className="text-lg font-semibold mb-4">Disk Usage</h3>
           <div className="mb-6">
-            <div className="text-sm text-gray-500 mb-1">Filesystem: {diskInfo.usage.filesystem}</div>
+            <div className="text-sm text-gray-500 mb-1">Filesystem: {displayDiskInfo.usage.filesystem}</div>
             <div className="bg-gray-100 rounded-full p-1">
               <div 
                 className={`text-white text-center py-2 px-4 rounded-full transition-all duration-500 ease-in-out ${
@@ -161,7 +203,7 @@ const DiskMetrics = () => {
                   usedPercentage > 70 ? 'bg-yellow-500' : 
                   'bg-green-500'
                 }`}
-                style={{ width: `${usedPercentage}%` }}
+                style={{ width: `${Math.max(5, usedPercentage)}%` }}
               >
                 {usedPercentage.toFixed(1)}%
               </div>
@@ -172,17 +214,17 @@ const DiskMetrics = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="text-gray-500 mb-2">Total Size</h4>
-              <div className="text-2xl font-semibold">{diskInfo.usage.sizeGB.toFixed(1)} GB</div>
+              <div className="text-2xl font-semibold">{displayDiskInfo.usage.sizeGB.toFixed(1)} GB</div>
             </div>
             
             <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="text-gray-500 mb-2">Used Space</h4>
-              <div className="text-2xl font-semibold">{diskInfo.usage.usedGB.toFixed(1)} GB</div>
+              <div className="text-2xl font-semibold">{displayDiskInfo.usage.usedGB.toFixed(1)} GB</div>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="text-gray-500 mb-2">Available Space</h4>
-              <div className="text-2xl font-semibold">{diskInfo.usage.availableGB.toFixed(1)} GB</div>
+              <div className="text-2xl font-semibold">{displayDiskInfo.usage.availableGB.toFixed(1)} GB</div>
             </div>
           </div>
         </div>
@@ -193,19 +235,19 @@ const DiskMetrics = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="text-gray-500 mb-2">Read Speed</h4>
-              <div className="text-2xl font-semibold">{diskInfo.io.readSpeedMBps.toFixed(1)} MB/s</div>
+              <div className="text-2xl font-semibold">{displayDiskInfo.io.readSpeedMBps.toFixed(1)} MB/s</div>
             </div>
             
             <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="text-gray-500 mb-2">Write Speed</h4>
-              <div className="text-2xl font-semibold">{diskInfo.io.writeSpeedMBps.toFixed(1)} MB/s</div>
+              <div className="text-2xl font-semibold">{displayDiskInfo.io.writeSpeedMBps.toFixed(1)} MB/s</div>
             </div>
           </div>
         </div>
 
         {/* Timestamp showing when the data was last updated */}
         <div className="mt-6 text-sm text-gray-500 text-right">
-          Last updated: {new Date(diskInfo.timestamp).toLocaleString()}
+          Last updated: {new Date(displayDiskInfo.timestamp).toLocaleString()}
         </div>
       </div>
     </div>
