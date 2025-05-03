@@ -1,0 +1,208 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { 
+  fetchProcessStatuses, 
+  fetchCpuUsage, 
+  fetchRamUsage 
+} from '../../services/systemMetrics';
+import ProcessTable from '../ProcessTable';
+
+// Mock data for development/testing purposes when real data isn't available
+// This provides a consistent data structure for development
+const MOCK_PROCESS_INFO = {
+  processStatuses: Array(20).fill(0).map((_, i) => ({
+    pid: 1000 + i,
+    name: ['chrome', 'code', 'node', 'spotify'][Math.floor(Math.random() * 4)],
+    cpuUsage: Math.random() * 10,
+    memoryMB: Math.random() * 500
+  })),
+  cpuUsage: {
+    totalCpuLoad: 45.5
+  },
+  ramUsage: {
+    totalMemory: 16.0,
+    usedMemory: 8.2,
+    availableMemory: 7.8
+  },
+  timestamp: new Date().toISOString()
+};
+
+/**
+ * ProcessMetrics Component
+ * 
+ * Displays running processes and system resource information for a specific device.
+ * Shows a list of processes with their CPU and memory usage.
+ * Provides summary statistics for system CPU and memory usage.
+ * Uses ProcessTable component to display the list of processes.
+ */
+const ProcessMetrics = () => {
+  // Extract deviceId from URL parameters
+  const { deviceId } = useParams();
+  // State to store combined metrics data (processes, CPU, RAM)
+  const [metrics, setMetrics] = useState(null);
+  // State to track and display any errors
+  const [error, setError] = useState(null);
+
+  // Effect hook to fetch process and system metrics data
+  useEffect(() => {
+    // Function to load all metrics from the API
+    const loadMetrics = async () => {
+      try {
+        // Get user ID from localStorage (stored during login)
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        // Fetch multiple metrics in parallel using Promise.all for efficiency
+        const [processData, cpuData, ramData] = await Promise.all([
+          fetchProcessStatuses(userId, deviceId),
+          fetchCpuUsage(userId, deviceId),
+          fetchRamUsage(userId, deviceId)
+        ]);
+        
+        // Combine all metrics into a single state object with defaults for missing data
+        setMetrics({
+          processStatuses: processData || [],
+          cpuUsage: {
+            totalCpuLoad: cpuData.totalCpuLoad || 0
+          },
+          ramUsage: {
+            totalMemory: ramData.totalMemory || 0,
+            usedMemory: ramData.usedMemory || 0,
+            availableMemory: ramData.availableMemory || 0
+          },
+          timestamp: new Date().toISOString()
+        });
+        // Clear any previous errors
+        setError(null);
+      } catch (error) {
+        // Log error to console for debugging
+        console.error('Error loading process metrics:', error);
+        // Set user-friendly error message
+        setError(`Failed to load process information: ${error.message}`);
+      }
+    };
+
+    // Call the function to load data
+    loadMetrics();
+    // Set up interval to refresh data every 5 seconds
+    const interval = setInterval(loadMetrics, 5000);
+
+    // Clean up interval when component unmounts
+    return () => clearInterval(interval);
+  }, [deviceId]); // Re-run effect when deviceId changes
+
+  // Render error state if there's an error
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="mb-6">
+          <Link
+            to={`/dashboard/device/${deviceId}`}
+            className="text-blue-500 hover:text-blue-600 flex items-center"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Device Overview
+          </Link>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md mx-auto">
+          <h2 className="text-2xl font-bold mb-4">Process Monitor</h2>
+          <div className="text-red-500">{error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render loading state while fetching data
+  if (!metrics) {
+    return <div className="p-4">Loading process information...</div>;
+  }
+
+  // Main component render with process list and system resource summary
+  return (
+    <div className="p-4">
+      <div className="mb-6">
+        <Link
+          to={`/dashboard/device/${deviceId}`}
+          className="text-blue-500 hover:text-blue-600 flex items-center"
+        >
+          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Device Overview
+        </Link>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm p-8 max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold mb-8">Process Monitor</h2>
+
+        {/* Process Table - Displays a list of running processes with resource usage */}
+        <div className="mb-8">
+          <ProcessTable processes={metrics.processStatuses.map(p => ({
+            pid: p.pid,
+            name: p.name,
+            cpu: p.cpuUsage,
+            memory: p.memoryMB
+          }))} />
+        </div>
+
+        {/* System Resource Summary - Shows overall CPU and memory stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* CPU Load Summary */}
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold mb-4">System Load</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">CPU Load</span>
+                <span className="font-medium">{metrics.cpuUsage.totalCpuLoad.toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Process Count Statistics */}
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold mb-4">Process Statistics</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Total Processes</span>
+                <span className="font-medium">{metrics.processStatuses.length}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Active</span>
+                <span className="font-medium">
+                  {metrics.processStatuses.filter(p => p.cpuUsage > 0.1).length}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Memory Usage Summary */}
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold mb-4">Memory Usage</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Total Memory</span>
+                <span className="font-medium">{metrics.ramUsage.totalMemory.toFixed(1)} GB</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Used Memory</span>
+                <span className="font-medium">{metrics.ramUsage.usedMemory.toFixed(1)} GB</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Available Memory</span>
+                <span className="font-medium">{metrics.ramUsage.availableMemory.toFixed(1)} GB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Timestamp showing when the data was last updated */}
+        <div className="mt-6 text-sm text-gray-500 text-right">
+          Last updated: {new Date(metrics.timestamp).toLocaleString()}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProcessMetrics; 
