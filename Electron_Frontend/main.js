@@ -21,6 +21,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width:  1200,
     height: 800,
+    icon: path.join(__dirname, 'renderer/public/SPAR.png'),
     webPreferences: {
       nodeIntegration:        false,  // Prevents renderer from accessing Node directly
       contextIsolation:       true,   // Isolates preload script from renderer

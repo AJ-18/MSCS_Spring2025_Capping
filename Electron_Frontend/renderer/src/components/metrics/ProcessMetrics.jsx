@@ -1,55 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import ProcessTable from '../ProcessTable';
+import LoadingScreen from '../LoadingScreen';
 import { 
   fetchProcessStatuses, 
   fetchCpuUsage, 
   fetchRamUsage 
 } from '../../services/systemMetrics';
-import ProcessTable from '../ProcessTable';
-
-// Mock data for development/testing purposes when real data isn't available
-// This provides a consistent data structure for development
-const MOCK_PROCESS_INFO = {
-  processStatuses: Array(20).fill(0).map((_, i) => ({
-    pid: 1000 + i,
-    name: ['chrome', 'code', 'node', 'spotify'][Math.floor(Math.random() * 4)],
-    cpuUsage: Math.random() * 10,
-    memoryMB: Math.random() * 500
-  })),
-  cpuUsage: {
-    totalCpuLoad: 45.5
-  },
-  ramUsage: {
-    totalMemory: 16.0,
-    usedMemory: 8.2,
-    availableMemory: 7.8
-  },
-  timestamp: new Date().toISOString()
-};
 
 /**
  * ProcessMetrics Component
  * 
- * Displays running processes and system resource information for a specific device.
- * Shows a list of processes with their CPU and memory usage.
- * Provides summary statistics for system CPU and memory usage.
- * Uses ProcessTable component to display the list of processes.
+ * Displays detailed process information for a specific device.
+ * Shows a table of active processes with their resource usage.
+ * Also includes system CPU and memory usage summaries.
+ * Implements error handling and loading states.
  */
 const ProcessMetrics = () => {
   // Extract deviceId from URL parameters
   const { deviceId } = useParams();
-  // State to store combined metrics data (processes, CPU, RAM)
-  const [metrics, setMetrics] = useState(null);
+  // State to store metrics data
+  const [metrics, setMetrics] = useState({
+    processStatuses: [],
+    cpuUsage: { totalCpuLoad: 0 },
+    ramUsage: { totalMemory: 0, usedMemory: 0, availableMemory: 0 },
+    timestamp: new Date().toISOString()
+  });
   // State to track and display any errors
   const [error, setError] = useState(null);
+  // State to track loading status
+  const [loading, setLoading] = useState(true);
+  // State to track if initial data has been loaded
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   // Effect hook to fetch process and system metrics data
   useEffect(() => {
     // Function to load all metrics from the API
     const loadMetrics = async () => {
       try {
+        // Only show loading indicator on initial load
+        if (!initialLoadComplete) {
+          setLoading(true);
+        }
+        
         // Get user ID from localStorage (stored during login)
         const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        // Validate required parameters
+        if (!userId || !deviceId) {
+          console.error('Missing user ID or device ID:', { userId, deviceId });
+          setError('Missing user ID or device ID. Please make sure you are logged in and have a device selected.');
+          setLoading(false);
+          setInitialLoadComplete(true);
+          return;
+        }
         
         // Fetch multiple metrics in parallel using Promise.all for efficiency
         const [processData, cpuData, ramData] = await Promise.all([
@@ -57,6 +61,20 @@ const ProcessMetrics = () => {
           fetchCpuUsage(userId, deviceId),
           fetchRamUsage(userId, deviceId)
         ]);
+        
+        // Enhanced diagnostic logging for process data
+        console.log(`Received ${processData ? processData.length : 0} processes from API`);
+        console.log('Process data sample:', processData ? processData.slice(0, 3) : 'No data');
+        console.log('Processes with non-zero CPU:', processData ? processData.filter(p => p.cpuUsage > 0).length : 0);
+        console.log('Processes with zero CPU:', processData ? processData.filter(p => p.cpuUsage === 0).length : 0);
+        console.log('CPU usage range:', 
+          processData ? 
+          {
+            min: Math.min(...processData.map(p => p.cpuUsage)),
+            max: Math.max(...processData.map(p => p.cpuUsage)),
+            avg: processData.reduce((sum, p) => sum + p.cpuUsage, 0) / processData.length
+          } : 'No data');
+        console.log('Process names:', processData ? [...new Set(processData.map(p => p.name))].join(', ') : 'No data');
         
         // Combine all metrics into a single state object with defaults for missing data
         setMetrics({
@@ -71,13 +89,21 @@ const ProcessMetrics = () => {
           },
           timestamp: new Date().toISOString()
         });
+        
         // Clear any previous errors
         setError(null);
+        
+        // Set loading to false and mark initial load as complete
+        setLoading(false);
+        setInitialLoadComplete(true);
       } catch (error) {
         // Log error to console for debugging
         console.error('Error loading process metrics:', error);
         // Set user-friendly error message
         setError(`Failed to load process information: ${error.message}`);
+        // Set loading to false and mark initial load as complete
+        setLoading(false);
+        setInitialLoadComplete(true);
       }
     };
 
@@ -88,7 +114,7 @@ const ProcessMetrics = () => {
 
     // Clean up interval when component unmounts
     return () => clearInterval(interval);
-  }, [deviceId]); // Re-run effect when deviceId changes
+  }, [deviceId, initialLoadComplete]); // Re-run effect when deviceId changes
 
   // Render error state if there's an error
   if (error) {
@@ -106,19 +132,19 @@ const ProcessMetrics = () => {
           </Link>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-8 max-w-md mx-auto">
-          <h2 className="text-2xl font-bold mb-4">Process Monitor</h2>
+          <h2 className="text-2xl font-bold mb-4">Process Information</h2>
           <div className="text-red-500">{error}</div>
         </div>
       </div>
     );
   }
 
-  // Render loading state while fetching data
-  if (!metrics) {
-    return <div className="p-4">Loading process information...</div>;
+  // Render loading state only during initial data loading
+  if (loading && !initialLoadComplete) {
+    return <LoadingScreen message="Loading process metrics..." />;
   }
 
-  // Main component render with process list and system resource summary
+  // Main component render with process metrics display
   return (
     <div className="p-4">
       <div className="mb-6">
@@ -133,8 +159,8 @@ const ProcessMetrics = () => {
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-8 max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-8">Process Monitor</h2>
+      <div className="bg-white rounded-xl shadow-sm p-8 max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold mb-8">Process Information</h2>
 
         {/* Process Table - Displays a list of running processes with resource usage */}
         <div className="mb-8">
@@ -181,15 +207,11 @@ const ProcessMetrics = () => {
             <h3 className="text-lg font-semibold mb-4">Memory Usage</h3>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Total Memory</span>
-                <span className="font-medium">{metrics.ramUsage.totalMemory.toFixed(1)} GB</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Used Memory</span>
+                <span className="text-gray-500">Used</span>
                 <span className="font-medium">{metrics.ramUsage.usedMemory.toFixed(1)} GB</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Available Memory</span>
+                <span className="text-gray-500">Available</span>
                 <span className="font-medium">{metrics.ramUsage.availableMemory.toFixed(1)} GB</span>
               </div>
             </div>

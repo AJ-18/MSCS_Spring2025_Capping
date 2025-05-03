@@ -1,54 +1,96 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { fetchBatteryInfo } from '../../services/systemMetrics';
-
-// Mock data for development/testing purposes when real data isn't available
-// This provides a consistent data structure for development
-const MOCK_BATTERY_INFO = {
-  hasBattery: true,
-  batteryPercentage: 80,
-  isCharging: false,
-  powerConsumption: 12.50,
-  timestamp: new Date().toISOString()
-};
+import LoadingScreen from '../LoadingScreen';
+import { fetchBatteryInfo, fetchDeviceSpecifications } from '../../services/systemMetrics';
 
 /**
  * BatteryMetrics Component
  * 
  * Displays detailed battery information for a specific device.
  * Shows battery percentage, charging status, and power consumption.
- * Includes conditional rendering for devices without batteries.
+ * Simple, clean layout optimized for at-a-glance information.
  */
 const BatteryMetrics = () => {
   // Extract deviceId from URL parameters
   const { deviceId } = useParams();
   // State to store battery information
   const [batteryInfo, setBatteryInfo] = useState(null);
+  // State to store device name
+  const [deviceName, setDeviceName] = useState('Unknown Device');
   // State to track and display any errors
   const [error, setError] = useState(null);
+  // State to track loading status
+  const [loading, setLoading] = useState(true);
+  // State to track if initial data has been loaded
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  // Effect hook to fetch device name
+  useEffect(() => {
+    const getDeviceName = async () => {
+      try {
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        if (userId && deviceId) {
+          const deviceData = await fetchDeviceSpecifications(userId, deviceId);
+          if (deviceData && deviceData.deviceName) {
+            setDeviceName(deviceData.deviceName);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching device name:', error);
+      }
+    };
+    
+    getDeviceName();
+  }, [deviceId]);
 
   // Effect hook to fetch battery metrics data
   useEffect(() => {
     // Function to load battery information from the API
     const loadBatteryInfo = async () => {
       try {
+        // Only show loading indicator on initial load
+        if (!initialLoadComplete) {
+          setLoading(true);
+        }
+        
         // Get user ID from localStorage (stored during login)
         const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
         
-        // Use the fetchBatteryInfo service function to get battery data
+        // Validate required parameters
+        if (!userId || !deviceId) {
+          console.error('Missing user ID or device ID:', { userId, deviceId });
+          setError('Missing user ID or device ID. Please make sure you are logged in and have a device selected.');
+          setLoading(false);
+          setInitialLoadComplete(true);
+          return;
+        }
+        
+        // Fetch battery information
         const data = await fetchBatteryInfo(userId, deviceId);
         
-        // Structure the response data into a consistent format
-        // Use nullish coalescing to provide fallbacks for missing data
+        // Validate the returned data
+        if (!data) {
+          console.error('No battery data received');
+          setError('No battery data received from server');
+          setLoading(false);
+          setInitialLoadComplete(true);
+          return;
+        }
+        
+        // Update state with the battery data
         setBatteryInfo({
-          hasBattery: data.hasBattery ?? true,
-          percentage: data.batteryPercentage ?? 80,
-          isCharging: data.isCharging ?? false,
-          powerConsumption: data.powerConsumption ?? 12.50,
+          percentage: data.batteryPercentage || 0,
+          isCharging: data.isCharging || false,
+          powerConsumption: data.powerConsumption || 0,
           timestamp: new Date().toISOString()
         });
+        
         // Clear any previous errors
         setError(null);
+        
+        // Set loading to false and mark initial load as complete
+        setLoading(false);
+        setInitialLoadComplete(true);
       } catch (error) {
         // Log error to console for debugging
         console.error('Error loading battery metrics:', error);
@@ -56,6 +98,9 @@ const BatteryMetrics = () => {
         setError(`Failed to load battery information: ${error.message}`);
         // Clear battery info when error occurs
         setBatteryInfo(null);
+        // Set loading to false and mark initial load as complete
+        setLoading(false);
+        setInitialLoadComplete(true);
       }
     };
 
@@ -66,7 +111,7 @@ const BatteryMetrics = () => {
 
     // Clean up interval when component unmounts
     return () => clearInterval(interval);
-  }, [deviceId]); // Re-run effect when deviceId changes
+  }, [deviceId, initialLoadComplete]); // Re-run effect when deviceId changes
 
   // Render error state if there's an error
   if (error) {
@@ -91,35 +136,20 @@ const BatteryMetrics = () => {
     );
   }
 
-  // Render loading state while fetching data
-  if (!batteryInfo) {
-    return <div className="p-4">Loading battery information...</div>;
+  // Render loading state only during initial data loading
+  if (loading && !initialLoadComplete) {
+    return <LoadingScreen message="Loading battery information..." />;
   }
 
-  // Render a specific view for devices without a battery
-  if (!batteryInfo.hasBattery) {
-    return (
-      <div className="p-4">
-        <div className="mb-6">
-          <Link
-            to={`/dashboard/device/${deviceId}`}
-            className="text-blue-500 hover:text-blue-600 flex items-center"
-          >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Device Overview
-          </Link>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md mx-auto">
-          <h2 className="text-2xl font-bold mb-4">Battery Status</h2>
-          <p className="text-gray-500">This device does not have a battery.</p>
-        </div>
-      </div>
-    );
-  }
+  // Show main content if we have battery data, or after initial load
+  const displayBatteryInfo = batteryInfo || {
+    percentage: 0,
+    isCharging: false,
+    powerConsumption: 0,
+    timestamp: new Date().toISOString()
+  };
 
-  // Main component render with battery metrics display
+  // Main component render with battery metrics display in a simpler layout
   return (
     <div className="p-4">
       <div className="mb-6">
@@ -135,47 +165,53 @@ const BatteryMetrics = () => {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm p-8 max-w-md mx-auto">
-        <h2 className="text-2xl font-bold mb-8">Battery Status</h2>
-
-        {/* Battery Percentage Bar - Visual representation of battery level */}
-        <div className="mb-8">
-          <div className="bg-gray-100 rounded-full p-1 w-full">
+        <h2 className="text-2xl font-bold mb-6">Battery Status</h2>
+        
+        {/* Battery Percentage Visualization */}
+        <div className="mb-6 border border-gray-200 rounded-md p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-600 font-medium">Battery</span>
+            <span className="text-gray-900 font-bold">{displayBatteryInfo.percentage}%</span>
+          </div>
+          <div className="bg-gray-200 rounded-full h-4">
             <div 
-              className={`text-white text-center py-2 px-4 rounded-full transition-all duration-500 ease-in-out ${
-                batteryInfo.percentage > 20 ? 'bg-green-500' : 'bg-red-500'
+              className={`h-4 rounded-full transition-all duration-500 ease-in-out ${
+                displayBatteryInfo.percentage <= 20 ? 'bg-red-500' : 
+                displayBatteryInfo.percentage <= 50 ? 'bg-yellow-500' : 
+                'bg-green-500'
               }`}
-              style={{ width: `${batteryInfo.percentage}%` }}
-            >
-              {batteryInfo.percentage}%
-            </div>
+              style={{ width: `${Math.max(5, displayBatteryInfo.percentage)}%` }}
+            ></div>
           </div>
         </div>
-
-        {/* Battery Details - Shows charging status and power consumption */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <span className="text-gray-500">Status</span>
-            <span className="font-medium flex items-center">
-              {batteryInfo.isCharging ? (
-                <>
-                  <svg className="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a1 1 0 00-1 1v1.268a2 2 0 01-1.732 1.982l-.284.064a2 2 0 00-1.732 1.982V9a1 1 0 001 1h6a1 1 0 001-1V8.296a2 2 0 00-1.732-1.982l-.284-.064A2 2 0 0011 4.268V3a1 1 0 00-1-1z" />
-                  </svg>
-                  Charging
-                </>
-              ) : 'Not Charging'}
+        
+        {/* Device Information */}
+        <div className="space-y-4 divide-y divide-gray-100">
+          <div className="flex justify-between items-center py-2">
+            <span className="text-gray-600">Device Name</span>
+            <span className="text-gray-900 font-medium">{deviceName}</span>
+          </div>
+          
+          <div className="flex justify-between items-center py-2">
+            <span className="text-gray-600">Charging</span>
+            <span className="text-gray-900 font-medium">
+              {displayBatteryInfo.isCharging ? 'Yes' : 'No'}
             </span>
           </div>
           
-          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <span className="text-gray-500">Power Consumption</span>
-            <span className="font-medium">{batteryInfo.powerConsumption.toFixed(2)} W</span>
+          <div className="flex justify-between items-center py-2">
+            <span className="text-gray-600">Power Consumption</span>
+            <span className="text-gray-900 font-medium">
+              {typeof displayBatteryInfo.powerConsumption === 'number' 
+                ? `${displayBatteryInfo.powerConsumption.toFixed(2)} W` 
+                : '0.00 W'}
+            </span>
           </div>
-
-          <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <span className="text-gray-500">Last Updated</span>
-            <span className="font-medium">
-              {new Date(batteryInfo.timestamp).toLocaleString()}
+          
+          <div className="flex justify-between items-center py-2">
+            <span className="text-gray-600">Time Stamp</span>
+            <span className="text-gray-900 font-medium text-sm">
+              {new Date(displayBatteryInfo.timestamp).toLocaleString()}
             </span>
           </div>
         </div>

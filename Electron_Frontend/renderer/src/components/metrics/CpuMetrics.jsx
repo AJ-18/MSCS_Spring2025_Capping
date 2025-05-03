@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MetricGauge from '../MetricGauge';
+import LoadingScreen from '../LoadingScreen';
 import { fetchCpuUsage } from '../../services/systemMetrics';
 
 // Mock data for development/testing purposes when real data isn't available
@@ -37,13 +38,19 @@ const CpuMetrics = () => {
   const [error, setError] = useState(null);
   // State to track loading status
   const [loading, setLoading] = useState(true);
+  // State to track if initial data has been loaded
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   // Effect hook to fetch CPU metrics data
   useEffect(() => {
     // Function to load CPU information from the API
     const loadCpuInfo = async () => {
       try {
-        setLoading(true);
+        // Only show loading indicator on initial load
+        if (!initialLoadComplete) {
+          setLoading(true);
+        }
+        
         // Get user ID from localStorage (stored during login)
         const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
         
@@ -52,6 +59,7 @@ const CpuMetrics = () => {
           console.error('Missing user ID or device ID:', { userId, deviceId });
           setError('Missing user ID or device ID. Please make sure you are logged in and have a device selected.');
           setLoading(false);
+          setInitialLoadComplete(true);
           return;
         }
         
@@ -66,6 +74,7 @@ const CpuMetrics = () => {
           console.error('Invalid CPU data received:', data);
           setError('Received invalid CPU data from server');
           setLoading(false);
+          setInitialLoadComplete(true);
           return;
         }
 
@@ -91,10 +100,13 @@ const CpuMetrics = () => {
           perCoreUsage: perCoreUsage,
           timestamp: new Date().toISOString()
         });
+        
         // Clear any previous errors
         setError(null);
-        // Set loading to false as data is now available
+        
+        // Set loading to false and mark initial load as complete
         setLoading(false);
+        setInitialLoadComplete(true);
       } catch (error) {
         // Log error to console for debugging
         console.error('Error loading CPU metrics:', error);
@@ -102,8 +114,9 @@ const CpuMetrics = () => {
         setError(`Failed to load CPU information: ${error.message}`);
         // Clear CPU info when error occurs
         setCpuInfo(null);
-        // Set loading to false as the operation has completed (with error)
+        // Set loading to false and mark initial load as complete
         setLoading(false);
+        setInitialLoadComplete(true);
       }
     };
 
@@ -114,7 +127,7 @@ const CpuMetrics = () => {
 
     // Clean up interval when component unmounts
     return () => clearInterval(interval);
-  }, [deviceId]); // Re-run effect when deviceId changes
+  }, [deviceId, initialLoadComplete]); // Re-run effect when deviceId changes
 
   // Render error state if there's an error
   if (error) {
@@ -139,25 +152,17 @@ const CpuMetrics = () => {
     );
   }
 
-  // Render loading state while fetching data
-  if (loading || !cpuInfo) {
-    return (
-      <div className="p-4">
-        <div className="mb-6">
-          <Link
-            to={`/dashboard/device/${deviceId}`}
-            className="text-blue-500 hover:text-blue-600 flex items-center"
-          >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Device Overview
-          </Link>
-        </div>
-        <div className="p-4">Loading CPU information...</div>
-      </div>
-    );
+  // Render loading state only during initial data loading
+  if (loading && !initialLoadComplete) {
+    return <LoadingScreen message="Loading CPU metrics..." />;
   }
+
+  // Show main content if we have CPU data, or after initial load
+  const displayCpuInfo = cpuInfo || {
+    totalCpuLoad: 0,
+    perCoreUsage: [],
+    timestamp: new Date().toISOString()
+  };
 
   // Main component render with CPU metrics display
   return (
@@ -182,10 +187,10 @@ const CpuMetrics = () => {
           <div className="flex justify-center mb-6">
             <MetricGauge
               title="Total CPU Load"
-              value={cpuInfo.totalCpuLoad || 0}
+              value={displayCpuInfo.totalCpuLoad || 0}
               color={
-                cpuInfo.totalCpuLoad > 90 ? '#EF4444' :  // Red for critical usage (>90%)
-                cpuInfo.totalCpuLoad > 70 ? '#F59E0B' :  // Yellow for warning (>70%)
+                displayCpuInfo.totalCpuLoad > 90 ? '#EF4444' :  // Red for critical usage (>90%)
+                displayCpuInfo.totalCpuLoad > 70 ? '#F59E0B' :  // Yellow for warning (>70%)
                 '#10B981'  // Green for normal usage
               }
               suffix="%"
@@ -197,10 +202,10 @@ const CpuMetrics = () => {
         <div>
           <h3 className="text-lg font-semibold mb-4">Per Core Usage</h3>
           {/* Conditional rendering based on whether per-core data is available */}
-          {cpuInfo.perCoreUsage && cpuInfo.perCoreUsage.length > 0 ? (
+          {displayCpuInfo.perCoreUsage && displayCpuInfo.perCoreUsage.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Map through each core and display its usage */}
-              {cpuInfo.perCoreUsage.map((core) => (
+              {displayCpuInfo.perCoreUsage.map((core) => (
                 <div key={core.core} className="bg-gray-50 rounded-lg p-4">
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-600">Core {core.core}</span>
@@ -229,7 +234,7 @@ const CpuMetrics = () => {
 
         {/* Timestamp showing when the data was last updated */}
         <div className="mt-6 text-sm text-gray-500 text-right">
-          Last updated: {new Date(cpuInfo.timestamp).toLocaleString()}
+          Last updated: {new Date(displayCpuInfo.timestamp).toLocaleString()}
         </div>
       </div>
     </div>
