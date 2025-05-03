@@ -34,7 +34,7 @@ const getMockMetrics = () => ({
     download: Math.random() * 10,
     upload: Math.random() * 2
   },
-  processes: Array(10).fill(0).map((_, i) => ({
+  processes: Array(30).fill(0).map((_, i) => ({
     pid: 1000 + i,
     name: ['chrome', 'code', 'node', 'spotify'][Math.floor(Math.random() * 4)],
     cpu: Math.random() * 10,
@@ -452,7 +452,7 @@ export const fetchProcessStatuses = async (userId, deviceId) => {
     }
 
     if (process.env.NODE_ENV !== 'production') {
-      return Array(10).fill(0).map((_, i) => ({
+      return Array(30).fill(0).map((_, i) => ({
         pid: 1000 + i,
         name: ['chrome', 'code', 'node', 'spotify', 'slack', 'discord'][Math.floor(Math.random() * 6)],
         cpuUsage: Math.random() * 10,

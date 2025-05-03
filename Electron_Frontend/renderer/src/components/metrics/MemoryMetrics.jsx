@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MetricGauge from '../MetricGauge';
+import LoadingScreen from '../LoadingScreen';
 import { fetchRamUsage } from '../../services/systemMetrics';
 
 // Mock data for development/testing purposes when real data isn't available
@@ -29,13 +30,19 @@ const MemoryMetrics = () => {
   const [error, setError] = useState(null);
   // State to track loading status
   const [loading, setLoading] = useState(true);
+  // State to track if initial data has been loaded
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   // Effect hook to fetch memory metrics data
   useEffect(() => {
     // Function to load memory information from the API
     const loadMemoryInfo = async () => {
       try {
-        setLoading(true);
+        // Only show loading indicator on initial load
+        if (!initialLoadComplete) {
+          setLoading(true);
+        }
+        
         // Get user ID from localStorage (stored during login)
         const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
         
@@ -44,6 +51,7 @@ const MemoryMetrics = () => {
           console.error('Missing user ID or device ID:', { userId, deviceId });
           setError('Missing user ID or device ID. Please make sure you are logged in and have a device selected.');
           setLoading(false);
+          setInitialLoadComplete(true);
           return;
         }
         
@@ -58,6 +66,7 @@ const MemoryMetrics = () => {
           console.error('No memory data received');
           setError('No memory data received from server');
           setLoading(false);
+          setInitialLoadComplete(true);
           return;
         }
         
@@ -69,10 +78,13 @@ const MemoryMetrics = () => {
           availableMemory: parseFloat(data.availableMemory) || 0,
           timestamp: new Date().toISOString()
         });
+        
         // Clear any previous errors
         setError(null);
-        // Set loading to false as data is now available
+        
+        // Set loading to false and mark initial load as complete
         setLoading(false);
+        setInitialLoadComplete(true);
       } catch (error) {
         // Log error to console for debugging
         console.error('Error loading memory metrics:', error);
@@ -80,8 +92,9 @@ const MemoryMetrics = () => {
         setError(`Failed to load memory information: ${error.message}`);
         // Clear memory info when error occurs
         setMemoryInfo(null);
-        // Set loading to false as the operation has completed (with error)
+        // Set loading to false and mark initial load as complete
         setLoading(false);
+        setInitialLoadComplete(true);
       }
     };
 
@@ -92,7 +105,7 @@ const MemoryMetrics = () => {
 
     // Clean up interval when component unmounts
     return () => clearInterval(interval);
-  }, [deviceId]); // Re-run effect when deviceId changes
+  }, [deviceId, initialLoadComplete]); // Re-run effect when deviceId changes
 
   // Render error state if there's an error
   if (error) {
@@ -117,29 +130,22 @@ const MemoryMetrics = () => {
     );
   }
 
-  // Render loading state while fetching data
-  if (loading || !memoryInfo) {
-    return (
-      <div className="p-4">
-        <div className="mb-6">
-          <Link
-            to={`/dashboard/device/${deviceId}`}
-            className="text-blue-500 hover:text-blue-600 flex items-center"
-          >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Device Overview
-          </Link>
-        </div>
-        <div className="p-4">Loading memory information...</div>
-      </div>
-    );
+  // Render loading state only during initial data loading
+  if (loading && !initialLoadComplete) {
+    return <LoadingScreen message="Loading memory metrics..." />;
   }
 
+  // Show main content if we have memory data, or after initial load
+  const displayMemoryInfo = memoryInfo || {
+    totalMemory: 0,
+    usedMemory: 0,
+    availableMemory: 0,
+    timestamp: new Date().toISOString()
+  };
+
   // Calculate memory usage percentage with protection against division by zero
-  const usedPercentage = memoryInfo.totalMemory > 0 
-    ? (memoryInfo.usedMemory / memoryInfo.totalMemory) * 100 
+  const usedPercentage = displayMemoryInfo.totalMemory > 0 
+    ? (displayMemoryInfo.usedMemory / displayMemoryInfo.totalMemory) * 100 
     : 0;
 
   // Main component render with memory metrics display
@@ -172,7 +178,7 @@ const MemoryMetrics = () => {
                 '#3B82F6'  // Blue for normal usage
               }
               suffix="%"
-              subtitle={`${memoryInfo.usedMemory.toFixed(1)}/${memoryInfo.totalMemory.toFixed(1)} GB`}
+              subtitle={`${displayMemoryInfo.usedMemory.toFixed(1)}/${displayMemoryInfo.totalMemory.toFixed(1)} GB`}
             />
           </div>
         </div>
@@ -181,23 +187,23 @@ const MemoryMetrics = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gray-50 rounded-lg p-6">
             <h4 className="text-gray-500 mb-2">Total Memory</h4>
-            <div className="text-2xl font-semibold">{memoryInfo.totalMemory.toFixed(1)} GB</div>
+            <div className="text-2xl font-semibold">{displayMemoryInfo.totalMemory.toFixed(1)} GB</div>
           </div>
           
           <div className="bg-gray-50 rounded-lg p-6">
             <h4 className="text-gray-500 mb-2">Used Memory</h4>
-            <div className="text-2xl font-semibold">{memoryInfo.usedMemory.toFixed(1)} GB</div>
+            <div className="text-2xl font-semibold">{displayMemoryInfo.usedMemory.toFixed(1)} GB</div>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-6">
             <h4 className="text-gray-500 mb-2">Available Memory</h4>
-            <div className="text-2xl font-semibold">{memoryInfo.availableMemory.toFixed(1)} GB</div>
+            <div className="text-2xl font-semibold">{displayMemoryInfo.availableMemory.toFixed(1)} GB</div>
           </div>
         </div>
 
         {/* Timestamp showing when the data was last updated */}
         <div className="mt-6 text-sm text-gray-500 text-right">
-          Last updated: {new Date(memoryInfo.timestamp).toLocaleString()}
+          Last updated: {new Date(displayMemoryInfo.timestamp).toLocaleString()}
         </div>
       </div>
     </div>
