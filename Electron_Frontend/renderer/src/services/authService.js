@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for API calls
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://mscs-spring2025-capping.onrender.com';
 
 // Mock user database for development/testing
 const mockUsers = new Map();
