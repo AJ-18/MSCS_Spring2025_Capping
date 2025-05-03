@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+// BatteryDetailView.swift
+
+import SwiftUI
+
 // MARK: - BatteryDetailView (Main View)
 struct BatteryDetailView: View {
     @StateObject private var viewModel: BatteryViewModel
@@ -21,23 +25,19 @@ struct BatteryDetailView: View {
     var body: some View {
         LoadingView(isLoading: viewModel.isLoading) {
             ZStack {
-                // MARK: Background Gradient
-                LinearGradient(colors: [.blue.opacity(0.15), .purple.opacity(0.2)], startPoint: .top, endPoint: .bottom)
+                LinearGradient(colors: [.blue.opacity(0.15), .purple.opacity(0.2)],
+                               startPoint: .top,
+                               endPoint: .bottom)
                     .ignoresSafeArea()
 
                 VStack {
                     Spacer()
-
-                    // MARK: Card Content
                     BatteryCardView(viewModel: viewModel, device: device)
-
                     Spacer()
                 }
                 .padding()
             }
-            .onAppear {
-                self.logPageVisit()
-        }
+            .onAppear { self.logPageVisit() }
         }
     }
 }
@@ -50,22 +50,17 @@ struct BatteryCardView: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            // MARK: Title
             Text(StringConstant.batteryStatus)
                 .font(.title)
                 .fontWeight(.bold)
                 .accessibilityAddTraits(.isHeader)
                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
 
-            // MARK: Battery Visualization
-            BatteryGaugeView(percentage: viewModel.batteryInfo.batteryPercentage)
-
-            // MARK: Info Rows
-            VStack(alignment: .leading, spacing: 15) {
-                InfoRow(label: StringConstant.deviceName, value: device.deviceName)
-                InfoRow(label: StringConstant.Charging, value: viewModel.batteryInfo.charging ? StringConstant.batYes : StringConstant.batNo)
-                InfoRow(label: StringConstant.power, value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
-                InfoRow(label: StringConstant.registeredAt, value: viewModel.batteryInfo.timestamp.toFormattedDate())
+            if isConnectedToPowerOutlet {
+                ConnectedToPowerView()
+            } else {
+                BatteryGaugeView(percentage: viewModel.batteryInfo.batteryPercentage)
+                BatteryInfoListView(viewModel: viewModel, device: device)
             }
         }
         .padding()
@@ -74,7 +69,43 @@ struct BatteryCardView: View {
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
     }
+
+    private var isConnectedToPowerOutlet: Bool {
+        viewModel.batteryInfo.batteryPercentage == 0 &&
+        viewModel.batteryInfo.powerConsumption == 0
+    }
 }
+
+// MARK: - ConnectedToPowerView
+struct ConnectedToPowerView: View {
+    var body: some View {
+        ZStack {
+            // Background battery shell
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.gray.opacity(0.3), lineWidth: 2)
+                .frame(width: 200, height: 80)
+                .background(Color.white.opacity(0.2))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            VStack(spacing: 8) {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 28, weight: .semibold))
+                    .foregroundColor(.green)
+
+                Text("Connected to Power Outlet")
+                    .font(.footnote)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .padding(.horizontal, 8)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(width: 200, height: 80)
+        }
+    }
+}
+
 
 // MARK: - Battery Gauge View
 struct BatteryGaugeView: View {
@@ -97,21 +128,18 @@ struct BatteryGaugeView: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            // Battery Shell
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.gray.opacity(0.3), lineWidth: 2)
                 .frame(width: 200, height: 80)
                 .background(Color.white.opacity(0.2))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            // Fill Bar
             RoundedRectangle(cornerRadius: 10)
                 .fill(batteryColor)
                 .frame(width: batteryFillWidth, height: 70)
                 .animation(.easeInOut(duration: 0.5), value: percentage)
                 .padding(.leading, 5)
 
-            // Percentage Text
             Text("\(percentage)%")
                 .font(.title2)
                 .fontWeight(.bold)
@@ -122,6 +150,22 @@ struct BatteryGaugeView: View {
         }
     }
 }
+
+// MARK: - Battery Info List View
+struct BatteryInfoListView: View {
+    let viewModel: BatteryViewModel
+    let device: DeviceSpecification
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            InfoRow(label: StringConstant.deviceName, value: device.deviceName)
+            InfoRow(label: StringConstant.Charging, value: viewModel.batteryInfo.charging ? StringConstant.batYes : StringConstant.batNo)
+            InfoRow(label: StringConstant.power, value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
+            InfoRow(label: StringConstant.registeredAt, value: viewModel.batteryInfo.timestamp.toFormattedDate())
+        }
+    }
+}
+
 
 // MARK: - Preview
 #Preview {
