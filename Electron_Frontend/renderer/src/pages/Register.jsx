@@ -30,7 +30,7 @@ const Register = () => {
   const [showDevicePrompt, setShowDevicePrompt] = useState(false);
   
   // API base URL
-  const baseUrl = 'http://localhost:8080';
+  const baseUrl = 'https://mscs-spring2025-capping.onrender.com';
   
   // State to store user data for device registration
   const [userData, setUserData] = useState(null);
@@ -178,7 +178,7 @@ const Register = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="flex flex-col items-center">
           <img
-            src="/SPAR.png"
+            src="SPAR.png"
             alt="SPAR Logo"
             className="w-64 h-auto mb-6"
           />

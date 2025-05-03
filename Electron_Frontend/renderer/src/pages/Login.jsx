@@ -28,7 +28,7 @@ const Login = () => {
   // State to control device registration modal visibility
   const [showDevicePrompt, setShowDevicePrompt] = useState(false);
   // API base URL for backend requests
-  const baseUrl = 'http://localhost:8080';
+  const baseUrl = 'https://mscs-spring2025-capping.onrender.com';
 
   /**
    * Handles form input changes
@@ -263,7 +263,7 @@ const Login = () => {
         {/* Logo and title */}
         <div className="flex flex-col items-center">
           <img
-            src="/SPAR.png"
+            src="SPAR.png"
             alt="SPAR Logo"
             className="w-64 h-auto mb-6"
           />

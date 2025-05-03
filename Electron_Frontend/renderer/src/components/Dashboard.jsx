@@ -23,7 +23,7 @@ const Dashboard = () => {
   // State to track loading status of devices
   const [loadingDevices, setLoadingDevices] = useState(true);
   // API base URL for backend requests
-  const baseUrl = 'http://localhost:8080';
+  const baseUrl = 'https://mscs-spring2025-capping.onrender.com';
   // React Router navigation hook
   const navigate = useNavigate();
 
