@@ -237,21 +237,25 @@ public class MetricsService {
         }
     }
 
-    public Optional<DiskUsage> getLatestDiskUsage(User user, DeviceSpecification device) {
+    public List<DiskUsage> getLatestDiskUsage(User user, DeviceSpecification device) {
         Long userId = user.getId();
         String deviceId = device.getDeviceId();
         try {
             logger.info("getLatestDiskUsage called for userId={}, deviceId={}", userId, deviceId);
-            Optional<DiskUsage> result = diskUsageRepository
-                    .findTopByUserAndDeviceOrderByTimestampDesc(user, device);
-            logger.info("getLatestDiskUsage returned {} for userId={}, deviceId={}",
-                    result.map(d -> "1 record").orElse("0 records"), userId, deviceId);
-            return result;
+            List<DiskUsage> results = diskUsageRepository
+                    .findByUserAndDeviceOrderByTimestampDesc(user, device);
+            if (!results.isEmpty()) {
+                logger.info("Returned {} records for userId={}, deviceId={}", results.size(), userId, deviceId);
+            } else {
+                logger.info("No records found for userId={}, deviceId={}", userId, deviceId);
+            }
+            return results;
         } catch (Exception e) {
             logger.error("Error in getLatestDiskUsage for userId={}, deviceId={}", userId, deviceId, e);
             throw e;
         }
     }
+
 
     public Optional<DiskIO> getLatestDiskIO(User user, DeviceSpecification device) {
         Long userId = user.getId();
