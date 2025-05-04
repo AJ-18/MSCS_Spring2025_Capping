@@ -309,24 +309,31 @@ public class MetricsController {
     }
 
     @GetMapping("/disk-usage/{userId}/{deviceId}")
-    public ResponseEntity<DiskUsageDTO> getLatestDiskUsage(@PathVariable Long userId,
-                                                           @PathVariable String deviceId) {
+    public ResponseEntity<List<DiskUsageDTO>> getLatestDiskUsage(@PathVariable Long userId,
+                                                                 @PathVariable String deviceId) {
         logger.info("getLatestDiskUsage called for userId={} deviceId={}", userId, deviceId);
         var user = userRepo.getReferenceById(userId);
         var device = lookupDevice(userId, deviceId);
-        var du = metricsService.getLatestDiskUsage(user, device)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, AppConstants.ERROR_NOT_FOUND));
-        return ResponseEntity.ok(new DiskUsageDTO(
-                du.getId(),
-                du.getFilesystem(),
-                du.getSizeGB(),
-                du.getUsedGB(),
-                du.getAvailableGB(),
-                userId,
-                deviceId,
-                du.getTimestamp()
-        ));
+        List<DiskUsage> duList = metricsService.getLatestDiskUsage(user, device);
+        if (duList.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, AppConstants.ERROR_NOT_FOUND);
+        }
+        // Convert to DTOs
+        List<DiskUsageDTO> dtoList = duList.stream()
+                .map(du -> new DiskUsageDTO(
+                        du.getId(),
+                        du.getFilesystem(),
+                        du.getSizeGB(),
+                        du.getUsedGB(),
+                        du.getAvailableGB(),
+                        userId,
+                        deviceId,
+                        du.getTimestamp()
+                ))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
     }
+
 
     @GetMapping("/process-status/{userId}/{deviceId}")
     public ResponseEntity<List<ProcessStatusDTO>> getProcessStatuses(@PathVariable Long userId,
