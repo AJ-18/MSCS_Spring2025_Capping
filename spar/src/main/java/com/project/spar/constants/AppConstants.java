@@ -10,7 +10,7 @@ public final class AppConstants {
     }
     public static final int MAX_RETRIES = 3;
 
-    public static final int MAX_PROCESSES = 50;
+    public static final int MAX_PROCESSES = 300;
     public static final String METRIC_SUCCESS = "Metrics saved successfully";
     public static final String METRIC_FAILURE = "Metrics save failed";
     public static final String USER_NOT_FOUND = "User not found";

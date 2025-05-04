@@ -36,8 +36,6 @@ public class MetricsService {
     @Autowired
     private ProcessStatusRepository processStatusRepository;
 
-    @Autowired
-    private NetworkInterfaceRepository networkInterfaceRepository;
 
     @Autowired
     private BatteryInfoRepository batteryInfoRepository;
@@ -173,20 +171,6 @@ public class MetricsService {
         }
     }
 
-    @Transactional
-    public NetworkInterface saveNetworkInterface(NetworkInterface netIf) {
-        Long userId = netIf.getUser().getId();
-        String deviceId = netIf.getDevice().getDeviceId();
-        try {
-            logger.info("saveNetworkInterface called for userId={}, deviceId={}", userId, deviceId);
-            NetworkInterface saved = networkInterfaceRepository.save(netIf);
-            logger.info("saveNetworkInterface succeeded for userId={}, deviceId={}", userId, deviceId);
-            return saved;
-        } catch (Exception e) {
-            logger.error("Error in saveNetworkInterface for userId={}, deviceId={}", userId, deviceId, e);
-            throw e;
-        }
-    }
 
     @Transactional
     public BatteryInfo saveBatteryInfo(BatteryInfo batteryInfo) {

@@ -169,32 +169,7 @@ public class MetricsController {
         }
     }
 
-    @PostMapping("/network-interfaces")
-    public ResponseEntity<?> addNetworkInterface(@RequestBody NetworkInterface ni) {
-        logger.info("addNetworkInterface called for userId={}", ni.getUser() != null ? ni.getUser().getId() : null);
-        try {
-            ni.setUser(userRepo.getReferenceById(ni.getUser().getId()));
-            ni.setDevice(lookupDevice(ni.getUser().getId(), ni.getDevice().getDeviceId()));
-            var saved = metricsService.saveNetworkInterface(ni);
-            logger.info("addNetworkInterface successful for id={}", saved.getId());
-            var dto = new NetworkInterfaceDTO(
-                    saved.getId(),
-                    saved.getIface(),
-                    saved.getIpAddress(),
-                    saved.getMacAddress(),
-                    saved.getSpeedMbps(),
-                    saved.getUser().getId(),
-                    saved.getDevice().getDeviceId(),
-                    saved.getTimestamp()
-            );
-            return ResponseEntity.ok(dto);
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("Error in addNetworkInterface", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, AppConstants.ERROR_GENERIC);
-        }
-    }
+
 
     @PostMapping("/process-status")
     public ResponseEntity<?> addProcessStatus(
