@@ -1,5 +1,6 @@
 package com.project.spar.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ public class BatteryInfo {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
     private boolean hasBattery;
     private int batteryPercentage;
+    @JsonProperty("isCharging")
     private boolean isCharging;
     private Double powerConsumption;
     private LocalDateTime timestamp = LocalDateTime.now();
