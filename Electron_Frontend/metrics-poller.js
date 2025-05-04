@@ -202,6 +202,19 @@ class MetricsPoller {
 
     // WMI memory map
     const wmiMemMap = await getWmiMemoryMap();
+	
+	
+    // Build per-PID CPU% map
+
+    const procInfo = await si.processes();
+
+    const cpuMap = {};
+
+    procInfo.list.forEach(p => {
+
+      cpuMap[p.pid] = p.cpu;
+
+    });
 
     // Grab SI metrics
     const [ battery, load, mem, fsList ] = await Promise.all([
@@ -246,18 +259,26 @@ class MetricsPoller {
       availableGB: d.available / 1024**3
     }));
 
-    // Processes
+   // Processes: group by name, avg-CPU & total RAM, pick one PID
     const procs = await psList();
-    const processStatuses = procs
-      .sort((a,b) => (b.cpu||0)-(a.cpu||0))
-      .slice(0,30)
-      .map(p => ({
-        pid:      p.pid,
-        name:     p.name,
-        cpuUsage: p.cpu || 0,
-        memoryMB: (wmiMemMap[p.pid] || 0) / 1024**2
-      }));
+    const groups = {};
+    procs.forEach(p => {
+      const name = p.name || 'unknown';
+      if (!groups[name]) groups[name] = { pids:[], totalCpu:0, totalMem:0 };
+      groups[name].pids.push(p.pid);
+      groups[name].totalCpu += cpuMap[p.pid] || 0;          // avg CPU will come next
+      groups[name].totalMem += (wmiMemMap[p.pid] || 0);     // total RAM bytes
+    });
 
+    const processStatuses = Object.entries(groups)
+      .sort(([,a],[,b]) => b.totalMem - a.totalMem)        // sort by RAM
+      .slice(0, 30)                                        // top 30
+      .map(([name, stats]) => ({
+        pid:      stats.pids[0],                           // first PID
+        name:     name,                                    // just the executable name
+        cpuUsage: stats.totalCpu / stats.pids.length,      // average CPU%
+        memoryMB: stats.totalMem  / 1024**2                // total RAM in MB
+      }));
     return {
       userId:          this.config.userId,
       deviceId:        this.config.deviceId,

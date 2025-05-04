@@ -65,7 +65,7 @@ app.whenReady().then(() => {
   /**
    * IPC handler: register-device
    * Registers the current device with the backend API
-   * @param {Event} _ - Electron IPC event (unused)
+   * @param {Event} _ - Electron IPC event 
    * @param {string} baseUrl - API base URL
    * @param {string} token - Authentication token
    * @param {string} userId - User ID to associate with the device
