@@ -223,12 +223,12 @@ class MetricsPoller {
 
     // Battery
     const batteryInfo = {
-      hasBattery:       battery.hasBattery,
+      hasBattery: battery.hasBattery ? 1 : 0,
       batteryPercentage: battery.percent,
-      isCharging:       battery.isCharging,
-      powerConsumption: battery.powerConsumption || 0
+      isCharging: battery.isCharging ? 1 : 0,
+      powerConsumption: battery.powerConsumption || 0,
     };
-
+    console.log("Battery Info being saved:", batteryInfo);
     // CPU
     const perCore = load.cpus.map((c,i) => ({ core:i+1, usage:c.load }));
     const cpuUsage = {
@@ -276,7 +276,7 @@ class MetricsPoller {
       .map(([name, stats]) => ({
         pid:      stats.pids[0],                           // first PID
         name:     name,                                    // just the executable name
-        cpuUsage: stats.totalCpu / stats.pids.length,      // average CPU%
+        cpuUsage: stats.totalCpu ,      // average CPU%
         memoryMB: stats.totalMem  / 1024**2                // total RAM in MB
       }));
     return {
