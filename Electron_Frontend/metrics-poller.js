@@ -407,10 +407,6 @@ class MetricsPoller {
           // Cap CPU at 100% per process for sanity
           cpuUsage = Math.min(cpuUsage, 100);
           
-          // Log CPU values for main processes
-          if (name === 'opera.exe' || name === 'Cursor.exe') {
-            console.log(`${name} - CPU: ${cpuUsage.toFixed(2)}%, Total CPU: ${stats.totalCpu.toFixed(2)}%, PIDs: ${stats.pids.length}`);
-          }
         }
             
         // Calculate the memory value directly to avoid accumulation issues
@@ -435,11 +431,7 @@ class MetricsPoller {
           console.log(`WARNING: Capping extremely high memory value for ${name}: ${finalMemoryMB} MB -> ${MAX_REASONABLE_MEMORY_MB} MB`);
           finalMemoryMB = MAX_REASONABLE_MEMORY_MB;
         }
-        
-        // Log task-manager comparable values for key processes
-        if (name === 'opera.exe' || name === 'Cursor.exe' || name === 'discord.exe') {
-          console.log(`${name} - Calculated Memory: ${finalMemoryMB.toFixed(2)} MB, PIDs: ${stats.pids.length}`);
-        }
+      
         
         return {
           pid:      stats.pids[0],                           // first PID
