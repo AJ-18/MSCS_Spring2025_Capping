@@ -261,6 +261,11 @@ const DeviceDetails = () => {
         
         console.log("API Responses:", { cpuData, ramData, diskData, batteryData, processData });
         
+        // Handle diskData as array (new format) or as a single object (old format)
+        const diskUsage = Array.isArray(diskData) && diskData.length > 0 
+          ? diskData[0]  // Use the first disk's data for the overview card
+          : diskData || { sizeGB: 512, usedGB: 256, availableGB: 256 };
+        
         // Format and store all metrics data in state with fallbacks for missing data
         setMetrics({
           cpu: {
@@ -273,9 +278,9 @@ const DeviceDetails = () => {
             free: ramData?.availableMemory || 8
           },
           disk: {
-            total: diskData?.sizeGB || 512,
-            used: diskData?.usedGB || 256,
-            free: diskData?.availableGB || 256
+            total: diskUsage.sizeGB || 512,
+            used: diskUsage.usedGB || 256,
+            free: diskUsage.availableGB || 256
           },
           battery: {
             percentage: batteryData?.batteryPercentage || 100,

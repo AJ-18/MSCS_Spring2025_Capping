@@ -245,7 +245,9 @@ const Login = () => {
       }
     } catch (err) {
       // Handle login error
-      setErrors({ submit: err.message || 'Login failed. Please try again.' });
+      setErrors({ 
+        submit: err.message || 'Authentication failed. Please check your username and password, then try again.' 
+      });
     } finally {
       setLoading(false);
     }

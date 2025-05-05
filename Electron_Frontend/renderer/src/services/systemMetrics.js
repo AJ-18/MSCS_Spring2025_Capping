@@ -355,34 +355,44 @@ export const fetchDiskUsage = async (userId, deviceId) => {
     
     if (!userId || !deviceId) {
       console.error('Missing user ID or device ID for Disk Usage');
-      return { 
+      return [{ 
         filesystem: "/dev/sda1",
         sizeGB: 512.0,
         usedGB: 200.0,
         availableGB: 312.0
-      };
+      }];
     }
 
     if (process.env.NODE_ENV !== 'production') {
-      const size = 512.0;
-      const used = Math.random() * 300 + 100;
-      return { 
-        filesystem: "/dev/sda1",
-        sizeGB: size,
-        usedGB: used,
-        availableGB: size - used
-      };
+      const size1 = 512.0;
+      const used1 = Math.random() * 300 + 100;
+      const size2 = 256.0;
+      const used2 = Math.random() * 150 + 50;
+      return [
+        { 
+          filesystem: "C:",
+          sizeGB: size1,
+          usedGB: used1,
+          availableGB: size1 - used1
+        },
+        { 
+          filesystem: "D:",
+          sizeGB: size2,
+          usedGB: used2,
+          availableGB: size2 - used2
+        }
+      ];
     }
 
     return await fetchMetricsFromAPI('disk-usage', userId, deviceId);
   } catch (error) {
     console.error('Error fetching Disk Usage:', error);
-    return { 
+    return [{ 
       filesystem: "/dev/sda1",
       sizeGB: 512.0,
       usedGB: 200.0,
       availableGB: 312.0
-    };
+    }];
   }
 };
 
@@ -530,9 +540,15 @@ export const fetchSystemMetrics = async (userId, deviceId) => {
           free: ramUsage.availableMemory * 1024
         },
         disk: {
-          total: diskUsage.sizeGB * 1024,
-          used: diskUsage.usedGB * 1024,
-          free: diskUsage.availableGB * 1024,
+          total: Array.isArray(diskUsage) && diskUsage.length > 0 
+            ? diskUsage[0].sizeGB * 1024 
+            : diskUsage.sizeGB * 1024,
+          used: Array.isArray(diskUsage) && diskUsage.length > 0 
+            ? diskUsage[0].usedGB * 1024 
+            : diskUsage.usedGB * 1024,
+          free: Array.isArray(diskUsage) && diskUsage.length > 0 
+            ? diskUsage[0].availableGB * 1024 
+            : diskUsage.availableGB * 1024,
           read: diskIO.readSpeedMBps,
           write: diskIO.writeSpeedMBps
         },
