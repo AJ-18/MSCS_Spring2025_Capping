@@ -6,7 +6,7 @@
  */
 
 // Import required Electron modules
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 
 // Import metrics collection module
@@ -21,6 +21,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width:  1200,
     height: 800,
+    title: "S.P.A.R Metrics Collector",
     icon: path.join(__dirname, 'renderer/public/SPAR.png'),
     webPreferences: {
       nodeIntegration:        false,  // Prevents renderer from accessing Node directly
@@ -31,6 +32,9 @@ function createWindow() {
       allowRunningInsecureContent: false // Prevents loading insecure resources
     }
   });
+
+  // Remove the menu bar
+  win.setMenu(null);
 
   // Load appropriate content based on environment
   if (process.env.NODE_ENV === 'development') {
@@ -46,6 +50,9 @@ function createWindow() {
  * Creates the window and sets up IPC handlers when the app is ready
  */
 app.whenReady().then(() => {
+  // Remove application menu completely
+  Menu.setApplicationMenu(null);
+  
   createWindow();
 
   /**

@@ -64,6 +64,36 @@ const ProcessMetrics = () => {
         
         // Enhanced diagnostic logging for process data
         console.log(`Received ${processData ? processData.length : 0} processes from API`);
+        if (processData && processData.length > 0) {
+          // Track Opera memory over time to detect accumulation issues
+          const operaProcess = processData.find(p => p.name === 'opera.exe');
+          if (operaProcess) {
+            console.log(`FRONTEND - Opera memory: ${operaProcess.memoryMB} MB`);
+          }
+          
+          // Log stats for known processes to compare with Task Manager
+          const knownProcesses = ['opera.exe', 'chrome.exe', 'discord.exe', 'cursor.exe'];
+          knownProcesses.forEach(name => {
+            const procs = processData.filter(p => p.name && p.name.toLowerCase() === name.toLowerCase());
+            if (procs.length > 0) {
+              console.log(`Task Manager Comparison - ${name}:`);
+              procs.forEach(p => {
+                console.log(`  Raw values - CPU: ${p.cpuUsage}%, Memory: ${p.memoryMB} MB`);
+              });
+            }
+          });
+          
+          // Log the top 5 processes by memory usage
+          console.log('Top 5 processes by memory usage:');
+          const sortedByMem = [...processData].sort((a, b) => 
+            (typeof b.memoryMB === 'number' ? b.memoryMB : 0) - 
+            (typeof a.memoryMB === 'number' ? a.memoryMB : 0)
+          ).slice(0, 5);
+          sortedByMem.forEach(p => {
+            console.log(`${p.name}: ${p.memoryMB} MB`);
+          });
+        }
+        
         console.log('Process data sample:', processData ? processData.slice(0, 3) : 'No data');
         console.log('Processes with non-zero CPU:', processData ? processData.filter(p => p.cpuUsage > 0).length : 0);
         console.log('Processes with zero CPU:', processData ? processData.filter(p => p.cpuUsage === 0).length : 0);
@@ -80,7 +110,8 @@ const ProcessMetrics = () => {
         setMetrics({
           processStatuses: processData || [],
           cpuUsage: {
-            totalCpuLoad: cpuData.totalCpuLoad || 0
+            totalCpuLoad: cpuData.totalCpuLoad || 0,
+            logicalCoreCount: cpuData.logicalCoreCount || 8 // Store core count for calculations
           },
           ramUsage: {
             totalMemory: ramData.totalMemory || 0,
@@ -109,7 +140,8 @@ const ProcessMetrics = () => {
 
     // Call the function to load data
     loadMetrics();
-    // Set up interval to refresh data every 5 seconds
+    // Set up interval to refresh data every 5 seconds (was previously 5000ms)
+    // This matches the backend polling interval for more consistent updates
     const interval = setInterval(loadMetrics, 5000);
 
     // Clean up interval when component unmounts
@@ -167,8 +199,12 @@ const ProcessMetrics = () => {
           <ProcessTable processes={metrics.processStatuses.map(p => ({
             pid: p.pid,
             name: p.name,
-            cpu: p.cpuUsage,
-            memory: p.memoryMB
+            // Simply pass the CPU value directly as it's now properly calibrated in the backend
+            cpu: typeof p.cpuUsage === 'number' ? p.cpuUsage : 0,
+            // Pass memory directly - the ProcessTable component will handle formatting
+            memory: typeof p.memoryMB === 'number' ? p.memoryMB : 0,
+            // Pass logical core count for proper CPU calculations
+            logicalCoreCount: metrics.cpuUsage.logicalCoreCount || 8
           }))} />
         </div>
 

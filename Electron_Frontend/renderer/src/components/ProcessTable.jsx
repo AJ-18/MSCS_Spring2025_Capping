@@ -9,37 +9,98 @@ import React, { useState } from 'react';
  *   @param {string} name - Process name
  *   @param {number} cpu - CPU usage percentage
  *   @param {number} memory - Memory usage in MB
+ *   @param {number} logicalCoreCount - Number of logical CPU cores
  */
-const ProcessTable = ({ processes }) => {
+const ProcessTable = ({ processes = [] }) => {
   // State to track which metric tab is currently active
   const [activeTab, setActiveTab] = useState('cpu'); // 'cpu' or 'memory'
 
+  // Safely get numeric value or return 0 for undefined/null
+  const safeNumber = (value) => {
+    return (value !== undefined && value !== null) ? Number(value) || 0 : 0;
+  };
+
+  // Safely format number with toFixed
+  const safeFixed = (value, digits = 1) => {
+    const num = safeNumber(value);
+    return num.toFixed(digits);
+  };
+
+  // Process the input data safely
+  const safeProcesses = Array.isArray(processes) ? processes.filter(p => p && p.name) : [];
+  
+  // Get the logical core count from the first process or default to 8
+  const logicalCoreCount = safeProcesses.length > 0 && safeProcesses[0].logicalCoreCount 
+    ? safeProcesses[0].logicalCoreCount 
+    : 8;
+
+  // Helper function for proper memory display
+  const formatMemory = (memoryMB) => {
+    if (memoryMB === undefined || memoryMB === null) return '0 MB';
+    
+    // First ensure we have a valid number
+    const memory = safeNumber(memoryMB);
+    
+    // Format memory values to match Task Manager style
+    if (memory < 100) {
+      // For small values, show 1 decimal place
+      return `${memory.toFixed(1)} MB`;
+    } else if (memory < 1000) {
+      // For medium values, round to whole number
+      return `${Math.round(memory)} MB`;
+    } else {
+      // For large values (>1000 MB), format with comma separators like Task Manager
+      return `${Math.round(memory).toLocaleString()} MB`;
+    }
+  };
+  
   // Consolidate processes with the same name by aggregating their resource usage
-  const consolidatedProcesses = processes.reduce((acc, process) => {
+  const consolidatedProcesses = safeProcesses.reduce((acc, process) => {
+    if (!process) return acc;
+    
     const existingProcess = acc.find(p => p.name === process.name);
     
     if (existingProcess) {
-      // Sum CPU and memory for processes with the same name
-      existingProcess.cpu += process.cpu;
-      existingProcess.memory += process.memory;
+      // Sum CPU and memory for processes with the same name, handling any undefined values
+      existingProcess.cpu = safeNumber(existingProcess.cpu) + safeNumber(process.cpu);
+      existingProcess.memory = safeNumber(existingProcess.memory) + safeNumber(process.memory);
       // Keep track of all PIDs belonging to this application
-      existingProcess.pids.push(process.pid);
+      if (process.pid) existingProcess.pids.push(process.pid);
     } else {
       // Add new unique process with a pids array
       acc.push({
         ...process,
-        pids: [process.pid]
+        cpu: safeNumber(process.cpu),
+        memory: safeNumber(process.memory),
+        pids: [process.pid].filter(Boolean) // Remove undefined PIDs
       });
     }
     return acc;
   }, []);
 
-  // Sort processes by CPU or Memory usage depending on active tab
-  const sortedProcesses = [...consolidatedProcesses].sort((a, b) => {
-    if (activeTab === 'cpu') {
-      return b.cpu - a.cpu;
+  // Normalize CPU values if they exceed 100%
+  const normalizedProcesses = consolidatedProcesses.map(process => {
+    // CPU usage should never be more than 100% per logical processor
+    // If it's significantly higher, it might be summed across all cores
+    // Let's normalize it to a reasonable range
+    let normalizedCpu = safeNumber(process.cpu);
+    if (normalizedCpu > 100) {
+      // If CPU usage is over 100%, cap it at 100%
+      normalizedCpu = Math.min(normalizedCpu, 100);
     }
-    return b.memory - a.memory;
+    
+    return {
+      ...process,
+      cpu: normalizedCpu
+    };
+  });
+
+  // Sort processes by CPU or Memory usage depending on active tab
+  const sortedProcesses = [...normalizedProcesses].sort((a, b) => {
+    if (activeTab === 'cpu') {
+      return safeNumber(b.cpu) - safeNumber(a.cpu);
+    }
+    return safeNumber(b.memory) - safeNumber(a.memory);
   });
 
   // Take only the top 5 applications for the bars
@@ -47,7 +108,7 @@ const ProcessTable = ({ processes }) => {
 
   // Find the maximum value for the active metric (used for bar scaling)
   const maxValue = Math.max(
-    ...topProcesses.map(p => activeTab === 'cpu' ? p.cpu : p.memory),
+    ...topProcesses.map(p => activeTab === 'cpu' ? safeNumber(p.cpu) : safeNumber(p.memory)),
     0.1 // Prevent division by zero
   );
 
@@ -63,6 +124,21 @@ const ProcessTable = ({ processes }) => {
              'from-blue-400 to-cyan-500';
     }
   };
+
+  // Find the total CPU usage from all processes for sanity checks
+  const totalCpuFromProcesses = sortedProcesses.reduce((total, process) => 
+    total + safeNumber(process.cpu), 0);
+  
+  // Normalize total CPU usage based on logical cores to match system total
+  // Individual process CPU values represent % of a single core
+  // System total is normalized across all cores, so divide by logical core count
+  const normalizedTotalCpu = logicalCoreCount > 0 ? 
+    totalCpuFromProcesses / logicalCoreCount : totalCpuFromProcesses;
+  
+  // Log for debugging CPU usage discrepancies
+  if (sortedProcesses.length > 0) {
+    console.log(`ProcessTable - Total CPU from all processes: ${totalCpuFromProcesses.toFixed(1)}%, Normalized: ${normalizedTotalCpu.toFixed(1)}%, Logical cores: ${logicalCoreCount}`);
+  }
 
   return (
     <div className="space-y-6">
@@ -99,22 +175,27 @@ const ProcessTable = ({ processes }) => {
         <div className="space-y-5">
           {topProcesses.map((process) => {
             // Calculate the current value and relative percentage for visualization
-            const value = activeTab === 'cpu' ? process.cpu : process.memory;
+            const value = activeTab === 'cpu' ? safeNumber(process.cpu) : safeNumber(process.memory);
             const percentage = (value / maxValue) * 100;
             const isMemory = activeTab === 'memory';
             const colorClass = getBarColor(percentage, isMemory);
             
-            // Format memory values
-            const formattedMemory = isMemory && value >= 1000 
-              ? `${(value / 1000).toFixed(2)} GB` 
-              : `${value.toFixed(1)}${isMemory ? ' MB' : '%'}`;
+            // Format display values appropriately (CPU as percentage, memory in MB/GB)
+            const formattedValue = isMemory 
+              ? formatMemory(value)
+              : `${safeFixed(value)}%`;
             
             return (
-              <div key={process.name} className="space-y-1.5">
+              <div key={process.name || Math.random()} className="space-y-1.5">
                 {/* Process name and value display */}
                 <div className="flex justify-between text-sm">
-                  <span className="font-medium text-gray-700">{process.name} <span className="text-xs text-gray-400 ml-1">({process.pids.length} instance{process.pids.length !== 1 ? 's' : ''})</span></span>
-                  <span className="font-medium">{formattedMemory}</span>
+                  <span className="font-medium text-gray-700">
+                    {process.name || 'Unknown'} 
+                    <span className="text-xs text-gray-400 ml-1">
+                      ({process.pids?.length || 0} instance{(process.pids?.length || 0) !== 1 ? 's' : ''})
+                    </span>
+                  </span>
+                  <span className="font-medium">{formattedValue}</span>
                 </div>
                 {/* Modern progress bar with dynamic width and gradient based on percentage */}
                 <div className="h-7 bg-gray-100 rounded-lg overflow-hidden relative">
@@ -124,7 +205,7 @@ const ProcessTable = ({ processes }) => {
                   >
                     {percentage > 20 && (
                       <span className="absolute text-white text-xs font-medium left-3 top-1/2 transform -translate-y-1/2">
-                        {process.name.split('.')[0]}
+                        {(process.name || '').split('.')[0]}
                       </span>
                     )}
                   </div>
@@ -156,29 +237,27 @@ const ProcessTable = ({ processes }) => {
         <div className="max-h-80 overflow-y-auto custom-scrollbar">
           {sortedProcesses.map((process) => (
             <div 
-              key={process.name} 
+              key={process.name || Math.random()} 
               className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
             >
               <div className="col-span-5 font-medium text-gray-800 truncate" title={process.name}>
-                {process.name}
+                {process.name || 'Unknown'}
               </div>
               <div className="col-span-2 text-center text-gray-600">
-                {process.pids.length}
+                {process.pids?.length || 0}
               </div>
               <div className="col-span-2 text-right">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  process.cpu > 50 ? 'bg-red-100 text-red-800' : 
-                  process.cpu > 20 ? 'bg-orange-100 text-orange-800' : 
+                  safeNumber(process.cpu) > 50 ? 'bg-red-100 text-red-800' : 
+                  safeNumber(process.cpu) > 20 ? 'bg-orange-100 text-orange-800' : 
                   'bg-blue-100 text-blue-800'
                 }`}>
-                  {process.cpu.toFixed(1)}%
+                  {safeFixed(process.cpu)}%
                 </span>
               </div>
               <div className="col-span-3 text-right">
                 <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                  {(process.memory >= 1000) ? 
-                    `${(process.memory / 1000).toFixed(2)} GB` : 
-                    `${process.memory.toFixed(1)} MB`}
+                  {formatMemory(process.memory)}
                 </span>
               </div>
             </div>

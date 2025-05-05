@@ -158,6 +158,7 @@ export const fetchDeviceSpecifications = async (userId, deviceId) => {
 /**
  * Fetches battery information
  * Gets battery status, charge percentage, and power consumption
+ * Properly handles devices without batteries (like desktop computers)
  * 
  * @param {string} [userId] - User ID, will attempt to get from localStorage if not provided
  * @param {string} [deviceId] - Device ID, will attempt to get from localStorage if not provided
@@ -171,14 +172,47 @@ export const fetchBatteryInfo = async (userId, deviceId) => {
     if (!userId || !deviceId) {
       console.error('Missing user ID or device ID for battery info');
       return { 
-        hasBattery: true,
-        batteryPercentage: 80,
+        hasBattery: false,
+        batteryPercentage: 0,
         isCharging: false,
-        powerConsumption: 12.50
+        powerConsumption: 0
       };
     }
 
     if (process.env.NODE_ENV !== 'production') {
+      // Get device information to check if this is likely a desktop
+      try {
+        const deviceData = await fetchDeviceSpecifications(userId, deviceId);
+        const deviceName = deviceData?.deviceName?.toLowerCase() || '';
+        
+        // Check if this is likely a desktop computer based on the name
+        if (deviceName.includes('desktop') || 
+            deviceName.includes('tower') || 
+            deviceName.includes('workstation') ||
+            deviceName.includes('server') ||
+            // Common motherboard indicators
+            deviceName.includes('b550') || 
+            deviceName.includes('b650') || 
+            deviceName.includes('x570') ||
+            deviceName.includes('z690') ||
+            deviceName.includes('aorus') || 
+            deviceName.includes('rog') ||
+            deviceName.includes('asrock')) {
+          
+          // Return desktop-appropriate values
+          return { 
+            hasBattery: false,
+            batteryPercentage: 0,
+            isCharging: false,
+            powerConsumption: 0
+          };
+        }
+      } catch (error) {
+        console.log('Error checking device type for battery info', error);
+        // Continue with default battery info if device check fails
+      }
+      
+      // Default for development mode - simulate a laptop
       return { 
         hasBattery: true,
         batteryPercentage: Math.floor(Math.random() * 100),
@@ -187,14 +221,22 @@ export const fetchBatteryInfo = async (userId, deviceId) => {
       };
     }
 
-    return await fetchMetricsFromAPI('battery-info', userId, deviceId);
+    // Production mode - get real data from API
+    const batteryData = await fetchMetricsFromAPI('battery-info', userId, deviceId);
+    
+    // Ensure hasBattery property is present and properly formatted
+    // Some systems might return missing battery as null instead of false
+    return {
+      ...batteryData,
+      hasBattery: batteryData.hasBattery === 1 || batteryData.hasBattery === true
+    };
   } catch (error) {
     console.error('Error fetching battery info:', error);
     return { 
-      hasBattery: true,
-      batteryPercentage: 80,
+      hasBattery: false,
+      batteryPercentage: 0,
       isCharging: false,
-      powerConsumption: 12.50
+      powerConsumption: 0
     };
   }
 };
@@ -470,7 +512,71 @@ export const fetchProcessStatuses = async (userId, deviceId) => {
       }));
     }
 
-    return await fetchMetricsFromAPI('process-status', userId, deviceId);
+    const processData = await fetchMetricsFromAPI('process-status', userId, deviceId);
+    
+    // Debug memory values specifically for Opera
+    if (Array.isArray(processData)) {
+      const operaProcess = processData.find(p => p.name === 'opera.exe');
+      if (operaProcess) {
+        console.log(`API SERVICE - Opera original memory: ${operaProcess.memoryMB} MB`);
+      }
+    }
+    
+    // Log raw process data from API
+    console.log('Raw process data from API:');
+    if (Array.isArray(processData) && processData.length > 0) {
+      console.log('First 3 processes:');
+      processData.slice(0, 3).forEach(p => {
+        console.log(`Name: ${p.name}, CPU: ${p.cpuUsage}, Memory: ${p.memoryMB} MB`);
+      });
+      
+      // Check for specific processes by name
+      const knownProcesses = ['opera', 'chrome', 'discord', 'electron'];
+      knownProcesses.forEach(name => {
+        const proc = processData.find(p => p.name && p.name.toLowerCase().includes(name));
+        if (proc) {
+          console.log(`Found ${name}: CPU=${proc.cpuUsage}, Memory=${proc.memoryMB} MB`);
+        }
+      });
+    }
+    
+    // Validate and normalize the process data before returning
+    if (Array.isArray(processData)) {
+      const normalizedData = processData.map(process => {
+        // Ensure all fields exist and are properly typed
+        const normalized = {
+          pid: typeof process.pid === 'number' ? process.pid : 0,
+          name: typeof process.name === 'string' ? process.name : 'Unknown',
+          // Ensure CPU usage is a reasonable percentage (0-100%)
+          cpuUsage: typeof process.cpuUsage === 'number' ? 
+            Math.min(Math.max(process.cpuUsage, 0), 100) : 0,
+          // Ensure memory is in MB and is a reasonable value
+          memoryMB: typeof process.memoryMB === 'number' ? 
+            // Cap absurdly high memory values
+            Math.min(process.memoryMB, 16000) : 0
+        };
+        
+        return normalized;
+      });
+      
+      // Log the normalized values for comparison
+      if (normalizedData.length > 0) {
+        console.log('After normalization, first 3 processes:');
+        normalizedData.slice(0, 3).forEach(p => {
+          console.log(`Name: ${p.name}, CPU: ${p.cpuUsage}, Memory: ${p.memoryMB} MB`);
+        });
+        
+        // Check Opera again after normalization
+        const operaProcess = normalizedData.find(p => p.name === 'opera.exe');
+        if (operaProcess) {
+          console.log(`API SERVICE - Opera normalized memory: ${operaProcess.memoryMB} MB`);
+        }
+      }
+      
+      return normalizedData;
+    }
+    
+    return processData || [];
   } catch (error) {
     console.error('Error fetching Process Statuses:', error);
     return [
