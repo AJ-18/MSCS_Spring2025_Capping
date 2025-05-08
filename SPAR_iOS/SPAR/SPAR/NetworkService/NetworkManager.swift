@@ -56,7 +56,7 @@ class NetworkManager {
         return try await networkService.get(from: url, token: token)
     }
     
-    func fetchDiskUsage(for userId: Int, deviceId: String) async throws -> DiskUsage {
+    func fetchDiskUsage(for userId: Int, deviceId: String) async throws -> [DiskUsage] {
         guard let url = makeURL(endpoint: "disk-usage", userId: userId, deviceId: deviceId),let token = AppSettings.shared.authToken  else {
             throw URLError(.badURL)
         }

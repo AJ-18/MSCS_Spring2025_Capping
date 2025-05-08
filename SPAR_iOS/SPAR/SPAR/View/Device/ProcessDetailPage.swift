@@ -26,13 +26,23 @@ struct ProcessDetailPage: View {
     @State private var processDisplayLimit = 5
 
     private var sortedByMetric: [ProcessStatus] {
-        viewModel.processList.sorted {
+        var seenPIDs = Set<Int>()
+        return viewModel.processList
+            .sorted { showCPU ? $0.cpuUsage > $1.cpuUsage : $0.memoryMB > $1.memoryMB }
+            .filter { seenPIDs.insert($0.pid).inserted } // Ensures uniqueness
+            .map { $0 }
+    
+    }
+    
+    private var fullMetric: [ProcessStatus] {
+       
+        return viewModel.processList.sorted {
             showCPU ? $0.cpuUsage > $1.cpuUsage : $0.memoryMB > $1.memoryMB
         }
     }
 
     private var canShowMore: Bool {
-        processDisplayLimit < sortedByMetric.count
+        processDisplayLimit < fullMetric.count
     }
 
     private var canShowLess: Bool {
@@ -53,7 +63,7 @@ struct ProcessDetailPage: View {
 
                     ProcessChartView(processes: Array(sortedByMetric.prefix(5)), showCPU: showCPU)
 
-                    ForEach(sortedByMetric.prefix(processDisplayLimit)) { process in
+                    ForEach(fullMetric.prefix(processDisplayLimit)) { process in
                         ProcessCardView(process: process)
                     }
 

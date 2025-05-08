@@ -143,7 +143,7 @@ struct BatteryGaugeView: View {
             Text("\(percentage)%")
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.black)
                 .frame(width: 200, height: 80)
                 .background(Color.clear)
                 .minimumScaleFactor(sizeCategory.customMinScaleFactor)
@@ -159,7 +159,7 @@ struct BatteryInfoListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             InfoRow(label: StringConstant.deviceName, value: device.deviceName)
-            InfoRow(label: StringConstant.Charging, value: viewModel.batteryInfo.charging ? StringConstant.batYes : StringConstant.batNo)
+            InfoRow(label: StringConstant.Charging, value: viewModel.batteryInfo.isCharging ? StringConstant.batYes : StringConstant.batNo)
             InfoRow(label: StringConstant.power, value: String(format: "%.2f W", viewModel.batteryInfo.powerConsumption))
             InfoRow(label: StringConstant.registeredAt, value: viewModel.batteryInfo.timestamp.toFormattedDate())
         }
