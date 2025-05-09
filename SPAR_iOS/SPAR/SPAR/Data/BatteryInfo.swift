@@ -15,5 +15,5 @@ struct BatteryInfo: Codable, Identifiable {
     let deviceId:String
     let powerConsumption: Double
     let timestamp: String
-    let charging: Bool
+    let isCharging: Bool
 }
