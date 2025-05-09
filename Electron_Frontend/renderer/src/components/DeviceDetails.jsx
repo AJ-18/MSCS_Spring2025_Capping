@@ -30,33 +30,44 @@ const MetricCard = ({ title, icon, value, unit, onClick, color }) => {
     default: 'from-indigo-500 to-blue-600'
   };
 
-  const gradient = gradients[color] || gradients.default;
-  
+  // Check if this is a special case for power display
+  const isPowerDisplay = title === 'Power' && value === 'AC';
+
   return (
-    <div
+    <div 
+      className="bg-white rounded-xl shadow-sm transition-transform hover:shadow-md hover:scale-[1.02] cursor-pointer"
       onClick={onClick}
-      className="bg-white rounded-xl p-6 shadow-md cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden"
     >
-      {/* Background decoration */}
-      <div className={`absolute right-0 top-0 h-full w-1.5 bg-gradient-to-b ${gradient}`}></div>
-      
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-gray-700 font-medium">{title}</h3>
-        <div className={`w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-white shadow-sm`}>
-          {icon}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+          <div className={`p-2 rounded-lg bg-gradient-to-r ${gradients[color] || gradients.default} text-white`}>
+            {icon}
+          </div>
         </div>
-      </div>
-      
-      <div className="flex items-baseline">
-        <span className="text-4xl font-bold text-gray-800">{value}</span>
-        <span className="text-gray-500 text-sm ml-1">{unit}</span>
-      </div>
-      
-      <div className="mt-4 flex items-center text-gray-500 text-xs">
-        <svg className="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-        </svg>
-        Real-time updates
+        
+        <div className="flex items-baseline">
+          {isPowerDisplay ? (
+            <div className="flex items-center">
+              <span className="text-3xl font-bold text-gray-800">AC</span>
+              <span className="ml-2 text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                Powered
+              </span>
+            </div>
+          ) : (
+            <>
+              <span className="text-3xl font-bold text-gray-800">{value}</span>
+              {unit && <span className="ml-1 text-xl text-gray-500">{unit}</span>}
+            </>
+          )}
+        </div>
+        
+        {/* Add info text for power display */}
+        {isPowerDisplay && (
+          <div className="mt-2 text-xs text-gray-500">
+            Desktop computer - No battery
+          </div>
+        )}
       </div>
     </div>
   );
@@ -261,6 +272,11 @@ const DeviceDetails = () => {
         
         console.log("API Responses:", { cpuData, ramData, diskData, batteryData, processData });
         
+        // Handle diskData as array (new format) or as a single object (old format)
+        const diskUsage = Array.isArray(diskData) && diskData.length > 0 
+          ? diskData[0]  // Use the first disk's data for the overview card
+          : diskData || { sizeGB: 512, usedGB: 256, availableGB: 256 };
+        
         // Format and store all metrics data in state with fallbacks for missing data
         setMetrics({
           cpu: {
@@ -273,12 +289,13 @@ const DeviceDetails = () => {
             free: ramData?.availableMemory || 8
           },
           disk: {
-            total: diskData?.sizeGB || 512,
-            used: diskData?.usedGB || 256,
-            free: diskData?.availableGB || 256
+            total: diskUsage.sizeGB || 512,
+            used: diskUsage.usedGB || 256,
+            free: diskUsage.availableGB || 256
           },
           battery: {
-            percentage: batteryData?.batteryPercentage || 100,
+            hasBattery: batteryData?.hasBattery === true || batteryData?.hasBattery === 1,
+            percentage: batteryData?.batteryPercentage || 0,
             charging: batteryData?.isCharging || false
           },
           processes: processData || []
@@ -337,12 +354,14 @@ const DeviceDetails = () => {
       color: 'green'
     },
     {
-      title: 'Battery',
+      title: (metrics.battery.hasBattery === false) ? 'Power' : 'Battery',
       icon: <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM6 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H7a1 1 0 01-1-1V4zm5-1a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" />
             </svg>,
-      value: typeof metrics.battery.percentage === 'number' ? metrics.battery.percentage : 0,
-      unit: '%',
+      value: (metrics.battery.hasBattery === false) ? 
+        "AC" : // Display "AC" for devices without batteries
+        (typeof metrics.battery.percentage === 'number' ? metrics.battery.percentage : 0),
+      unit: (metrics.battery.hasBattery === false) ? '' : '%', // No unit for "AC" text
       path: 'battery',
       color: 'indigo'
     },

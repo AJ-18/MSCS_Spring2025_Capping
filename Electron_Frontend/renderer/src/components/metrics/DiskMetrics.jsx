@@ -7,12 +7,14 @@ import { fetchDiskUsage, fetchDiskIO } from '../../services/systemMetrics';
 // Mock data for development/testing purposes when real data isn't available
 // This provides a consistent data structure for development
 const MOCK_DISK_INFO = {
-  usage: {
-    filesystem: '/dev/sda1',
-    sizeGB: 512.0,
-    usedGB: 200.0,
-    availableGB: 312.0
-  },
+  usage: [
+    {
+      filesystem: '/dev/sda1',
+      sizeGB: 512.0,
+      usedGB: 200.0,
+      availableGB: 312.0
+    }
+  ],
   io: {
     readSpeedMBps: 120.5,
     writeSpeedMBps: 80.3
@@ -25,7 +27,7 @@ const MOCK_DISK_INFO = {
  * 
  * Displays detailed disk usage and I/O metrics for a specific device.
  * Shows disk capacity, used space, available space, and read/write speeds.
- * Uses MetricGauge component to visualize disk usage percentage.
+ * Uses a gauge for total usage and progress bars for individual drives.
  */
 const DiskMetrics = () => {
   // Extract deviceId from URL parameters
@@ -68,13 +70,11 @@ const DiskMetrics = () => {
         ]);
 
         // Structure the response data into a consistent format
+        // Handle usageData as array (new format) or convert single object to array (old format)
+        const diskUsageArray = Array.isArray(usageData) ? usageData : [usageData];
+
         setDiskInfo({
-          usage: {
-            filesystem: usageData.filesystem,
-            sizeGB: usageData.sizeGB,
-            usedGB: usageData.usedGB,
-            availableGB: usageData.availableGB
-          },
+          usage: diskUsageArray,
           io: {
             readSpeedMBps: ioData.readSpeedMBps,
             writeSpeedMBps: ioData.writeSpeedMBps
@@ -140,12 +140,12 @@ const DiskMetrics = () => {
 
   // Show main content if we have disk data, or after initial load
   const displayDiskInfo = diskInfo || {
-    usage: {
+    usage: [{
       filesystem: '',
       sizeGB: 0,
       usedGB: 0,
       availableGB: 0
-    },
+    }],
     io: {
       readSpeedMBps: 0,
       writeSpeedMBps: 0
@@ -153,8 +153,17 @@ const DiskMetrics = () => {
     timestamp: new Date().toISOString()
   };
 
-  // Calculate disk usage percentage for display
-  const usedPercentage = (displayDiskInfo.usage.usedGB / displayDiskInfo.usage.sizeGB) * 100 || 0;
+  // Get total disk usage across all drives for the summary
+  const totalSizeGB = displayDiskInfo.usage.reduce((sum, disk) => sum + disk.sizeGB, 0);
+  const totalUsedGB = displayDiskInfo.usage.reduce((sum, disk) => sum + disk.usedGB, 0);
+  const totalUsedPercentage = totalSizeGB > 0 ? (totalUsedGB / totalSizeGB) * 100 : 0;
+
+  // Determine gauge color based on total usage percentage
+  const getGaugeColor = (percentage) => {
+    if (percentage > 90) return '#EF4444'; // Red for critical usage
+    if (percentage > 70) return '#F59E0B'; // Yellow/amber for warning
+    return '#22C55E'; // Green for normal usage
+  };
 
   // Main component render with disk metrics display
   return (
@@ -174,59 +183,69 @@ const DiskMetrics = () => {
       <div className="bg-white rounded-xl shadow-sm p-8 max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold mb-8">Disk Metrics</h2>
 
-        {/* Disk Usage with Gauge - Visualizes disk usage percentage with a gauge component */}
+        {/* Total Disk Usage with Gauge Visualization */}
         <div className="mb-8">
-          <div className="flex justify-center mb-6">
+          <h3 className="text-lg font-semibold mb-4">Total Disk Usage</h3>
+          <div className="flex justify-center">
             <MetricGauge
-              title="Disk Usage"
-              value={usedPercentage}
-              color={
-                usedPercentage > 90 ? '#EF4444' :  // Red for critical usage (>90%)
-                usedPercentage > 70 ? '#F59E0B' :  // Yellow for warning (>70%)
-                '#22C55E'  // Green for normal usage
-              }
+              title="Total Usage"
+              value={totalUsedPercentage}
+              color={getGaugeColor(totalUsedPercentage)}
               suffix="%"
-              subtitle={`${displayDiskInfo.usage.usedGB.toFixed(1)}/${displayDiskInfo.usage.sizeGB.toFixed(1)} GB`}
+              subtitle={`${totalUsedGB.toFixed(1)}/${totalSizeGB.toFixed(1)} GB`}
             />
           </div>
         </div>
 
-        {/* Disk Usage Section - Shows detailed disk space information */}
+        {/* Individual Disk Usage Sections - Shows detailed disk space information for each drive */}
         <div className="mb-12">
-          <h3 className="text-lg font-semibold mb-4">Disk Usage</h3>
-          <div className="mb-6">
-            <div className="text-sm text-gray-500 mb-1">Filesystem: {displayDiskInfo.usage.filesystem}</div>
-            <div className="bg-gray-100 rounded-full p-1">
-              <div 
-                className={`text-white text-center py-2 px-4 rounded-full transition-all duration-500 ease-in-out ${
-                  usedPercentage > 90 ? 'bg-red-500' : 
-                  usedPercentage > 70 ? 'bg-yellow-500' : 
-                  'bg-green-500'
-                }`}
-                style={{ width: `${Math.max(5, usedPercentage)}%` }}
-              >
-                {usedPercentage.toFixed(1)}%
-              </div>
-            </div>
-          </div>
-
-          {/* Grid display for disk capacity metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h4 className="text-gray-500 mb-2">Total Size</h4>
-              <div className="text-2xl font-semibold">{displayDiskInfo.usage.sizeGB.toFixed(1)} GB</div>
-            </div>
+          <h3 className="text-lg font-semibold mb-4">Disk Usage by Drive</h3>
+          
+          {displayDiskInfo.usage.map((disk, index) => {
+            const usedPercentage = (disk.usedGB / disk.sizeGB) * 100 || 0;
             
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h4 className="text-gray-500 mb-2">Used Space</h4>
-              <div className="text-2xl font-semibold">{displayDiskInfo.usage.usedGB.toFixed(1)} GB</div>
-            </div>
+            return (
+              <div key={index} className="mb-8 border-b pb-6 last:border-b-0 last:pb-0">
+                <div className="mb-2 font-semibold">Drive: {disk.filesystem}</div>
+                <div className="mb-4">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-gray-700">{usedPercentage.toFixed(1)}%</span>
+                    <span className="text-gray-500 text-sm">{disk.usedGB.toFixed(1)}/{disk.sizeGB.toFixed(1)} GB</span>
+                  </div>
+                  <div className="bg-gray-100 rounded-full p-1">
+                    <div 
+                      className={`text-white text-center py-2 px-4 rounded-full transition-all duration-500 ease-in-out ${
+                        usedPercentage > 90 ? 'bg-red-500' : 
+                        usedPercentage > 70 ? 'bg-yellow-500' : 
+                        'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.max(5, usedPercentage)}%` }}
+                    >
+                      {usedPercentage > 10 ? `${usedPercentage.toFixed(1)}%` : ''}
+                    </div>
+                  </div>
+                </div>
 
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h4 className="text-gray-500 mb-2">Available Space</h4>
-              <div className="text-2xl font-semibold">{displayDiskInfo.usage.availableGB.toFixed(1)} GB</div>
-            </div>
-          </div>
+                {/* Detailed metrics for each disk */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h4 className="text-gray-500 mb-2">Total Size</h4>
+                    <div className="text-2xl font-semibold">{disk.sizeGB.toFixed(1)} GB</div>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h4 className="text-gray-500 mb-2">Used Space</h4>
+                    <div className="text-2xl font-semibold">{disk.usedGB.toFixed(1)} GB</div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h4 className="text-gray-500 mb-2">Available Space</h4>
+                    <div className="text-2xl font-semibold">{disk.availableGB.toFixed(1)} GB</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Disk I/O Section - Shows read and write speeds */}
