@@ -396,19 +396,8 @@ class MetricsPoller {
       .sort(([,a],[,b]) => b.totalMem - a.totalMem)        // sort by RAM
       .slice(0, 30)                                        // top 30
       .map(([name, stats]) => {
-        // Calculate CPU usage - properly average across instances
-        let cpuUsage = stats.pids.length > 0 
-          ? stats.totalCpu / stats.pids.length  // Average CPU across instances
-          : stats.totalCpu;  // Just use the total if no instances (shouldn't happen)
-            
-        // Scale CPU usage to match Task Manager if needed
-        // Task Manager tends to show CPU values as a percentage of one core
-        if (cpuUsage > 0) {
-          // Cap CPU at 100% per process for sanity
-          cpuUsage = Math.min(cpuUsage, 100);
-          
-        }
-            
+        // Use total CPU for all instances (matches Task Manager)
+        let cpuUsage = stats.totalCpu;
         // Calculate the memory value directly to avoid accumulation issues
         // This recalculates from scratch on each update rather than using stats.totalMem
         const totalMemory = stats.pids.reduce((sum, pid) => {
@@ -416,14 +405,11 @@ class MetricsPoller {
           const memValue = accurateMemoryMap[pid] || wmiMemMap[pid] || memoryMap[pid] || 0;
           return sum + memValue;
         }, 0);
-        
         // Convert to MB, no additional scaling needed since we've already scaled in getAccurateProcessMemory
         const memoryMB = totalMemory / 1024 / 1024;
-        
         // Apply final sanity checks for memory values
         // Ensure memory is never negative and cap extremely high values
         let finalMemoryMB = Math.max(0, memoryMB);
-        
         // If memory is unreasonably large (over typical desktop RAM size)
         // there might be a scaling issue, so cap it
         const MAX_REASONABLE_MEMORY_MB = 16 * 1024; // 16 GB
@@ -431,12 +417,10 @@ class MetricsPoller {
           console.log(`WARNING: Capping extremely high memory value for ${name}: ${finalMemoryMB} MB -> ${MAX_REASONABLE_MEMORY_MB} MB`);
           finalMemoryMB = MAX_REASONABLE_MEMORY_MB;
         }
-      
-        
         return {
           pid:      stats.pids[0],                           // first PID
           name:     name,                                    // just the executable name
-          cpuUsage: cpuUsage,                                // averaged CPU% per instance
+          cpuUsage: cpuUsage,                                // total CPU% for all instances
           memoryMB: finalMemoryMB                            // total RAM in MB
         };
       });
