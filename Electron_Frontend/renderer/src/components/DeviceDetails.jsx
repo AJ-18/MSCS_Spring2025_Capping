@@ -148,45 +148,16 @@ const DeviceDetails = () => {
           console.error('Error fetching device specs from API:', apiError);
         }
         
-        // If API fails or returns no data, try to use window.metrics directly
-        if (!deviceData && window.metrics && window.metrics.getDeviceInfo) {
-          try {
-            console.log('Attempting to get device info directly from metrics module');
-            deviceData = await window.metrics.getDeviceInfo();
-            console.log('Device specifications from metrics module:', deviceData);
-          } catch (metricsError) {
-            console.error('Error getting device info from metrics module:', metricsError);
-          }
-        }
-        
-        // If we still don't have data, check if we have real system data available
-        if (!deviceData && window.metrics && window.metrics.collectDeviceInfo) {
-          try {
-            console.log('Attempting to collect device info directly');
-            deviceData = await window.metrics.collectDeviceInfo();
-            console.log('Device specifications collected directly:', deviceData);
-          } catch (collectError) {
-            console.error('Error collecting device info directly:', collectError);
-          }
-        }
-        
-        // If we still don't have data, use a minimal fallback with browser data
+        // If API fails or returns no data, show an error instead of using local device info
         if (!deviceData) {
-          console.warn('No device data available, using fallback data');
-          deviceData = {
-            deviceName: 'Your Computer',
-            manufacturer: navigator.platform || 'Unknown',
-            model: navigator.userAgent.split(') ').pop() || 'Unknown',
-            processor: navigator.hardwareConcurrency ? `CPU with ${navigator.hardwareConcurrency} cores` : 'Unknown',
-            cpuPhysicalCores: navigator.hardwareConcurrency || 1,
-            cpuLogicalCores: navigator.hardwareConcurrency || 1,
-            installedRam: 0,
-            graphics: 'Unknown',
-            operatingSystem: navigator.platform || 'Unknown',
-            systemType: navigator.userAgent.includes('64') ? '64-bit' : '32-bit'
-          };
+          setError('Device information is not available for this device.');
+          setLoading(false);
+          return;
         }
         
+        // Use the timestamp from the backend if available, otherwise use now
+        const lastUpdate = deviceData.timestamp || deviceData.lastUpdated || new Date().toISOString();
+
         // Parse RAM value as number and format it to 1 decimal place
         let ramValue = 0;
         if (typeof deviceData.installedRam === 'number') {
@@ -207,7 +178,7 @@ const DeviceDetails = () => {
           graphics: deviceData.graphics || 'Unknown Graphics',
           os: deviceData.operatingSystem || 'Unknown OS',
           systemType: deviceData.systemType || 'Unknown Architecture',
-          timestamp: new Date().toISOString()
+          timestamp: lastUpdate
         });
         
         setLoading(false);
@@ -312,7 +283,7 @@ const DeviceDetails = () => {
     // Only load metrics if we have a deviceId
     if (deviceId) {
       loadMetrics();
-      // Set up interval to refresh metrics every 5 seconds
+      // Set up interval to refresh metrics (including battery) every 5 seconds
       const interval = setInterval(loadMetrics, 5000);
       return () => clearInterval(interval);
     }
