@@ -78,27 +78,27 @@ const ProcessTable = ({ processes = [] }) => {
     return acc;
   }, []);
 
-  // Normalize CPU values if they exceed 100%
+  // Normalize CPU values if they exceed 100% and calculate per-instance CPU
   const normalizedProcesses = consolidatedProcesses.map(process => {
-    // CPU usage should never be more than 100% per logical processor
-    // If it's significantly higher, it might be summed across all cores
-    // Let's normalize it to a reasonable range
-    let normalizedCpu = safeNumber(process.cpu);
-    if (normalizedCpu > 100) {
-      // If CPU usage is over 100%, cap it at 100%
-      normalizedCpu = Math.min(normalizedCpu, 100);
-    }
+    // Get total CPU and instance count
+    const totalCpu = safeNumber(process.cpu);
+    const instanceCount = process.pids?.length || 1;
+    
+    // CPU values from backend are already per-instance, so we don't need to divide
+    // Just cap at 100% for sanity
+    let cpu = Math.min(totalCpu, 100);
     
     return {
       ...process,
-      cpu: normalizedCpu
+      cpu: cpu,           // Store CPU for display (already per-instance)
+      totalCpu: totalCpu  // Keep total CPU for sorting
     };
   });
 
   // Sort processes by CPU or Memory usage depending on active tab
   const sortedProcesses = [...normalizedProcesses].sort((a, b) => {
     if (activeTab === 'cpu') {
-      return safeNumber(b.cpu) - safeNumber(a.cpu);
+      return safeNumber(b.totalCpu) - safeNumber(a.totalCpu);  // Sort by total CPU
     }
     return safeNumber(b.memory) - safeNumber(a.memory);
   });
@@ -108,7 +108,7 @@ const ProcessTable = ({ processes = [] }) => {
 
   // Find the maximum value for the active metric (used for bar scaling)
   const maxValue = Math.max(
-    ...topProcesses.map(p => activeTab === 'cpu' ? safeNumber(p.cpu) : safeNumber(p.memory)),
+    ...topProcesses.map(p => activeTab === 'cpu' ? safeNumber(p.cpu) / logicalCoreCount : safeNumber(p.memory)),
     0.1 // Prevent division by zero
   );
 
@@ -175,7 +175,7 @@ const ProcessTable = ({ processes = [] }) => {
         <div className="space-y-5">
           {topProcesses.map((process) => {
             // Calculate the current value and relative percentage for visualization
-            const value = activeTab === 'cpu' ? safeNumber(process.cpu) : safeNumber(process.memory);
+            const value = activeTab === 'cpu' ? safeNumber(process.cpu) / logicalCoreCount : safeNumber(process.memory);
             const percentage = (value / maxValue) * 100;
             const isMemory = activeTab === 'memory';
             const colorClass = getBarColor(percentage, isMemory);
@@ -195,7 +195,9 @@ const ProcessTable = ({ processes = [] }) => {
                       ({process.pids?.length || 0} instance{(process.pids?.length || 0) !== 1 ? 's' : ''})
                     </span>
                   </span>
-                  <span className="font-medium">{formattedValue}</span>
+                  <span className="font-medium">
+                    {isMemory ? formatMemory(value) : `${safeFixed(value)}%`}
+                  </span>
                 </div>
                 {/* Modern progress bar with dynamic width and gradient based on percentage */}
                 <div className="h-7 bg-gray-100 rounded-lg overflow-hidden relative">
@@ -252,7 +254,7 @@ const ProcessTable = ({ processes = [] }) => {
                   safeNumber(process.cpu) > 20 ? 'bg-orange-100 text-orange-800' : 
                   'bg-blue-100 text-blue-800'
                 }`}>
-                  {safeFixed(process.cpu)}%
+                  {safeFixed(safeNumber(process.cpu) / logicalCoreCount)}%
                 </span>
               </div>
               <div className="col-span-3 text-right">
