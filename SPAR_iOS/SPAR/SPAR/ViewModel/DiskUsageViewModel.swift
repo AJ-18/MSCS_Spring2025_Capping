@@ -10,9 +10,8 @@ import OSLog
 import SwiftUI
 
 class DiskUsageViewModel: ObservableObject {
-    @Published var diskUsage: DiskUsage?
+    @Published var diskUsage: [DiskUsage] = []
     @Published var errorMessage: String = ""
-    @Published var chartData: ChartData = ChartData(color: .gray, type: "Disk", percent: 0)
     @Published var isLoading: Bool = false
 
     private let networkManager = NetworkManager()
@@ -32,14 +31,8 @@ class DiskUsageViewModel: ObservableObject {
             timestamp: "".toFormattedDate()
         )
         
-        self.diskUsage = diskInfo
+        self.diskUsage = []
 
-        let usedPercent = (diskInfo.usedGB / diskInfo.sizeGB) * 100
-        self.chartData = ChartData(
-            color: .green,
-            type: "Disk",
-            percent: CGFloat(usedPercent)
-        )
         
         fetchDiskUsageInfo(device: device)
     }
@@ -62,12 +55,6 @@ class DiskUsageViewModel: ObservableObject {
                 
                 await MainActor.run {
                     self.diskUsage = response
-                    let usedPercent = (response.usedGB / response.sizeGB) * 100
-                    self.chartData = ChartData(
-                        color: .green,
-                        type: "Disk",
-                        percent: CGFloat(usedPercent)
-                    )
                     self.isLoading = false
                 }
             } catch {

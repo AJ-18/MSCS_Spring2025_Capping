@@ -22,7 +22,7 @@ class BatteryViewModel: ObservableObject {
             batteryPercentage: 0, deviceId: "",
             powerConsumption: 0,
             timestamp: "",
-            charging: false
+            isCharging: false
         )
         
         // 2. Then fetch actual data from API
