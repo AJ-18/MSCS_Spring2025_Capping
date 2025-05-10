@@ -13,6 +13,22 @@ import { useNavigate } from 'react-router-dom';
  * 
  * Handles device registration and automatic device detection.
  */
+const ONLINE_THRESHOLD_SECONDS = 15;
+function isDeviceOnline(lastSeen) {
+  if (!lastSeen) return false;
+  const lastSeenTime = new Date(lastSeen).getTime();
+  const now = Date.now();
+  return (now - lastSeenTime) / 1000 < ONLINE_THRESHOLD_SECONDS;
+}
+
+function isCurrentDevice(device, currentDeviceInfo) {
+  if (!device || !currentDeviceInfo) return false;
+  return (
+    device.deviceName === currentDeviceInfo.deviceName &&
+    device.model === currentDeviceInfo.model
+  );
+}
+
 const Dashboard = () => {
   // State for error messages
   const [error, setError] = useState(null);
@@ -22,6 +38,8 @@ const Dashboard = () => {
   const [showDevicePrompt, setShowDevicePrompt] = useState(false);
   // State to track loading status of devices
   const [loadingDevices, setLoadingDevices] = useState(true);
+  // State to store current device info
+  const [currentDeviceInfo, setCurrentDeviceInfo] = useState(null);
   // API base URL for backend requests
   const baseUrl = 'https://mscs-spring2025-capping.onrender.com';
   // React Router navigation hook
@@ -56,7 +74,8 @@ const Dashboard = () => {
       }
 
       // Get current device info for comparison with registered devices
-      const currentDeviceInfo = await getCurrentDeviceInfo();
+      const currentDeviceInfoFetched = await getCurrentDeviceInfo();
+      setCurrentDeviceInfo(currentDeviceInfoFetched);
       
       // Fetch registered devices from the API
       console.log('Fetching devices with userId:', user.id);
@@ -77,13 +96,13 @@ const Dashboard = () => {
         setDevices(deviceList);
         
         // Check if current device matches any registered device
-        if (currentDeviceInfo && deviceList.length > 0) {
+        if (currentDeviceInfoFetched && deviceList.length > 0) {
           console.log('Checking if current device exists in the list...');
           const deviceExists = deviceList.some(
             device => {
-              console.log('Comparing device:', device.deviceName, 'with current:', currentDeviceInfo.deviceName);
-              return device.deviceName === currentDeviceInfo.deviceName && 
-                    device.model === currentDeviceInfo.model;
+              console.log('Comparing device:', device.deviceName, 'with current:', currentDeviceInfoFetched.deviceName);
+              return device.deviceName === currentDeviceInfoFetched.deviceName && 
+                    device.model === currentDeviceInfoFetched.model;
             }
           );
           console.log('Device exists:', deviceExists);
@@ -92,8 +111,8 @@ const Dashboard = () => {
           if (deviceExists) {
             // Find the matching device and store its ID
             const matchingDevice = deviceList.find(
-              device => device.deviceName === currentDeviceInfo.deviceName && 
-                      device.model === currentDeviceInfo.model
+              device => device.deviceName === currentDeviceInfoFetched.deviceName && 
+                      device.model === currentDeviceInfoFetched.model
             );
             if (matchingDevice) {
               const deviceId = matchingDevice.deviceId || matchingDevice.id;
@@ -364,9 +383,19 @@ const Dashboard = () => {
                 
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-lg mb-3 text-gray-800">{device.deviceName}</h3>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
-                    Online
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    isCurrentDevice(device, currentDeviceInfo) || isDeviceOnline(device.lastSeen)
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-200 text-gray-500'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full mr-1.5 ${
+                      isCurrentDevice(device, currentDeviceInfo) || isDeviceOnline(device.lastSeen)
+                        ? 'bg-green-500'
+                        : 'bg-gray-400'
+                    }`}></span>
+                    {isCurrentDevice(device, currentDeviceInfo) || isDeviceOnline(device.lastSeen)
+                      ? 'Online'
+                      : 'Offline'}
                   </span>
                 </div>
                 
@@ -388,7 +417,7 @@ const Dashboard = () => {
                   
                   <div className="bg-gray-50 p-2 rounded-lg">
                     <p className="text-xs text-gray-500 mb-1">Last Seen</p>
-                    <p className="text-sm font-medium text-gray-700">{new Date().toLocaleString()}</p>
+                    <p className="text-sm font-medium text-gray-700">{device.lastSeen ? new Date(device.lastSeen).toLocaleString() : 'N/A'}</p>
                   </div>
                 </div>
                 
