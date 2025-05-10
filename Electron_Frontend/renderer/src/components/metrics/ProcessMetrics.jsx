@@ -258,6 +258,10 @@ const ProcessMetrics = () => {
         <div className="mt-6 text-sm text-gray-500 text-right">
           Last updated: {new Date(metrics.timestamp).toLocaleString()}
         </div>
+        {/* Polling interval note */}
+        <div className="mt-2 text-xs text-gray-400 text-right">
+          Process metrics are updated every 5 seconds.
+        </div>
       </div>
     </div>
   );
