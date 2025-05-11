@@ -137,8 +137,8 @@ jobs:
 
 ## 🎥 Demo Video
 
-📽️ Watch it here:  Coming Soon
-[]()
+📽️ Watch it here:
+[S.P.A.R Demo Video](https://youtu.be/vnfTZVheJiA?si=R0BT3qQV8j2L-Aen)
 
 ---
 
