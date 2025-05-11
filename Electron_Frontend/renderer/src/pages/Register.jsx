@@ -138,26 +138,11 @@ const Register = () => {
       });
 
       console.log('Registration successful:', response);
-      const { token, user } = response;
-
-      // Store the token and user info
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
       
-      // Save user data for device registration
-      setUserData({ token, user });
-
-      // Get current device info
-      const currentDeviceInfo = await getCurrentDeviceInfo();
-      
-      if (!currentDeviceInfo) {
-        console.error('Could not get device information');
-        navigate('/dashboard');
-        return;
-      }
-
-      // Show the device registration prompt
-      setShowDevicePrompt(true);
+      // After successful registration, navigate to login page
+      // No device registration prompt after registration
+      setLoading(false);
+      navigate('/login');
     } catch (err) {
       console.error('Registration error:', err);
       setErrors({

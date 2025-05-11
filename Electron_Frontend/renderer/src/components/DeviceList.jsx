@@ -40,7 +40,9 @@ const DeviceList = () => {
    * @param {string} deviceId - The ID of the selected device
    */
   const handleDeviceSelect = (deviceId) => {
-    localStorage.setItem('deviceId', deviceId);
+    localStorage.setItem('selectedDeviceId', deviceId);
+    // Don't set deviceId as it should represent the current device
+    // localStorage.setItem('deviceId', deviceId);
     navigate(`/dashboard/device/${deviceId}`);
   };
 

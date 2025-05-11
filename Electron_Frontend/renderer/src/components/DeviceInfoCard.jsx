@@ -10,7 +10,7 @@ import React from 'react';
  * Includes loading state and fallback values for missing information
  * Uses consistent styling with a dark blue background and accent colors
  */
-const DeviceInfoCard = ({ deviceInfo }) => {
+const DeviceInfoCard = ({ deviceInfo, isOnline = false }) => {
   // If deviceInfo is null or undefined, show loading state
   if (!deviceInfo) {
     return (
@@ -110,9 +110,9 @@ const DeviceInfoCard = ({ deviceInfo }) => {
       <div className="relative z-10">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">Device Info</h2>
-          <span className="px-3 py-1 bg-green-500 bg-opacity-20 text-green-300 rounded-full text-xs font-medium flex items-center">
-            <span className="w-2 h-2 bg-green-400 rounded-full mr-1.5"></span>
-            Online
+          <span className={`px-3 py-1 ${isOnline ? 'bg-green-500 bg-opacity-20 text-green-300' : 'bg-gray-500 bg-opacity-20 text-gray-300'} rounded-full text-xs font-medium flex items-center`}>
+            <span className={`w-2 h-2 ${isOnline ? 'bg-green-400' : 'bg-gray-400'} rounded-full mr-1.5`}></span>
+            {isOnline ? 'Online' : 'Offline'}
           </span>
         </div>
 

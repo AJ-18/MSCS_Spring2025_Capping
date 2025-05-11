@@ -13,6 +13,20 @@ import {
 } from '../services/systemMetrics';
 
 /**
+ * Helper function to determine if a device is online based on its last seen timestamp
+ * Consistent with the Dashboard component's implementation
+ * @param {string|Date} lastSeen - The timestamp when the device was last seen
+ * @returns {boolean} Whether the device is considered online
+ */
+const ONLINE_THRESHOLD_SECONDS = 15;
+function isDeviceOnline(lastSeen) {
+  if (!lastSeen) return false;
+  const lastSeenTime = new Date(lastSeen).getTime();
+  const now = Date.now();
+  return (now - lastSeenTime) / 1000 < ONLINE_THRESHOLD_SECONDS;
+}
+
+/**
  * MetricCard Component
  * 
  * Reusable component to display a single metric with a consistent UI
@@ -109,9 +123,15 @@ const DeviceDetails = () => {
         setLoading(true);
         setError(null);
         
+        // IMPORTANT: Force the deviceId from URL parameters to be used
+        // This ensures we're always loading the selected device, not the current one
+        localStorage.setItem('selectedDeviceId', deviceId);
+        console.log(`DeviceDetails: Setting selectedDeviceId in localStorage to ${deviceId}`);
+        
         // Get user ID from localStorage (stored during login)
         const user = localStorage.getItem('user');
         if (!user) {
+          console.error('DeviceDetails: User information not found in localStorage');
           setError("User information not found. Please log in again.");
           setLoading(false);
           return;
@@ -121,8 +141,9 @@ const DeviceDetails = () => {
         let userId;
         try {
           userId = JSON.parse(user).id;
+          console.log(`DeviceDetails: Using userId ${userId}`);
         } catch (parseError) {
-          console.error('Error parsing user data:', parseError);
+          console.error('DeviceDetails: Error parsing user data:', parseError);
           setError("Invalid user data. Please log in again.");
           setLoading(false);
           return;
@@ -130,33 +151,41 @@ const DeviceDetails = () => {
         
         // Validate required parameters before making API calls
         if (!userId || !deviceId) {
-          console.error('Missing user ID or device ID for device info', { userId, deviceId });
+          console.error('DeviceDetails: Missing user ID or device ID for device info', { userId, deviceId });
           setError(`Missing ${!userId ? 'user ID' : 'device ID'}. Please make sure you are logged in and have selected a device.`);
           setLoading(false);
           return;
         }
         
-        console.log(`Loading device info for user ${userId}, device ${deviceId}`);
+        console.log(`DeviceDetails: Loading device info for user ${userId}, SELECTED device ${deviceId}`);
         
         let deviceData = null;
         
         // Try to get device specifications from API first
         try {
+          // IMPORTANT: Always pass the deviceId parameter explicitly - don't rely on localStorage
+          console.log(`DeviceDetails: Calling fetchDeviceSpecifications with userId=${userId}, deviceId=${deviceId}`);
           deviceData = await fetchDeviceSpecifications(userId, deviceId);
-          console.log('Device specifications from API:', deviceData);
+          console.log('DeviceDetails: Device specifications from API:', deviceData);
         } catch (apiError) {
-          console.error('Error fetching device specs from API:', apiError);
-        }
-        
-        // If API fails or returns no data, show an error instead of using local device info
-        if (!deviceData) {
-          setError('Device information is not available for this device.');
+          console.error('DeviceDetails: Error fetching device specs from API:', apiError);
+          console.error('DeviceDetails: API Error details:', apiError.message, apiError.stack);
+          // If API fails, show a clear error and don't try to use local device info
+          setError(`Failed to fetch information for selected device (${deviceId}). This device may not be accessible or you may not have permission to view it.`);
           setLoading(false);
           return;
         }
         
-        // Use the timestamp from the backend if available, otherwise use now
-        const lastUpdate = deviceData.timestamp || deviceData.lastUpdated || new Date().toISOString();
+        // If API fails or returns no data, show an error instead of using local device info
+        if (!deviceData) {
+          console.error(`DeviceDetails: No device data returned for deviceId ${deviceId}`);
+          setError(`Device information is not available for this device (${deviceId}).`);
+          setLoading(false);
+          return;
+        }
+        
+        // Use the timestamp from the backend if available, otherwise use null
+        const lastUpdate = deviceData.timestamp || deviceData.lastUpdated;
 
         // Parse RAM value as number and format it to 1 decimal place
         let ramValue = 0;
@@ -178,7 +207,8 @@ const DeviceDetails = () => {
           graphics: deviceData.graphics || 'Unknown Graphics',
           os: deviceData.operatingSystem || 'Unknown OS',
           systemType: deviceData.systemType || 'Unknown Architecture',
-          timestamp: lastUpdate
+          timestamp: lastUpdate,
+          lastSeen: deviceData.lastSeen || deviceData.timestamp || deviceData.lastUpdated
         });
         
         setLoading(false);
@@ -210,6 +240,10 @@ const DeviceDetails = () => {
       
       try {
         setLoading(true);
+        
+        // IMPORTANT: Ensure the selectedDeviceId is always set to the URL parameter
+        localStorage.setItem('selectedDeviceId', deviceId);
+        
         // Get user ID from localStorage (stored during login)
         const user = localStorage.getItem('user');
         if (!user) {
@@ -230,9 +264,10 @@ const DeviceDetails = () => {
           return;
         }
         
-        console.log(`Loading metrics for user ${userId}, device ${deviceId}`);
+        console.log(`Loading metrics for SELECTED device ${deviceId}`);
         
         // Fetch all metrics in parallel using Promise.all for efficiency
+        // IMPORTANT: Explicitly pass deviceId parameter to all functions
         const [cpuData, ramData, diskData, batteryData, processData] = await Promise.all([
           fetchCpuUsage(userId, deviceId),
           fetchRamUsage(userId, deviceId),
@@ -410,13 +445,16 @@ const DeviceDetails = () => {
           </Link>
           <div className="flex justify-between items-center mt-2">
             <h1 className="text-2xl font-bold text-gray-900">Device Overview</h1>
-            <span className="text-xs text-gray-500">Last updated {new Date().toLocaleTimeString()}</span>
+            <span className="text-xs text-gray-500">Last updated {deviceInfo && deviceInfo.timestamp ? new Date(deviceInfo.timestamp).toLocaleTimeString() : "unknown"}</span>
           </div>
         </div>
 
         {/* Device specifications card */}
         <div className="mb-8">
-          <DeviceInfoCard deviceInfo={deviceInfo} />
+          <DeviceInfoCard 
+            deviceInfo={deviceInfo} 
+            isOnline={deviceInfo && deviceInfo.lastSeen ? isDeviceOnline(deviceInfo.lastSeen) : false}
+          />
         </div>
 
         {/* Performance summary */}

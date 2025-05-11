@@ -249,7 +249,6 @@ const Dashboard = () => {
    */
   const handleDeviceSelect = (deviceId) => {
     localStorage.setItem('selectedDeviceId', deviceId);
-    localStorage.setItem('deviceId', deviceId); // Also set the current deviceId
     navigate(`/dashboard/device/${deviceId}`);
   };
 
@@ -307,7 +306,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Online Devices</p>
-                <p className="text-2xl font-bold text-gray-700">{devices.length}</p>
+                <p className="text-2xl font-bold text-gray-700">{devices.filter(device => isCurrentDevice(device, currentDeviceInfo) || isDeviceOnline(device.lastSeen)).length}</p>
               </div>
             </div>
           </div>
