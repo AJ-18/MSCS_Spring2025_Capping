@@ -1,0 +1,51 @@
+{
+  "name": "spar-desktop",
+  "version": "1.0.0",
+  "description": "SPAR System Performance Analytics & Reporting Desktop Application",
+  "main": "main.js",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^35.0.2",
+    "electron-builder": "^26.0.12",
+    "wait-on": "^8.0.3"
+  },
+  "scripts": {
+    "start": "concurrently \"npm run start-react\" \"npm run start-electron\"",
+    "start-react": "npm --prefix renderer start",
+    "start-electron": "wait-on http://localhost:3000 && electron .",
+    "build": "npm --prefix renderer run build",
+    "build-react": "npm --prefix renderer run build",
+    "package": "npm run build-react && electron-builder build --win"
+  },
+  "build": {
+    "appId": "com.spar.performance",
+    "productName": "SPAR",
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "metrics-poller.js",
+      "renderer/build/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "renderer/public/SPAR.png"
+    }
+  },
+  "dependencies": {
+    "@trufflesuite/ps-list": "^0.0.3",
+    "axios": "^1.9.0",
+    "package": "^1.0.1",
+    "perfmon": "^0.2.0",
+    "react-router-dom": "^7.5.2",
+    "systeminformation": "^5.25.11"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.js"
+    ]
+  }
+}
