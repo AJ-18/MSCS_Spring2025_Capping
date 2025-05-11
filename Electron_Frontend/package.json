@@ -1,6 +1,6 @@
 {
   "name": "spar-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SPAR System Performance Analytics & Reporting Desktop Application",
   "main": "main.js",
   "devDependencies": {
