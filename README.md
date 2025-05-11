@@ -48,8 +48,11 @@ cd MSCS_Spring2025_Capping
 
 ### 🖥️ Desktop App
 ```bash
-cd desktop-app
+cd Electron_Frontend
 npm install
+cd renderer
+npm install
+cd ../
 npm start        # Dev mode
 npm run package  # Build installer
 ```
@@ -63,15 +66,8 @@ npm run package  # Build installer
 
 ### 🔧 Backend API
 ```bash
-cd backend-api
+cd spar
 ./mvnw spring-boot:run
-```
-
-### 🟡 Node Metrics Collector
-```bash
-cd node-metrics
-npm install
-node collector.js
 ```
 
 Ensure Spring Boot API is running before starting the Electron app.
@@ -103,7 +99,7 @@ jobs:
 
 - Spring Boot backend is deployed using **Render**
 - MySQL database also hosted via Render's managed database services
-- Auto-deploy enabled from `main` branch
+- Auto-deploy enabled from `Spring_Boot_Main` branch
 - Environment variables (DB credentials, API keys) are stored securely in Render's dashboard
 
 ---
