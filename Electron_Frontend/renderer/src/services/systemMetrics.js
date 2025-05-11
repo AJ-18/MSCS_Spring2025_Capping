@@ -72,8 +72,10 @@ const createAuthenticatedClient = () => {
 const fetchMetricsFromAPI = async (endpoint, userId, deviceId) => {
   try {
     const client = createAuthenticatedClient();
-    console.log(`Fetching ${endpoint} for userId: ${userId}, deviceId: ${deviceId}`);
-    const response = await client.get(`/api/metrics/${endpoint}/${userId}/${deviceId}`);
+    // Log the EXACT API endpoint being called with the parameters
+    const apiUrl = `/api/metrics/${endpoint}/${userId}/${deviceId}`;
+    console.log(`API CALL: ${apiUrl}`);
+    const response = await client.get(apiUrl);
     return response.data;
   } catch (error) {
     console.error(`Error fetching ${endpoint}:`, error);
@@ -91,14 +93,20 @@ const fetchMetricsFromAPI = async (endpoint, userId, deviceId) => {
  */
 export const fetchDeviceSpecifications = async (userId, deviceId) => {
   try {
+    // Get userId from localStorage if not provided
     if (!userId) {
       userId = JSON.parse(localStorage.getItem('user') || '{}').id;
       console.log("Device specifications using userId from localStorage:", userId);
     }
     
+    // CRITICAL FIX: If deviceId is explicitly provided as a parameter, ALWAYS use it
+    // This ensures we're always fetching data for the selected device, not the current one
     if (!deviceId) {
-      deviceId = localStorage.getItem('deviceId');
-      console.log("Device specifications using deviceId from localStorage:", deviceId);
+      // Only if no deviceId was provided, fall back to localStorage
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId parameter:", deviceId);
     }
     
     if (!userId || !deviceId) {
@@ -106,24 +114,37 @@ export const fetchDeviceSpecifications = async (userId, deviceId) => {
       return null;
     }
 
-    console.log(`Fetching device specifications for userId: ${userId}, deviceId: ${deviceId}`);
+    console.log(`FETCHING SPECS for userId: ${userId}, deviceId: ${deviceId}`);
     
     // In production, fetch from real API
     if (process.env.NODE_ENV === 'production') {
       try {
-        // Try fetching device specifications from the API
+        // CRITICAL FIX: Instead of trying to get a specific device directly,
+        // fetch all devices and filter for the one we want
         const client = createAuthenticatedClient();
-        const response = await client.get(`/api/users/${userId}/devices/${deviceId}`);
-        console.log("Device specifications from API:", response.data);
-        return response.data;
+        const response = await client.get(`/api/users/${userId}/getdevices`);
+        
+        if (!response.data || !Array.isArray(response.data)) {
+          console.error('Invalid response data format:', response.data);
+          throw new Error('Invalid device data received from API');
+        }
+        
+        // Find the specific device by deviceId
+        const deviceData = response.data.find(device => 
+          device.deviceId === deviceId || device.id === deviceId
+        );
+        
+        if (!deviceData) {
+          console.error(`Device with ID ${deviceId} not found in devices list:`, response.data);
+          throw new Error(`Device with ID ${deviceId} not found`);
+        }
+        
+        console.log("Device specifications from API:", deviceData);
+        return deviceData;
       } catch (error) {
         console.error('Error fetching device specifications from API:', error);
-        // Fall back to the performance metrics poller
-        if (window.metrics && window.metrics.getDeviceInfo) {
-          const deviceInfo = await window.metrics.getDeviceInfo();
-          console.log("Device specifications from metrics poller:", deviceInfo);
-          return deviceInfo;
-        }
+        // CRITICAL FIX: DO NOT fall back to the current device info for a different device
+        // This was causing the issue where clicking on another device would show current device info
         throw error;
       }
     } else {
@@ -167,7 +188,15 @@ export const fetchDeviceSpecifications = async (userId, deviceId) => {
 export const fetchBatteryInfo = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    // CRITICAL FIX: Always prioritize explicitly provided deviceId parameter
+    if (!deviceId) {
+      // Only use localStorage if no deviceId parameter was provided
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided for battery info, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId for battery info:", deviceId);
+    }
     
     if (!userId || !deviceId) {
       console.error('Missing user ID or device ID for battery info');
@@ -252,7 +281,15 @@ export const fetchBatteryInfo = async (userId, deviceId) => {
 export const fetchCpuUsage = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    // CRITICAL FIX: Always prioritize explicitly provided deviceId parameter
+    if (!deviceId) {
+      // Only use localStorage if no deviceId parameter was provided
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided for CPU usage, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId for CPU usage:", deviceId);
+    }
     
     if (!userId || !deviceId) {
       console.error('Missing user ID or device ID for CPU usage');
@@ -296,12 +333,15 @@ export const fetchRamUsage = async (userId, deviceId) => {
   try {
     if (!userId) {
       userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-      console.log("Ram usage using userId from localStorage:", userId);
     }
     
+    // CRITICAL FIX: Always prioritize explicitly provided deviceId parameter
     if (!deviceId) {
-      deviceId = localStorage.getItem('deviceId');
-      console.log("Ram usage using deviceId from localStorage:", deviceId);
+      // Only use localStorage if no deviceId parameter was provided
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided for RAM usage, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId for RAM usage:", deviceId);
     }
     
     if (!userId || !deviceId) {
@@ -355,7 +395,15 @@ export const fetchRamUsage = async (userId, deviceId) => {
 export const fetchDiskIO = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    // CRITICAL FIX: Always prioritize explicitly provided deviceId parameter
+    if (!deviceId) {
+      // Only use localStorage if no deviceId parameter was provided
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided for Disk I/O, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId for Disk I/O:", deviceId);
+    }
     
     if (!userId || !deviceId) {
       console.error('Missing user ID or device ID for Disk I/O');
@@ -393,7 +441,15 @@ export const fetchDiskIO = async (userId, deviceId) => {
 export const fetchDiskUsage = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    // CRITICAL FIX: Always prioritize explicitly provided deviceId parameter
+    if (!deviceId) {
+      // Only use localStorage if no deviceId parameter was provided
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided for Disk Usage, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId for Disk Usage:", deviceId);
+    }
     
     if (!userId || !deviceId) {
       console.error('Missing user ID or device ID for Disk Usage');
@@ -449,7 +505,15 @@ export const fetchDiskUsage = async (userId, deviceId) => {
 export const fetchNetworkInterfaces = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    // CRITICAL FIX: Always prioritize explicitly provided deviceId parameter
+    if (!deviceId) {
+      // Only use localStorage if no deviceId parameter was provided
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided for Network Interfaces, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId for Network Interfaces:", deviceId);
+    }
     
     if (!userId || !deviceId) {
       console.error('Missing user ID or device ID for Network Interfaces');
@@ -493,7 +557,15 @@ export const fetchNetworkInterfaces = async (userId, deviceId) => {
 export const fetchProcessStatuses = async (userId, deviceId) => {
   try {
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    // CRITICAL FIX: Always prioritize explicitly provided deviceId parameter
+    if (!deviceId) {
+      // Only use localStorage if no deviceId parameter was provided
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided for Process Statuses, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId for Process Statuses:", deviceId);
+    }
     
     if (!userId || !deviceId) {
       console.error('Missing user ID or device ID for Process Statuses');
@@ -600,7 +672,15 @@ export const fetchSystemMetrics = async (userId, deviceId) => {
     
     // If userId or deviceId are not provided, try to get them from localStorage
     if (!userId) userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-    if (!deviceId) deviceId = localStorage.getItem('deviceId');
+    
+    // CRITICAL FIX: Always prioritize explicitly provided deviceId parameter
+    if (!deviceId) {
+      // Only use localStorage if no deviceId parameter was provided
+      deviceId = localStorage.getItem('selectedDeviceId') || localStorage.getItem('deviceId');
+      console.log("No deviceId provided for System Metrics, using from localStorage:", deviceId);
+    } else {
+      console.log("Using explicitly provided deviceId for System Metrics:", deviceId);
+    }
     
     // Check if we still don't have the required IDs
     if (!userId || !deviceId) {
